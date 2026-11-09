@@ -124,6 +124,12 @@ and lint or test that bundle with planemo.
   developed by Keith Jolley and sited at the University of Oxford. The
   development of that website was funded by the Wellcome Trust.
 - BIGSdb-Pasteur (https://bigsdb.pasteur.fr) for the schemes hosted there.
+- **Galaxy Australia** (https://usegalaxy.org.au), where the Galaxy wrapper
+  is meant to run. Galaxy Australia is a service provided by Australian
+  BioCommons and its partners. The service receives NCRIS funding through
+  Bioplatforms Australia and the Australian Research Data Commons
+  (https://doi.org/10.47486/PL105), as well as The University of Melbourne
+  and Queensland Government RICF funding.
 
 ## Licence
 
