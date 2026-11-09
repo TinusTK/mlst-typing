@@ -114,10 +114,9 @@ def main():
                 # equal top scores: mlst picks one of the tied schemes at
                 # random, mlst-typing always the first by name
                 tie_seen.add(g["accession"])
-                schemes = ", ".join(f"{s} ST{st}" for s, st in sorted(tied.items()))
                 up = f"{b[0]} ST{b[1]}" if (theirs and b) else ""
-                ties.append(f"| {g['organism']} ({g['accession']}) | {schemes} | "
-                            f"{a[0]} ST{a[1]} | {up} | {a[3]} |")
+                ties.append(f"| {g['organism']} ({g['accession']}) | "
+                            f"{a[0]} ST{a[1]} | {up} | {a[3]} | {g.get('warnings', '')} |")
             if theirs:
                 if a == b:
                     same = "yes"
@@ -130,7 +129,8 @@ def main():
             if a[0] != g["scheme"]:
                 st = f"ST{a[1]}" if a[1] != "-" else "-"
                 wrong.append(f"| {g['scheme']} | {g['organism']} ({g['accession']}) | "
-                             f"{a[0]} | {st} | {a[2]} | {why_other(g, a, tied)} |")
+                             f"{a[0]} | {st} | {a[2]} | {why_other(g, a, tied)} | "
+                             f"{g.get('warnings', '')} |")
             w.writerow([g["scheme"], g["accession"], g["organism"], *a,
                         g.get("warnings", ""), same, g.get("note", "")])
 
@@ -147,30 +147,43 @@ def main():
                   f"- Upstream picked another of the tied schemes this run: {n['tie']}/{total} "
                   f"(see Ties)",
                   f"- Real differences: **{n['diff']}/{total}**"]
-    lines += ["", "## Priority organisms", "", "| Genome | Scheme | ST | Status | Alleles |",
-              "|---|---|---|---|---|"]
+    lines += ["", "## Priority organisms", "",
+              "| Genome | Scheme | ST | Status | Score | Alleles | Warnings |",
+              "|---|---|---|---|---|---|---|"]
     for g, a in priority:
         if a:
-            lines.append(f"| {g['taxon']} ({g['accession']}) | {a[0]} | {a[1]} | {a[2]} | {a[4]} |")
+            lines.append(f"| {g['taxon']} ({g['accession']}) | {a[0]} | {a[1]} | {a[2]} | "
+                         f"{a[3]} | {a[4]} | {g.get('warnings') or 'none'} |")
         else:
-            lines.append(f"| {g['taxon']} ({g['accession']}) | not run | | | |")
+            lines.append(f"| {g['taxon']} ({g['accession']}) | not run | | | | | |")
+    # every genome, as mlst-typing --full reports it (incl. WARNINGS)
+    seen, every = set(), []
+    for g, a, _, _, _ in results:
+        if a and g["accession"] not in seen:
+            seen.add(g["accession"])
+            every.append(f"| {g['organism']} ({g['accession']}) | {a[0]} | {a[1]} | {a[2]} | "
+                         f"{a[3]} | {a[4]} | {g.get('warnings') or 'none'} |")
     tables = {
         "ties": ("Two or more schemes give these genomes the same top score. Upstream "
                  "mlst picks one of them at random (its answer can change from run to "
                  "run); mlst-typing always reports the first by name and prints a "
-                 "warning listing the others.",
-                 "| Genome | Tied schemes | mlst-typing reports | upstream mlst (this run) | Score |\n"
+                 "warning listing the others in the WARNINGS column.",
+                 "| Genome | mlst-typing reports | upstream mlst (this run) | Score | Warnings |\n"
                  "|---|---|---|---|---|"),
         "wrong": ("Each genome was picked from NCBI for one scheme, but typing chose "
                   "another (or none). This is about the genome choice and overlapping "
                   "schemes, not a disagreement between the tools.",
-                  "| Picked for scheme | Genome | Called scheme | ST | Status | Why |\n"
-                  "|---|---|---|---|---|---|"),
+                  "| Picked for scheme | Genome | Called scheme | ST | Status | Why | Warnings |\n"
+                  "|---|---|---|---|---|---|---|"),
+        "every": ("Each genome once, as `mlst-typing --full` reports it.",
+                  "| Genome | Scheme | ST | Status | Score | Alleles | Warnings |\n"
+                  "|---|---|---|---|---|---|---|"),
     }
     for key, title, items in (("diffs", "Real differences from upstream mlst", diffs),
                               ("ties", "Ties (same top score for more than one scheme)", ties),
                               ("wrong", "Other scheme called than the one picked for", wrong),
-                              ("none", "Schemes without a validation genome", nogenome)):
+                              ("none", "Schemes without a validation genome", nogenome),
+                              ("every", "All genomes", every)):
         lines += ["", f"## {title} ({len(items)})", ""]
         if not items:
             lines.append("None.")

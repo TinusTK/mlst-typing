@@ -53,13 +53,24 @@ mlst-typing --list | --longlist | --info        # what is in the database
 mlst-typing --version                           # tool and database version
 ```
 
-Output (default, tab-separated):
+### What the output looks like
 
-```
-FILE          SCHEME        ST   ALLELES...                                          WARNINGS
-sample1.fasta sepidermidis  184  arcC(16) aroE(1) gtr(2) mutS(1) pyrR(2) tpiA(1) yqiL(1)
-HS11286.fna   ecoli_achtman_4 14464 adk(1769) ... recA(866)                     TIE: ecoli_achtman_4 (ST14464), klebsiella (ST11)
-```
+`mlst-typing --full` on a few genomes (real results from
+[validation/REPORT.md](validation/REPORT.md) and the test files). The output
+is tab-separated; shown here as a table:
+
+| FILE | SCHEME | ST | STATUS | SCORE | ALLELES | WARNINGS |
+|---|---|---|---|---|---|---|
+| SF370.fna (*S. pyogenes*, Group A Strep) | spyogenes | 28 | PERFECT | 100 | gki(4);gtr(3);murI(4);mutS(4);recP(4);xpt(2);yqiL(4) | |
+| FA1090.fna (*N. gonorrhoeae*) | neisseria | 1899 | PERFECT | 100 | abcZ(109);adk(39);aroE(67);fumC(190);gdh(147);pdhC(71);pgm(65) | |
+| Ss046.fna (*Shigella sonnei*) | ecoli_achtman_4 | 152 | PERFECT | 100 | adk(11);fumC(63);gyrB(7);icd(1);mdh(14);purA(7);recA(7) | |
+| novel.fasta.bz2 (*Leptospira*) | leptospira_2 | - | OK | 74 | adk_2(85);glmU_2(~24);icdA_2(~46);lipL32_2(20);lipL41_2(39);mreA_2(~56);pntA_2(~26) | |
+| HS11286.fna (*K. pneumoniae*) | ecoli_achtman_4 | 14464 | PERFECT | 100 | adk(1769);fumC(1664);gyrB(193);icd(1804);mdh(986);purA(745);recA(866) | TIE: ecoli_achtman_4 (ST14464), klebsiella (ST11) |
+| ruckeri.fna (*Y. ruckeri*) | yersinia | 44 | PERFECT | 100 | aarF(13);dfp(10);galR(14);glnS(13);hemA(15);rfaE(14);speA(14) | TIE: yersinia (ST44), ypseudotuberculosis_achtman_3 (ST276), yruckeri (ST33) |
+| none.fa (no MLST genes) | - | - | NONE | 0 | | |
+
+Without `--full` the layout is the same as mlst: FILE, SCHEME, ST, one
+column per locus, then WARNINGS.
 
 | Call  | Meaning |
 |---|---|
