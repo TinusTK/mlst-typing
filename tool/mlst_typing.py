@@ -362,7 +362,7 @@ def status_column(st, score, code):
         return "MISSING"
     if score < 70:
         return "BAD"
-    return "OK"
+    return "PARTIAL"   # mlst calls this OK: some loci not exact, no ST
 
 
 def sort_duplicates(code):
@@ -570,7 +570,7 @@ def run(o, db):
     if o.scheme and o.legacy:
         out.row("FILE", "SCHEME", "ST", *schemes[o.scheme].genes)
     elif o.full:
-        out.row("FILE", "SCHEME", "ST", "STATUS", "SCORE", "ALLELES", "WARNINGS")
+        out.row("FILE", "SCHEME", "ST", "ALLELES", "STATUS", "SCORE", "WARNINGS")
 
     results, nov_all = [], {}
     with tempfile.TemporaryDirectory(prefix="mlst-typing_") as tmp:
@@ -592,8 +592,8 @@ def run(o, db):
             else:
                 alleles = [f"{g}({c})" for g, c in zip(genes, code)]
                 if o.full:
-                    out.row(label, sch, st, status_column(st, score, code), score,
-                            ";".join(alleles), warnings)
+                    out.row(label, sch, st, ";".join(alleles),
+                            status_column(st, score, code), score, warnings)
                 else:
                     out.row(label, sch, st, *alleles, warnings)
             results.append({

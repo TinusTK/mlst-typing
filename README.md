@@ -12,8 +12,9 @@ mlst-typing is a redesign of Torsten Seemann's
 the original Perl, and added a database updater so typing can follow the
 current PubMLST schemes. The typing method (BLAST of every scheme's alleles,
 the scoring and the allele notation) follows mlst, and the results are
-checked against mlst on the same database: identical output on mlst's own
-test genomes and on one public genome for every scheme
+checked against mlst on the same database: the same scheme, ST, alleles,
+status and score on mlst's own test genomes and on one public genome for
+every scheme, apart from ties that mlst breaks at random
 ([validation/REPORT.md](validation/REPORT.md)).
 
 What changed:
@@ -31,6 +32,9 @@ What changed:
   different scheme and ST from run to run. mlst-typing reports the first by
   name (the same answer every run) and lists every tied scheme with its ST
   in a new last column, `WARNINGS`.
+- **Clearer `--full` report**: columns FILE, SCHEME, ST, ALLELES, STATUS,
+  SCORE, WARNINGS, and the status `OK` (some loci not exact, no ST) is
+  renamed `PARTIAL` so it is not mistaken for a good result.
 - **Galaxy wrapper** ready for Galaxy Australia.
 
 ## Install
@@ -59,15 +63,15 @@ mlst-typing --version                           # tool and database version
 [validation/REPORT.md](validation/REPORT.md) and the test files). The output
 is tab-separated; shown here as a table:
 
-| FILE | SCHEME | ST | STATUS | SCORE | ALLELES | WARNINGS |
+| FILE | SCHEME | ST | ALLELES | STATUS | SCORE | WARNINGS |
 |---|---|---|---|---|---|---|
-| SF370.fna (*S. pyogenes*, Group A Strep) | spyogenes | 28 | PERFECT | 100 | gki(4);gtr(3);murI(4);mutS(4);recP(4);xpt(2);yqiL(4) | |
-| FA1090.fna (*N. gonorrhoeae*) | neisseria | 1899 | PERFECT | 100 | abcZ(109);adk(39);aroE(67);fumC(190);gdh(147);pdhC(71);pgm(65) | |
-| Ss046.fna (*Shigella sonnei*) | ecoli_achtman_4 | 152 | PERFECT | 100 | adk(11);fumC(63);gyrB(7);icd(1);mdh(14);purA(7);recA(7) | |
-| novel.fasta.bz2 (*Leptospira*) | leptospira_2 | - | OK | 74 | adk_2(85);glmU_2(~24);icdA_2(~46);lipL32_2(20);lipL41_2(39);mreA_2(~56);pntA_2(~26) | |
-| HS11286.fna (*K. pneumoniae*) | ecoli_achtman_4 | 14464 | PERFECT | 100 | adk(1769);fumC(1664);gyrB(193);icd(1804);mdh(986);purA(745);recA(866) | TIE: ecoli_achtman_4 (ST14464), klebsiella (ST11) |
-| ruckeri.fna (*Y. ruckeri*) | yersinia | 44 | PERFECT | 100 | aarF(13);dfp(10);galR(14);glnS(13);hemA(15);rfaE(14);speA(14) | TIE: yersinia (ST44), ypseudotuberculosis_achtman_3 (ST276), yruckeri (ST33) |
-| none.fa (no MLST genes) | - | - | NONE | 0 | | |
+| SF370.fna (*S. pyogenes*, Group A Strep) | spyogenes | 28 | gki(4);gtr(3);murI(4);mutS(4);recP(4);xpt(2);yqiL(4) | PERFECT | 100 | |
+| FA1090.fna (*N. gonorrhoeae*) | neisseria | 1899 | abcZ(109);adk(39);aroE(67);fumC(190);gdh(147);pdhC(71);pgm(65) | PERFECT | 100 | |
+| Ss046.fna (*Shigella sonnei*) | ecoli_achtman_4 | 152 | adk(11);fumC(63);gyrB(7);icd(1);mdh(14);purA(7);recA(7) | PERFECT | 100 | |
+| novel.fasta.bz2 (*Leptospira*) | leptospira_2 | - | adk_2(85);glmU_2(~24);icdA_2(~46);lipL32_2(20);lipL41_2(39);mreA_2(~56);pntA_2(~26) | PARTIAL | 74 | |
+| HS11286.fna (*K. pneumoniae*) | ecoli_achtman_4 | 14464 | adk(1769);fumC(1664);gyrB(193);icd(1804);mdh(986);purA(745);recA(866) | PERFECT | 100 | TIE: ecoli_achtman_4 (ST14464), klebsiella (ST11) |
+| ruckeri.fna (*Y. ruckeri*) | yersinia | 44 | aarF(13);dfp(10);galR(14);glnS(13);hemA(15);rfaE(14);speA(14) | PERFECT | 100 | TIE: yersinia (ST44), ypseudotuberculosis_achtman_3 (ST276), yruckeri (ST33) |
+| none.fa (no MLST genes) | - | - | | NONE | 0 | |
 
 Without `--full` the layout is the same as mlst: FILE, SCHEME, ST, one
 column per locus, then WARNINGS.
@@ -80,8 +84,19 @@ column per locus, then WARNINGS.
 | `-`   | missing |
 | `N,M` | more than one exact allele (possible contamination) |
 
-`--full` adds STATUS (`PERFECT`, `OK`, `NOVEL`, `MIXED`, `MISSING`, `BAD`,
-`NONE`) and SCORE (out of 100). `--json FILE` and `--novel FILE` write JSON
+`--full` puts the alleles in one column and adds STATUS and SCORE (out of
+100). STATUS is one of:
+
+| STATUS | Meaning |
+|---|---|
+| `PERFECT` | all loci exact and the profile has an ST |
+| `PARTIAL` | all loci found, some not exact (`~N`/`N?`), so no ST (mlst calls this `OK`) |
+| `NOVEL` | all alleles exact, but a combination with no ST yet |
+| `MIXED` | more than one exact allele at a locus (possible contamination) |
+| `MISSING` | a locus was not found |
+| `BAD` | score under 70 |
+| `NONE` | no scheme matched |
+ `--json FILE` and `--novel FILE` write JSON
 results and novel allele sequences.
 
 **WARNINGS** (last column in the default and `--full` layouts, `warnings`
@@ -92,8 +107,10 @@ for example *Klebsiella pneumoniae* HS11286 ties between `klebsiella` ST11
 (correct) and `ecoli_achtman_4` ST14464. Check the species and use that
 scheme, or rerun with `--scheme`.
 
-Apart from that extra column the options and output are the same as mlst
-2.35.0, so pipelines that read columns by position keep working.
+Compared with mlst 2.35.0: the default layout only gains the WARNINGS
+column at the end, so pipelines that read it by position keep working. The
+`--full` layout is reordered to FILE, SCHEME, ST, ALLELES, STATUS, SCORE,
+WARNINGS, and mlst's `OK` status is called `PARTIAL`.
 
 ## Database
 
@@ -106,11 +123,10 @@ Apart from that extra column the options and output are the same as mlst
 See [database/README.md](database/README.md) for the source, the terms of
 use and how to update it.
 
-## Galaxy
-
-`tool/tool.xml` is the Galaxy wrapper. Build an installable bundle with
-`bash scripts/bundle_tool.sh` (it copies the database next to the wrapper)
-and lint or test that bundle with planemo.
+The database is refreshed **once a year** (1 January) by a GitHub Actions
+workflow. It downloads the schemes again, runs the tests and, if anything
+changed, opens a pull request with a summary of the changes to accept or
+reject. Nothing changes in the tool until that pull request is merged.
 
 ## Credits and citation
 

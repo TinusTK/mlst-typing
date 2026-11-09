@@ -70,7 +70,7 @@ ${f}	${f.element_identifier}
             </when>
         </conditional>
         <param name="full" type="boolean" truevalue="--full" falsevalue="" checked="true"
-               label="Detailed output (STATUS and SCORE columns)"/>
+               label="Detailed output (ALLELES in one column, plus STATUS and SCORE)"/>
         <section name="adv" title="Advanced" expanded="false">
             <param name="minid" type="float" value="95" min="50" max="100"
                    label="Minimum % identity of a full-length allele for a '~' call"/>
@@ -95,7 +95,7 @@ ${f}	${f.element_identifier}
             <param name="input" value="saureus_st1.fasta"/>
             <output name="report">
                 <assert_contents>
-                    <has_line_matching expression="^saureus_st1.fasta\tsaureus\t1\tPERFECT\t100\tarcC\(1\);aroE\(1\);glpF\(1\);gmk\(1\);pta\(1\);tpi\(1\);yqiL\(1\)\t$"/>
+                    <has_line_matching expression="^saureus_st1.fasta\tsaureus\t1\tarcC\(1\);aroE\(1\);glpF\(1\);gmk\(1\);pta\(1\);tpi\(1\);yqiL\(1\)\tPERFECT\t100\t$"/>
                 </assert_contents>
             </output>
         </test>
@@ -157,8 +157,12 @@ that follows current PubMLST schemes.
 
 **Detailed output columns**
 
-FILE, SCHEME, ST, STATUS (PERFECT / OK / NOVEL / MIXED / MISSING / BAD /
-NONE), SCORE (out of 100), ALLELES, WARNINGS.
+FILE, SCHEME, ST, ALLELES, STATUS, SCORE (out of 100), WARNINGS.
+
+STATUS: PERFECT (full ST), PARTIAL (all loci found, some not exact, no ST),
+NOVEL (all alleles exact but a new combination), MIXED (more than one exact
+allele at a locus), MISSING (a locus not found), BAD (score under 70),
+NONE (no scheme). The original mlst calls PARTIAL "OK".
 
 **WARNINGS column** (also added to the default layout, as the last column)
 

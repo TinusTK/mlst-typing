@@ -1,0 +1,97 @@
+name: Update database (yearly)
+
+# Once a year, 1 January 00:00 UTC (09:30 Darwin), or by hand from the
+# Actions tab. Re-downloads every scheme in database/schemes.tsv, runs the
+# tests and, if anything changed, opens a pull request to accept or reject.
+# It never merges or releases anything by itself.
+#
+# Access: today the PubMLST / BIGSdb-Pasteur APIs are used without a login
+# (data submitted up to 31 Dec 2024). When the own update API is ready, add
+# its secrets to the "Download and compare" step's env and let
+# scripts/update_database.py read them.
+on:
+  schedule:
+    - cron: "0 0 1 1 *"
+  workflow_dispatch:
+    inputs:
+      version_label:
+        description: "Database version label (default PubMLST_YYYY-MM)"
+        required: false
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install BLAST+ and pytest
+        run: |
+          sudo apt-get update && sudo apt-get install -y ncbi-blast+
+          pip install pytest
+
+      - name: Download and compare
+        id: update
+        run: |
+          LABEL="${{ github.event.inputs.version_label }}"
+          [ -z "$LABEL" ] && LABEL="PubMLST_$(date -u +%Y-%m)"
+          echo "label=$LABEL" >> "$GITHUB_OUTPUT"
+          set +e
+          python scripts/update_database.py --db database \
+            --summary "$RUNNER_TEMP/CHANGES_DB.md" --version-label "$LABEL"
+          code=$?
+          set -e
+          if [ $code -eq 3 ]; then echo "changed=false" >> "$GITHUB_OUTPUT";
+          elif [ $code -eq 0 ]; then echo "changed=true" >> "$GITHUB_OUTPUT";
+          else exit $code; fi
+
+      - name: Raise +galaxyN and add the version to the README
+        if: steps.update.outputs.changed == 'true'
+        env:
+          LABEL: ${{ steps.update.outputs.label }}
+        run: |
+          python - <<'EOF'
+          import csv, os, re
+          label = os.environ["LABEL"]
+          # tool/tool.xml: database-only change -> bump the +galaxyN suffix
+          p = "tool/tool.xml"; s = open(p).read()
+          s = re.sub(r"\+galaxy(\d+)", lambda m: f"+galaxy{int(m.group(1)) + 1}", s, count=1)
+          open(p, "w").write(s)
+          # README: new row at the top of the database version table
+          with open("database/manifest.tsv") as fh:
+              n = sum(1 for _ in csv.DictReader(fh, delimiter="\t"))
+          p = "README.md"; s = open(p).read()
+          head = "| Version | Schemes | Data |\n|---|---|---|\n"
+          row = f"| `{label}` | {n} | PubMLST + BIGSdb-Pasteur, submitted up to 31 Dec 2024 |\n"
+          if head in s and f"`{label}`" not in s:
+              s = s.replace(head, head + row, 1)
+          open(p, "w").write(s)
+          EOF
+
+      - name: Run tests against the updated database
+        if: steps.update.outputs.changed == 'true'
+        run: python -m pytest -q
+
+      - name: Open pull request
+        if: steps.update.outputs.changed == 'true'
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: db-update/${{ steps.update.outputs.label }}
+          commit-message: "Database update ${{ steps.update.outputs.label }}"
+          author: TinusTK <20657379+TinusTK@users.noreply.github.com>
+          committer: TinusTK <20657379+TinusTK@users.noreply.github.com>
+          title: "Database update: ${{ steps.update.outputs.label }}"
+          body-path: ${{ runner.temp }}/CHANGES_DB.md
+          labels: database-update
+          add-paths: |
+            database/
+            tool/tool.xml
+            README.md

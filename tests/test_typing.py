@@ -179,7 +179,7 @@ def test_best_scheme_none(tmp_path):
     ("-", 80, ["1,2", "~3"], "MIXED"),
     ("-", 80, ["1", "-"], "MISSING"),
     ("-", 60, ["1", "~2"], "BAD"),
-    ("-", 85, ["1", "~2"], "OK"),
+    ("-", 85, ["1", "~2"], "PARTIAL"),
 ])
 def test_status(st, score, code, status):
     assert mt.status_column(st, score, code) == status
@@ -266,9 +266,12 @@ def test_sepidermidis(name):
 
 
 @needs_blast
-def test_full_header_has_warnings():
+def test_full_layout():
     r = run("-q", "--full", os.path.join(DATA, "example.fna.gz"))
-    assert r.stdout.splitlines()[0].split("\t")[-1] == "WARNINGS"
+    head, row = r.stdout.splitlines()[:2]
+    assert head.split("\t") == ["FILE", "SCHEME", "ST", "ALLELES", "STATUS", "SCORE", "WARNINGS"]
+    f = row.split("\t")
+    assert f[2] == "184" and f[3].startswith("arcC(") and f[4] == "PERFECT" and f[5] == "100"
 
 
 @needs_blast
@@ -320,6 +323,16 @@ def drop_warnings(text, sep):
     return "".join(line.rsplit(sep, 1)[0] + "\n" for line in text.splitlines())
 
 
+def as_mlst_full(text):
+    """mlst-typing --full -> mlst --full: FILE SCHEME ST STATUS SCORE ALLELES, OK not PARTIAL."""
+    out = []
+    for line in text.splitlines():
+        f = line.split("\t")[:6]                    # drop WARNINGS
+        f = f[:3] + [f[4].replace("PARTIAL", "OK"), f[5], f[3]]
+        out.append("\t".join(f) + "\n")
+    return "".join(out)
+
+
 @needs_upstream
 @pytest.mark.parametrize("mode", MODES, ids=lambda m: " ".join(m) or "default")
 def test_same_as_upstream(mode):
@@ -327,5 +340,10 @@ def test_same_as_upstream(mode):
     a = upstream("-q", *mode, *files)
     b = run("-q", *mode, *files)
     assert a.returncode == b.returncode == 0, a.stderr + b.stderr
-    ours = b.stdout if "--legacy" in mode else drop_warnings(b.stdout, "," if "--csv" in mode else "\t")
+    if "--legacy" in mode:
+        ours = b.stdout
+    elif "--full" in mode:
+        ours = as_mlst_full(b.stdout)
+    else:
+        ours = drop_warnings(b.stdout, "," if "--csv" in mode else "\t")
     assert ours == a.stdout

@@ -55,7 +55,12 @@ def full_row(cmd, path):
     row = lines[1].split("\t")[1:] if len(lines) > 1 else None
     warn = ""
     if row and lines[0].endswith("\tWARNINGS"):
-        warn = row.pop()   # mlst-typing's extra column; mlst has none
+        # mlst-typing: SCHEME ST ALLELES STATUS SCORE WARNINGS -> same order
+        # as mlst (SCHEME ST STATUS SCORE ALLELES) for comparing
+        warn = row.pop()
+        row = row[:2] + [row[3], row[4], row[2]]
+    elif row and len(row) >= 3 and row[2] == "OK":
+        row[2] = "PARTIAL"   # mlst's OK is mlst-typing's PARTIAL
     tied["_warnings"] = warn
     return row, "", tied
 
@@ -91,8 +96,8 @@ def main():
         results = list(ex.map(one, genomes))
 
     out = os.path.join(vdir, f"results_{version}.tsv")
-    cols = ["expected_scheme", "accession", "organism", "scheme", "ST", "status",
-            "score", "alleles", "warnings", "upstream_same", "note"]
+    cols = ["expected_scheme", "accession", "organism", "scheme", "ST", "alleles",
+            "status", "score", "warnings", "upstream_same", "note"]
     n = dict(typed=0, expected=0, perfect=0, same=0, tie=0, diff=0, missing=0)
     diffs, ties, wrong, nogenome = [], [], [], []
     tie_seen = set()
@@ -131,8 +136,8 @@ def main():
                 wrong.append(f"| {g['scheme']} | {g['organism']} ({g['accession']}) | "
                              f"{a[0]} | {st} | {a[2]} | {why_other(g, a, tied)} | "
                              f"{g.get('warnings', '')} |")
-            w.writerow([g["scheme"], g["accession"], g["organism"], *a,
-                        g.get("warnings", ""), same, g.get("note", "")])
+            w.writerow([g["scheme"], g["accession"], g["organism"], a[0], a[1], a[4],
+                        a[2], a[3], g.get("warnings", ""), same, g.get("note", "")])
 
     priority = [(g, a) for g, a, _, _, _ in results if g.get("note", "").startswith("priority")]
     lines = [f"# Validation, database {version}", "",
@@ -148,12 +153,12 @@ def main():
                   f"(see Ties)",
                   f"- Real differences: **{n['diff']}/{total}**"]
     lines += ["", "## Priority organisms", "",
-              "| Genome | Scheme | ST | Status | Score | Alleles | Warnings |",
+              "| Genome | Scheme | ST | Alleles | Status | Score | Warnings |",
               "|---|---|---|---|---|---|---|"]
     for g, a in priority:
         if a:
-            lines.append(f"| {g['taxon']} ({g['accession']}) | {a[0]} | {a[1]} | {a[2]} | "
-                         f"{a[3]} | {a[4]} | {g.get('warnings') or 'none'} |")
+            lines.append(f"| {g['taxon']} ({g['accession']}) | {a[0]} | {a[1]} | {a[4]} | "
+                         f"{a[2]} | {a[3]} | {g.get('warnings') or 'none'} |")
         else:
             lines.append(f"| {g['taxon']} ({g['accession']}) | not run | | | | | |")
     # every genome, as mlst-typing --full reports it (incl. WARNINGS)
@@ -161,8 +166,8 @@ def main():
     for g, a, _, _, _ in results:
         if a and g["accession"] not in seen:
             seen.add(g["accession"])
-            every.append(f"| {g['organism']} ({g['accession']}) | {a[0]} | {a[1]} | {a[2]} | "
-                         f"{a[3]} | {a[4]} | {g.get('warnings') or 'none'} |")
+            every.append(f"| {g['organism']} ({g['accession']}) | {a[0]} | {a[1]} | {a[4]} | "
+                         f"{a[2]} | {a[3]} | {g.get('warnings') or 'none'} |")
     tables = {
         "ties": ("Two or more schemes give these genomes the same top score. Upstream "
                  "mlst picks one of them at random (its answer can change from run to "
@@ -176,7 +181,7 @@ def main():
                   "| Picked for scheme | Genome | Called scheme | ST | Status | Why | Warnings |\n"
                   "|---|---|---|---|---|---|---|"),
         "every": ("Each genome once, as `mlst-typing --full` reports it.",
-                  "| Genome | Scheme | ST | Status | Score | Alleles | Warnings |\n"
+                  "| Genome | Scheme | ST | Alleles | Status | Score | Warnings |\n"
                   "|---|---|---|---|---|---|---|"),
     }
     for key, title, items in (("diffs", "Real differences from upstream mlst", diffs),
