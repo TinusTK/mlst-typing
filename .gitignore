@@ -1,0 +1,19 @@
+# Private (MasterMind): never committed
+Sessions/
+Local/
+.claude/
+CLAUDE.md
+*memory.md
+MLSTtasks.md
+
+# Python / build
+__pycache__/
+*.pyc
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+
+# Validation genomes are downloaded, not committed
+validation/genomes/
+.DS_Store

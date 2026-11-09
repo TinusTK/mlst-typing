@@ -1,0 +1,29 @@
+cff-version: 1.2.0
+message: "If you use mlst-typing, please cite it, mlst and PubMLST."
+title: "mlst-typing: automatic MLST typing against PubMLST schemes"
+version: 0.1.0
+license: GPL-2.0-only
+repository-code: "https://github.com/TinusTK/mlst-typing"
+authors:
+  - alias: TinusTK
+references:
+  - type: software
+    title: mlst
+    authors:
+      - family-names: Seemann
+        given-names: Torsten
+    repository-code: "https://github.com/tseemann/mlst"
+  - type: article
+    title: "Open-access bacterial population genomics: BIGSdb software, the PubMLST.org website and their applications"
+    authors:
+      - family-names: Jolley
+        given-names: Keith A.
+      - family-names: Bray
+        given-names: James E.
+      - family-names: Maiden
+        given-names: Martin C. J.
+    journal: "Wellcome Open Research"
+    volume: 3
+    start: 124
+    year: 2018
+    doi: "10.12688/wellcomeopenres.14826.1"

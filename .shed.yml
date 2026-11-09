@@ -1,0 +1,11 @@
+name: mlst_typing
+owner: tinustk
+description: Automatic MLST typing of assemblies against PubMLST schemes (Python redesign of mlst)
+categories:
+  - Sequence Analysis
+type: unrestricted
+long_description: |
+  Finds the best-fitting MLST scheme for each assembly and reports its sequence type
+  and per-locus alleles. A Python redesign of Torsten Seemann's mlst with the same
+  method and output, and a database updater that follows current PubMLST schemes.
+homepage_url: https://github.com/TinusTK/mlst-typing

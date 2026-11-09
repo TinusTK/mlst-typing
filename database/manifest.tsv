@@ -1,0 +1,163 @@
+scheme	source	loci	alleles	profiles	last_updated	restricted	taxon	api
+aactinomycetemcomitans	pubmlst	7	106	57	2026-09-24	True	Aggregatibacter actinomycetemcomitans	https://rest.pubmlst.org/db/pubmlst_aactinomycetemcomitans_seqdef/schemes/1
+abaumannii	pubmlst	7	2320	3410	2026-10-13	True	Acinetobacter baumannii	https://rest.pubmlst.org/db/pubmlst_abaumannii_seqdef/schemes/1
+abaumannii_2	pubmlst	7	3433	2760	2026-10-12	True	Acinetobacter baumannii	https://rest.pubmlst.org/db/pubmlst_abaumannii_seqdef/schemes/2
+achromobacter	pubmlst	7	1211	586	2026-09-01	True	Achromobacter	https://rest.pubmlst.org/db/pubmlst_achromobacter_seqdef/schemes/1
+aeromonas	pubmlst	6	7501	2755	2026-11-03	True	Aeromonas	https://rest.pubmlst.org/db/pubmlst_aeromonas_seqdef/schemes/1
+aparagallinarum	pubmlst	7	33	11	2023-11-01	True	Avibacterium paragallinarum	https://rest.pubmlst.org/db/pubmlst_aparagallinarum_seqdef/schemes/1
+aphagocytophilum	pubmlst	7	534	206	2025-09-13	True	Anaplasma phagocytophilum	https://rest.pubmlst.org/db/pubmlst_aphagocytophilum_seqdef/schemes/1
+arcobacter	pubmlst	7	2662	833	2026-09-10	True	Arcobacter	https://rest.pubmlst.org/db/pubmlst_arcobacter_seqdef/schemes/1
+bbacilliformis	pubmlst	7	32	14	2017-06-17	True	Bartonella bacilliformis	https://rest.pubmlst.org/db/pubmlst_bbacilliformis_seqdef/schemes/1
+bcc	pubmlst	7	6646	2421	2026-10-15	True	Burkholderia cepacia complex	https://rest.pubmlst.org/db/pubmlst_bcc_seqdef/schemes/1
+bcereus	pubmlst	7	2783	3335	2026-10-27	True	Bacillus cereus	https://rest.pubmlst.org/db/pubmlst_bcereus_seqdef/schemes/1
+bfragilis	pubmlst	7	298	269	2026-08-12	True	Bacteroides fragilis	https://rest.pubmlst.org/db/pubmlst_bfragilis_seqdef/schemes/1
+bhenselae	pubmlst	8	27	38	2026-03-20	True	Bartonella henselae	https://rest.pubmlst.org/db/pubmlst_bhenselae_seqdef/schemes/1
+blicheniformis_14	pubmlst	6	73	59	2023-12-13	True	Bacillus licheniformis	https://rest.pubmlst.org/db/pubmlst_blicheniformis_seqdef/schemes/14
+bordetella_3	pasteur	7	121	117	2026-09-16	True		https://bigsdb.pasteur.fr/api/db/pubmlst_bordetella_seqdef/schemes/3
+borrelia	pubmlst	8	2422	1171	2026-07-20	True	Borrelia	https://rest.pubmlst.org/db/pubmlst_borrelia_seqdef/schemes/1
+bpseudomallei	pubmlst	7	1017	2221	2026-11-04	True	Burkholderia pseudomallei	https://rest.pubmlst.org/db/pubmlst_bpseudomallei_seqdef/schemes/1
+brachyspira	pubmlst	7	288	36	2025-11-19	True	Brachyspira	https://rest.pubmlst.org/db/pubmlst_brachyspira_seqdef/schemes/1
+brachyspira_2	pubmlst	7	282	342	2026-10-16	True	Brachyspira	https://rest.pubmlst.org/db/pubmlst_brachyspira_seqdef/schemes/2
+brachyspira_3	pubmlst	7	303	83	2015-07-20	True	Brachyspira	https://rest.pubmlst.org/db/pubmlst_brachyspira_seqdef/schemes/3
+brachyspira_4	pubmlst	7	564	140	2021-06-01	True	Brachyspira	https://rest.pubmlst.org/db/pubmlst_brachyspira_seqdef/schemes/4
+brachyspira_5	pubmlst	6	91	23	2022-03-28	True	Brachyspira	https://rest.pubmlst.org/db/pubmlst_brachyspira_seqdef/schemes/5
+brucella	pubmlst	9	309	122	2026-05-11	True	Brucella	https://rest.pubmlst.org/db/pubmlst_brucella_seqdef/schemes/1
+bsubtilis	pubmlst	7	759	268	2026-08-02	True	Bacillus subtilis	https://rest.pubmlst.org/db/pubmlst_bsubtilis_seqdef/schemes/1
+bwashoensis	pubmlst	6	100	22	2023-04-04	True	Candidatus Bartonella washoeensis	https://rest.pubmlst.org/db/pubmlst_bwashoensis_seqdef/schemes/1
+campylobacter	pubmlst	7	7376	14524	2026-11-06	True	Campylobacter jejuni; Campylobacter coli	https://rest.pubmlst.org/db/pubmlst_campylobacter_seqdef/schemes/1
+campylobacter_nonjejuni	pubmlst	7	40	9	2015-01-12	True	Campylobacter helveticus	https://rest.pubmlst.org/db/pubmlst_campylobacter_nonjejuni_seqdef/schemes/1
+campylobacter_nonjejuni_2	pubmlst	7	95	43	2011-11-10	True	Campylobacter insulaenigrae	https://rest.pubmlst.org/db/pubmlst_campylobacter_nonjejuni_seqdef/schemes/2
+campylobacter_nonjejuni_3	pubmlst	7	1082	339	2026-10-09	True	Campylobacter lari	https://rest.pubmlst.org/db/pubmlst_campylobacter_nonjejuni_seqdef/schemes/3
+campylobacter_nonjejuni_4	pubmlst	7	493	283	2026-03-18	True	Campylobacter upsaliensis	https://rest.pubmlst.org/db/pubmlst_campylobacter_nonjejuni_seqdef/schemes/4
+campylobacter_nonjejuni_5	pubmlst	7	983	177	2026-05-15	True	Campylobacter concisus; Campylobacter curvus	https://rest.pubmlst.org/db/pubmlst_campylobacter_nonjejuni_seqdef/schemes/5
+campylobacter_nonjejuni_6	pubmlst	7	187	136	2026-07-13	True	Campylobacter hyointestinalis	https://rest.pubmlst.org/db/pubmlst_campylobacter_nonjejuni_seqdef/schemes/6
+campylobacter_nonjejuni_7	pubmlst	7	597	178	2023-12-01	True	Campylobacter lanienae	https://rest.pubmlst.org/db/pubmlst_campylobacter_nonjejuni_seqdef/schemes/7
+campylobacter_nonjejuni_8	pubmlst	7	43	16	2011-11-18	True	Campylobacter sputorum	https://rest.pubmlst.org/db/pubmlst_campylobacter_nonjejuni_seqdef/schemes/8
+campylobacter_nonjejuni_9	pubmlst	7	108	81	2024-06-03	True	Campylobacter fetus	https://rest.pubmlst.org/db/pubmlst_campylobacter_nonjejuni_seqdef/schemes/9
+cbotulinum	pubmlst	7	327	193	2026-07-28	True	Clostridium botulinum	https://rest.pubmlst.org/db/pubmlst_cbotulinum_seqdef/schemes/1
+cdifficile	pubmlst	7	918	1206	2026-11-06	True	Clostridioides difficile	https://rest.pubmlst.org/db/pubmlst_cdifficile_seqdef/schemes/1
+cdiphtheriae	pasteur	7	771	1055	2026-10-26	True	Corynebacterium diphtheriae	https://bigsdb.pasteur.fr/api/db/pubmlst_diphtheria_seqdef/schemes/3
+cfreundii	pubmlst	7	2631	1245	2026-11-09	True	Citrobacter	https://rest.pubmlst.org/db/pubmlst_cfreundii_seqdef/schemes/1
+chlamydiales	pubmlst	7	750	383	2026-07-20	True	Chlamydiales	https://rest.pubmlst.org/db/pubmlst_chlamydiales_seqdef/schemes/1
+cmaltaromaticum	pubmlst	7	147	72	2024-11-15	True	Carnobacterium maltaromaticum	https://rest.pubmlst.org/db/pubmlst_cmaltaromaticum_seqdef/schemes/1
+cperfringens	pubmlst	8	1449	927	2026-10-23	True	Clostridium perfringens	https://rest.pubmlst.org/db/pubmlst_cperfringens_seqdef/schemes/1
+cronobacter	pubmlst	7	2463	1048	2026-11-05	True	Cronobacter	https://rest.pubmlst.org/db/pubmlst_cronobacter_seqdef/schemes/1
+csepticum	pubmlst	7	24	17	2024-11-21	True	Clostridium septicum	https://rest.pubmlst.org/db/pubmlst_csepticum_seqdef/schemes/1
+diphtheria_3	pasteur	7	771	1055	2026-10-26	True		https://bigsdb.pasteur.fr/api/db/pubmlst_diphtheria_seqdef/schemes/3
+dnodosus	pubmlst	7	157	120	2026-10-28	True	Dichelobacter nodosus	https://rest.pubmlst.org/db/pubmlst_dnodosus_seqdef/schemes/1
+ecloacae	pubmlst	7	4750	3290	2026-11-04	True	Enterobacter	https://rest.pubmlst.org/db/pubmlst_ecloacae_seqdef/schemes/1
+ecoli	pasteur	8	2932	2114	2026-11-02	True	Shigella	https://bigsdb.pasteur.fr/api/db/pubmlst_ecoli_seqdef/schemes/1
+ecoli_achtman_4	pubmlst	7	12598	16242	2025-01-03	True	Escherichia coli	https://rest.pubmlst.org/db/pubmlst_ecoli_achtman_seqdef/schemes/4
+edwardsiella	pubmlst	10	120	24	2026-10-07	True	Edwardsiella	https://rest.pubmlst.org/db/pubmlst_edwardsiella_seqdef/schemes/1
+efaecalis	pubmlst	7	891	1968	2026-10-13	True	Enterococcus faecalis	https://rest.pubmlst.org/db/pubmlst_efaecalis_seqdef/schemes/1
+efaecium	pubmlst	7	1207	2755	2026-11-05	True	Enterococcus faecium	https://rest.pubmlst.org/db/pubmlst_efaecium_seqdef/schemes/1
+fpsychrophilum	pubmlst	7	380	267	2026-09-30	True	Flavobacterium psychrophilum	https://rest.pubmlst.org/db/pubmlst_fpsychrophilum_seqdef/schemes/1
+gallibacterium	pubmlst	8	327	91	2025-04-23	True	Gallibacterium anatis	https://rest.pubmlst.org/db/pubmlst_gallibacterium_seqdef/schemes/1
+geotrichum	pubmlst	5	41	40	2015-07-29	True	Geotrichum	https://rest.pubmlst.org/db/pubmlst_geotrichum_seqdef/schemes/1
+halobacteria	pubmlst	5	222	0	2026-02-04	True	Halobacteria	https://rest.pubmlst.org/db/pubmlst_halobacteria_seqdef/schemes/1
+hcinaedi	pubmlst	7	43	21	2020-10-12	True	Helicobacter cinaedi	https://rest.pubmlst.org/db/pubmlst_hcinaedi_seqdef/schemes/1
+helicobacter	pubmlst	7	26277	4511	2026-10-01	True	Helicobacter pylori	https://rest.pubmlst.org/db/pubmlst_helicobacter_seqdef/schemes/1
+hinfluenzae	pubmlst	7	2078	2915	2026-11-05	True	Haemophilus influenzae	https://rest.pubmlst.org/db/pubmlst_hinfluenzae_seqdef/schemes/1
+hparasuis	pubmlst	7	568	811	2026-02-17	True	Glaesserella parasuis	https://rest.pubmlst.org/db/pubmlst_hparasuis_seqdef/schemes/1
+hsuis	pubmlst	7	302	172	2024-06-18	True	Helicobacter suis	https://rest.pubmlst.org/db/pubmlst_hsuis_seqdef/schemes/1
+kaerogenes	pubmlst	7	685	843	2026-10-10	True	Klebsiella aerogenes	https://rest.pubmlst.org/db/pubmlst_kaerogenes_seqdef/schemes/1
+kingella	pasteur	6	99	76	2021-11-25	True		https://bigsdb.pasteur.fr/api/db/pubmlst_kingella_seqdef/schemes/1
+klebsiella	pasteur	7	4129	8081	2026-11-02	True		https://bigsdb.pasteur.fr/api/db/pubmlst_klebsiella_seqdef/schemes/1
+koxytoca	pubmlst	7	672	648	2026-10-29	True	Klebsiella oxytoca; Klebsiella grimontii; Klebsiella huaxiensis; Klebsiella michiganensis; Klebsiella pasteurii; Klebsiella spallanzanii	https://rest.pubmlst.org/db/pubmlst_koxytoca_seqdef/schemes/1
+leptospira	pubmlst	7	680	385	2026-08-11	True	Leptospira	https://rest.pubmlst.org/db/pubmlst_leptospira_seqdef/schemes/1
+leptospira_2	pubmlst	7	631	296	2024-09-25	True	Leptospira	https://rest.pubmlst.org/db/pubmlst_leptospira_seqdef/schemes/2
+leptospira_3	pubmlst	6	330	198	2026-08-11	True	Leptospira	https://rest.pubmlst.org/db/pubmlst_leptospira_seqdef/schemes/3
+lgarvieae	pubmlst	7	481	159	2026-10-14	True	Lactococcus garvieae	https://rest.pubmlst.org/db/pubmlst_lgarvieae_seqdef/schemes/1
+liberibacter	pubmlst	7	50	14	2020-05-07	True	Liberibacter	https://rest.pubmlst.org/db/pubmlst_liberibacter_seqdef/schemes/1
+listeria_2	pasteur	7	5112	3285	2026-11-09	True		https://bigsdb.pasteur.fr/api/db/pubmlst_listeria_seqdef/schemes/2
+llactis_phage	pubmlst	5	890	371	2023-02-20	True	Lactococcus phage 936	https://rest.pubmlst.org/db/pubmlst_llactis_phage_seqdef/schemes/1
+lsalivarius	pubmlst	5	69	25	2010-12-07	True	Ligilactobacillus salivarius	https://rest.pubmlst.org/db/pubmlst_lsalivarius_seqdef/schemes/1
+mabscessus	pubmlst	7	328	344	2026-10-21	True	Mycobacteroides abscessus	https://rest.pubmlst.org/db/pubmlst_mabscessus_seqdef/schemes/1
+magalactiae	pubmlst	5	98	35	2019-04-24	True	Mycoplasmopsis agalactiae	https://rest.pubmlst.org/db/pubmlst_magalactiae_seqdef/schemes/1
+mamphoriforme	pubmlst	4	25	13	2024-11-01	True	Mycoplasma amphoriforme	https://rest.pubmlst.org/db/pubmlst_mamphoriforme_seqdef/schemes/1
+manserisalpingitidis	pubmlst	5	187	76	2020-11-10	True	Mycoplasma anserisalpingitidis	https://rest.pubmlst.org/db/pubmlst_manserisalpingitidis_seqdef/schemes/1
+mbovis	pubmlst	7	238	189	2025-06-25	True	Mycoplasmopsis bovis	https://rest.pubmlst.org/db/pubmlst_mbovis_seqdef/schemes/1
+mbovis_2	pubmlst	7	258	288	2026-10-09	True	Mycoplasmopsis bovis	https://rest.pubmlst.org/db/pubmlst_mbovis_seqdef/schemes/2
+mcanis	pubmlst	7	155	83	2019-10-21	True	Macrococcoides canis	https://rest.pubmlst.org/db/pubmlst_mcanis_seqdef/schemes/1
+mcaseolyticus	pubmlst	7	126	68	2026-06-19	True	Macrococcoides caseolyticum	https://rest.pubmlst.org/db/pubmlst_mcaseolyticus_seqdef/schemes/1
+mcatarrhalis_achtman_6	pubmlst	8	1503	934	2026-07-14	True	Moraxella catarrhalis	https://rest.pubmlst.org/db/pubmlst_mcatarrhalis_achtman_seqdef/schemes/6
+mflocculare	pubmlst	3	22	8	2018-07-03	True	Mesomycoplasma flocculare	https://rest.pubmlst.org/db/pubmlst_mflocculare_seqdef/schemes/1
+mgallisepticum	pubmlst	7	240	109	2026-11-06	True	Mycoplasmoides gallisepticum	https://rest.pubmlst.org/db/pubmlst_mgallisepticum_seqdef/schemes/1
+mgallisepticum_2	pubmlst	6	177	148	2026-09-24	True	Mycoplasmoides gallisepticum	https://rest.pubmlst.org/db/pubmlst_mgallisepticum_seqdef/schemes/2
+mgenitalium	pubmlst	6	33	0		True	Mycoplasmoides genitalium	https://rest.pubmlst.org/db/pubmlst_mgenitalium_seqdef/schemes/2
+mhaemolytica	pubmlst	7	146	61	2026-10-14	True	Mannheimia haemolytica	https://rest.pubmlst.org/db/pubmlst_mhaemolytica_seqdef/schemes/1
+mhominis	pubmlst	5	132	71	2026-05-22	True	Metamycoplasma hominis	https://rest.pubmlst.org/db/pubmlst_mhominis_seqdef/schemes/1
+mhominis_3	pubmlst	10	239	42	2023-11-05	True	Metamycoplasma hominis	https://rest.pubmlst.org/db/pubmlst_mhominis_seqdef/schemes/3
+mhyopneumoniae	pubmlst	3	251	240	2026-10-28	True	Mesomycoplasma hyopneumoniae	https://rest.pubmlst.org/db/pubmlst_mhyopneumoniae_seqdef/schemes/1
+mhyorhinis	pubmlst	6	145	246	2026-07-14	True	Mesomycoplasma hyorhinis	https://rest.pubmlst.org/db/pubmlst_mhyorhinis_seqdef/schemes/1
+mhyosynoviae	pubmlst	7	163	94	2026-08-18	True	Metamycoplasma hyosynoviae	https://rest.pubmlst.org/db/pubmlst_mhyosynoviae_seqdef/schemes/1
+miowae	pubmlst	6	80	48	2023-07-17	True	Malacoplasma iowae	https://rest.pubmlst.org/db/pubmlst_miowae_seqdef/schemes/1
+mplutonius	pubmlst	4	46	47	2025-08-12	True	Melissococcus plutonius	https://rest.pubmlst.org/db/pubmlst_mplutonius_seqdef/schemes/1
+mpneumoniae	pubmlst	8	42	47	2026-10-19	True	Mycoplasmoides pneumoniae	https://rest.pubmlst.org/db/pubmlst_mpneumoniae_seqdef/schemes/1
+msciuri	pubmlst	7	488	383	2026-11-06	True	Mammaliicoccus sciuri	https://rest.pubmlst.org/db/pubmlst_msciuri_seqdef/schemes/1
+msynoviae	pubmlst	7	304	225	2026-11-06	True	Mycoplasmopsis synoviae	https://rest.pubmlst.org/db/pubmlst_msynoviae_seqdef/schemes/1
+mycobacteria_2	pubmlst	8	3543	1070	2026-10-27	True	Mycobacterium	https://rest.pubmlst.org/db/pubmlst_mycobacteria_seqdef/schemes/2
+neisseria	pubmlst	7	9137	18487	2026-11-06	True	Neisseria	https://rest.pubmlst.org/db/pubmlst_neisseria_seqdef/schemes/1
+oralstrep	pubmlst	7	315	79	2024-07-23	True	Streptococcus oralis	https://rest.pubmlst.org/db/pubmlst_oralstrep_seqdef/schemes/1
+orhinotracheale	pubmlst	7	176	43	2025-08-15	True	Ornithobacterium rhinotracheale	https://rest.pubmlst.org/db/pubmlst_orhinotracheale_seqdef/schemes/1
+otsutsugamushi	pubmlst	7	355	161	2026-03-31	True	Orientia tsutsugamushi	https://rest.pubmlst.org/db/pubmlst_otsutsugamushi_seqdef/schemes/1
+pacnes_3	pubmlst	8	302	278	2026-05-26	True	Cutibacterium acnes	https://rest.pubmlst.org/db/pubmlst_pacnes_seqdef/schemes/3
+paeruginosa	pubmlst	7	2441	5153	2026-11-03	True	Pseudomonas aeruginosa	https://rest.pubmlst.org/db/pubmlst_paeruginosa_seqdef/schemes/1
+pdamselae	pubmlst	6	185	67	2023-08-11	True	Photobacterium damselae	https://rest.pubmlst.org/db/pubmlst_pdamselae_seqdef/schemes/1
+pfluorescens	pubmlst	7	783	129	2022-01-12	True	Pseudomonas fluorescens	https://rest.pubmlst.org/db/pubmlst_pfluorescens_seqdef/schemes/1
+pgingivalis	pubmlst	7	222	172	2026-10-01	True	Porphyromonas gingivalis	https://rest.pubmlst.org/db/pubmlst_pgingivalis_seqdef/schemes/1
+plarvae	pubmlst	7	53	45	2026-03-20	True	Paenibacillus larvae	https://rest.pubmlst.org/db/pubmlst_plarvae_seqdef/schemes/1
+pmultocida	pubmlst	7	586	360	2026-09-24	True	Pasteurella multocida	https://rest.pubmlst.org/db/pubmlst_pmultocida_seqdef/schemes/1
+pmultocida_2	pubmlst	7	697	562	2026-09-29	True	Pasteurella multocida	https://rest.pubmlst.org/db/pubmlst_pmultocida_seqdef/schemes/2
+ppentosaceus	pubmlst	7	58	17	2013-02-19	True	Pediococcus pentosaceus	https://rest.pubmlst.org/db/pubmlst_ppentosaceus_seqdef/schemes/1
+pputida	pubmlst	8	1305	304	2026-10-28	True	Pseudomonas putida	https://rest.pubmlst.org/db/pubmlst_pputida_seqdef/schemes/1
+proteus	pubmlst	6	853	639	2026-11-02	True	Proteus	https://rest.pubmlst.org/db/pubmlst_proteus_seqdef/schemes/1
+providencia	pubmlst	5	500	247	2026-11-02	True	Providencia	https://rest.pubmlst.org/db/pubmlst_providencia_seqdef/schemes/1
+psalmonis	pubmlst	7	63	34	2024-11-08	True	Piscirickettsia salmonis	https://rest.pubmlst.org/db/pubmlst_psalmonis_seqdef/schemes/1
+ranatipestifer	pubmlst	7	297	229	2026-11-09	True	Riemerella anatipestifer	https://rest.pubmlst.org/db/pubmlst_ranatipestifer_seqdef/schemes/1
+rhodococcus	pubmlst	7	130	82	2026-11-02	True	Rhodococcus	https://rest.pubmlst.org/db/pubmlst_rhodococcus_seqdef/schemes/1
+sagalactiae	pubmlst	7	1781	2372	2026-10-15	True	Streptococcus agalactiae	https://rest.pubmlst.org/db/pubmlst_sagalactiae_seqdef/schemes/1
+salmonella	pubmlst	7	11592	11140	2026-11-06	True	Salmonella enterica	https://rest.pubmlst.org/db/pubmlst_salmonella_seqdef/schemes/2
+saureus	pubmlst	7	7492	9503	2026-11-09	True	Staphylococcus aureus	https://rest.pubmlst.org/db/pubmlst_saureus_seqdef/schemes/1
+sbsec	pubmlst	10	640	239	2026-05-13	True	Streptococcus equinus; Streptococcus alactolyticus; Streptococcus gallolyticus; Streptococcus infantarius; Streptococcus lutetiensis	https://rest.pubmlst.org/db/pubmlst_sbsec_seqdef/schemes/1
+scanis	pubmlst	7	116	101	2025-09-05	True	Streptococcus equinus	https://rest.pubmlst.org/db/pubmlst_scanis_seqdef/schemes/1
+schromogenes	pubmlst	7	291	193	2026-04-22	True	Staphylococcus chromogenes	https://rest.pubmlst.org/db/pubmlst_schromogenes_seqdef/schemes/1
+sdysgalactiae	pubmlst	7	628	792	2026-11-05	True	Streptococcus dysgalactiae	https://rest.pubmlst.org/db/pubmlst_sdysgalactiae_seqdef/schemes/1
+senterica_achtman_2	pubmlst	7	11592	11157	2025-01-03	True	Salmonella enterica	https://rest.pubmlst.org/db/pubmlst_senterica_achtman_seqdef/schemes/2
+sepidermidis	pubmlst	7	626	1253	2026-10-23	True	Staphylococcus epidermidis	https://rest.pubmlst.org/db/pubmlst_sepidermidis_seqdef/schemes/1
+serratia	pubmlst	6	2669	1511	2026-09-23	True	Serratia	https://rest.pubmlst.org/db/pubmlst_serratia_seqdef/schemes/1
+sgallolyticus	pubmlst	7	214	121	2026-11-06	True	Streptococcus gallolyticus	https://rest.pubmlst.org/db/pubmlst_sgallolyticus_seqdef/schemes/1
+shaemolyticus	pubmlst	7	247	183	2026-10-07	True	Staphylococcus haemolyticus	https://rest.pubmlst.org/db/pubmlst_shaemolyticus_seqdef/schemes/1
+shewanella	pubmlst	8	378	80	2026-11-08	True	Shewanella	https://rest.pubmlst.org/db/pubmlst_shewanella_seqdef/schemes/1
+shominis	pubmlst	6	183	215	2026-10-26	True	Staphylococcus hominis	https://rest.pubmlst.org/db/pubmlst_shominis_seqdef/schemes/1
+siniae	pubmlst	8	31	13	2021-09-23	True	Streptococcus iniae	https://rest.pubmlst.org/db/pubmlst_siniae_seqdef/schemes/1
+sinorhizobium	pubmlst	10	181	136	2010-05-07	True	Sinorhizobium	https://rest.pubmlst.org/db/pubmlst_sinorhizobium_seqdef/schemes/1
+smaltophilia	pubmlst	7	2734	1172	2026-10-15	True	Stenotrophomonas	https://rest.pubmlst.org/db/pubmlst_smaltophilia_seqdef/schemes/1
+smitis	pubmlst	7	1196	260	2026-11-03	True	Streptococcus mitis	https://rest.pubmlst.org/db/pubmlst_smitis_seqdef/schemes/1
+spneumoniae	pubmlst	7	6471	19776	2026-11-03	True	Streptococcus pneumoniae	https://rest.pubmlst.org/db/pubmlst_spneumoniae_seqdef/schemes/1
+spseudintermedius	pubmlst	7	517	2813	2026-09-02	True	Staphylococcus pseudintermedius	https://rest.pubmlst.org/db/pubmlst_spseudintermedius_seqdef/schemes/1
+spyogenes	pubmlst	7	1262	1521	2026-10-08	True	Streptococcus pyogenes	https://rest.pubmlst.org/db/pubmlst_spyogenes_seqdef/schemes/1
+ssuis	pubmlst	7	4236	3030	2026-09-28	True	Streptococcus suis	https://rest.pubmlst.org/db/pubmlst_ssuis_seqdef/schemes/1
+staphlugdunensis	pasteur	7	63	42	2026-09-02	True		https://bigsdb.pasteur.fr/api/db/pubmlst_staphlugdunensis_seqdef/schemes/1
+sthermophilus	pubmlst	10	173	140	2023-06-15	True	Streptococcus thermophilus	https://rest.pubmlst.org/db/pubmlst_sthermophilus_seqdef/schemes/1
+streptomyces	pubmlst	6	5401	806	2024-07-11	True	Streptomyces	https://rest.pubmlst.org/db/pubmlst_streptomyces_seqdef/schemes/1
+streptothermophilus	pasteur	6	150	125	2015-07-23	True		https://bigsdb.pasteur.fr/api/db/pubmlst_streptothermophilus_seqdef/schemes/1
+suberis	pubmlst	7	732	2147	2026-10-22	True	Streptococcus uberis	https://rest.pubmlst.org/db/pubmlst_suberis_seqdef/schemes/1
+szooepidemicus	pubmlst	7	539	553	2026-08-07	True	Streptococcus equi subsp. zooepidemicus; Streptococcus equi	https://rest.pubmlst.org/db/pubmlst_szooepidemicus_seqdef/schemes/1
+taylorella	pubmlst	7	191	93	2026-11-06	True	Taylorella	https://rest.pubmlst.org/db/pubmlst_taylorella_seqdef/schemes/1
+tenacibaculum	pubmlst	7	551	193	2026-06-09	True	Tenacibaculum	https://rest.pubmlst.org/db/pubmlst_tenacibaculum_seqdef/schemes/1
+tpallidum	pubmlst	3	142	130	2026-03-16	True	Treponema pallidum	https://rest.pubmlst.org/db/pubmlst_tpallidum_seqdef/schemes/1
+tpyogenes	pubmlst	7	282	123	2026-09-15	False	Trueperella pyogenes	https://rest.pubmlst.org/db/pubmlst_tpyogenes_seqdef/schemes/1
+tvaginalis	pubmlst	7	54	72	2026-04-13	True	Trichomonas vaginalis	https://rest.pubmlst.org/db/pubmlst_tvaginalis_seqdef/schemes/1
+ureaplasma	pubmlst	4	165	192	2024-01-16	True	Ureaplasma	https://rest.pubmlst.org/db/pubmlst_ureaplasma_seqdef/schemes/1
+vcholerae	pubmlst	7	1985	1862	2026-11-04	True	Vibrio cholerae non-O1/non-O139	https://rest.pubmlst.org/db/pubmlst_vcholerae_seqdef/schemes/1
+vcholerae_2	pubmlst	5	319	422	2019-09-13	True	Vibrio cholerae O1; Vibrio cholerae O139	https://rest.pubmlst.org/db/pubmlst_vcholerae_seqdef/schemes/2
+vibrio	pubmlst	4	1080	714	2026-01-22	True	Vibrio	https://rest.pubmlst.org/db/pubmlst_vibrio_seqdef/schemes/1
+vparahaemolyticus	pubmlst	7	3941	3708	2026-09-30	True	Vibrio parahaemolyticus	https://rest.pubmlst.org/db/pubmlst_vparahaemolyticus_seqdef/schemes/1
+vtapetis	pubmlst	10	72	10	2011-09-22	True	Vibrio tapetis	https://rest.pubmlst.org/db/pubmlst_vtapetis_seqdef/schemes/1
+vvulnificus	pubmlst	10	1460	696	2026-11-04	True	Vibrio vulnificus	https://rest.pubmlst.org/db/pubmlst_vvulnificus_seqdef/schemes/1
+wolbachia	pubmlst	5	1764	579	2020-09-01	True	Wolbachia	https://rest.pubmlst.org/db/pubmlst_wolbachia_seqdef/schemes/1
+xfastidiosa	pubmlst	7	156	90	2022-06-29	True	Xylella fastidiosa	https://rest.pubmlst.org/db/pubmlst_xfastidiosa_seqdef/schemes/1
+yersinia	pubmlst	7	545	170	2015-06-16	True	Yersinia	https://rest.pubmlst.org/db/pubmlst_yersinia_seqdef/schemes/1
+ypseudotuberculosis_achtman_3	pubmlst	7	1601	1094	2026-10-12	True	Yersinia pseudotuberculosis	https://rest.pubmlst.org/db/pubmlst_ypseudotuberculosis_achtman_seqdef/schemes/3
+yruckeri	pubmlst	6	52	54	2023-10-17	True	Yersinia ruckeri	https://rest.pubmlst.org/db/pubmlst_yruckeri_seqdef/schemes/1

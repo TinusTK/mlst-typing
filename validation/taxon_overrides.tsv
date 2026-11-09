@@ -1,0 +1,14 @@
+# Taxon to search NCBI with when PubMLST gives none (BIGSdb-Pasteur schemes) or a genus only.
+scheme	taxon
+listeria_2	Listeria monocytogenes
+streptothermophilus	Streptococcus thermophilus
+diphtheria_3	Corynebacterium diphtheriae
+cdiphtheriae	Corynebacterium diphtheriae
+klebsiella	Klebsiella pneumoniae
+ecoli	Escherichia coli
+bordetella_3	Bordetella pertussis
+kingella	Kingella kingae
+staphlugdunensis	Staphylococcus lugdunensis
+neisseria	Neisseria meningitidis
+vcholerae	Vibrio cholerae
+geotrichum	Geotrichum candidum

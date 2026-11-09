@@ -1,0 +1,8 @@
+# Priority organisms (TK, 2026-11-09), typed on top of one genome per scheme.
+scheme	taxon	accession	note
+spyogenes	Streptococcus pyogenes (Group A Strep) SF370	GCF_000006785.2	priority: Group A Strep, expected ST28
+neisseria	Neisseria gonorrhoeae FA 1090	GCF_000006845.1	priority: N. gonorrhoeae
+salmonella	Salmonella enterica Typhimurium LT2	GCF_000006945.2	priority: Salmonella, expected ST19
+ecoli_achtman_4	Shigella sonnei Ss046	GCF_000092525.1	priority: Shigella sonnei, expected ST152
+ecoli_achtman_4	Shigella flexneri 2a 301	GCF_000006925.2	priority: Shigella flexneri
+mycobacteria_2	Mycobacterium tuberculosis H37Rv	GCF_000195955.2	priority: M. tuberculosis

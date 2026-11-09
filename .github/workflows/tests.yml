@@ -1,0 +1,60 @@
+name: Tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  unit:
+    name: Unit and run tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install BLAST+ and pytest
+        run: |
+          sudo apt-get update && sudo apt-get install -y ncbi-blast+
+          pip install pytest
+      - name: pytest
+        run: python -m pytest -v
+
+  planemo-lint:
+    name: Galaxy wrapper lint (bundle)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install planemo
+      # Lint the bundle, not tool/: <required_files> lists database/*, which
+      # only sits next to tool.xml in the bundle (lint errors on no match).
+      - name: planemo lint + shed_lint
+        run: |
+          bash scripts/bundle_tool.sh build
+          planemo lint --fail_level warn build/mlst_typing
+          planemo shed_lint --tools build/mlst_typing || \
+            echo "::warning::shed_lint failed (expected before the first Tool Shed release)"
+
+  planemo-test:
+    name: Galaxy tool test (biocontainer)
+    runs-on: ubuntu-latest
+    needs: [unit, planemo-lint]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Bundle and test in the multi-package container (blast + python)
+        run: |
+          pip install planemo
+          bash scripts/bundle_tool.sh build
+          planemo test --biocontainers --no_dependency_resolution --no_conda_auto_init \
+            --test_output build/planemo_report.html build/mlst_typing
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: planemo-report
+          path: build/planemo_report.html

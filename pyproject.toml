@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mlst-typing"
+version = "0.1.0"
+description = "Automatic MLST typing of assembled genomes against PubMLST schemes (Python redesign of tseemann/mlst)"
+readme = "README.md"
+license = {text = "GPL-2.0-only"}
+authors = [{name = "TinusTK"}]
+requires-python = ">=3.9"
+dependencies = []
+
+[project.scripts]
+mlst-typing = "mlst_typing:main"
+
+[tool.setuptools]
+package-dir = {"" = "tool"}
+py-modules = ["mlst_typing"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

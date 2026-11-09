@@ -1,0 +1,169 @@
+scheme	taxon	accession	organism	level	note
+aactinomycetemcomitans	Aggregatibacter actinomycetemcomitans	GCF_023518055.1	Aggregatibacter actinomycetemcomitans	Complete Genome	
+abaumannii	Acinetobacter baumannii	GCF_009035845.1	Acinetobacter baumannii	Complete Genome	
+abaumannii_2	Acinetobacter baumannii	GCF_009035845.1	Acinetobacter baumannii	Complete Genome	
+achromobacter	Achromobacter	GCF_902859965.1	Achromobacter aegrifaciens	Contig	
+aeromonas	Aeromonas	GCF_016026615.1	Aeromonas allosaccharophila	Complete Genome	
+aparagallinarum	Avibacterium paragallinarum	GCF_011765605.1	Avibacterium paragallinarum	Complete Genome	
+aphagocytophilum	Anaplasma phagocytophilum	GCF_000964685.1	Anaplasma phagocytophilum str. Webster	Contig	
+arcobacter	Arcobacter	GCF_013177675.1	Arcobacter acticola	Complete Genome	
+bbacilliformis	Bartonella bacilliformis	GCF_000015445.1	Bartonella bacilliformis KC583	Complete Genome	
+bcc	Burkholderia cepacia complex	GCF_048627025.1	Burkholderia aenigmatica	Complete Genome	
+bcereus	Bacillus cereus	GCF_006094295.1	Bacillus cereus ATCC 14579	Complete Genome	
+bfragilis	Bacteroides fragilis	GCF_000025985.1	Bacteroides fragilis NCTC 9343	Complete Genome	
+bhenselae	Bartonella henselae	GCF_019930925.1	Bartonella henselae	Complete Genome	
+blicheniformis_14	Bacillus licheniformis	GCF_034478925.1	Bacillus licheniformis	Complete Genome	
+bordetella_3	Bordetella pertussis	GCF_004008975.1	Bordetella pertussis	Complete Genome	
+borrelia	Borrelia	GCF_001936255.1	Borrelia anserina Es	Complete Genome	
+bpseudomallei	Burkholderia pseudomallei	GCF_030297255.1	Burkholderia pseudomallei	Complete Genome	
+brachyspira	Brachyspira	GCF_008016755.1	Brachyspira aalborgi	Scaffold	
+brachyspira_2	Brachyspira	GCF_008016755.1	Brachyspira aalborgi	Scaffold	
+brachyspira_3	Brachyspira	GCF_008016755.1	Brachyspira aalborgi	Scaffold	
+brachyspira_4	Brachyspira	GCF_008016755.1	Brachyspira aalborgi	Scaffold	
+brachyspira_5	Brachyspira	GCF_008016755.1	Brachyspira aalborgi	Scaffold	
+brucella	Brucella	GCF_000369945.1	Brucella abortus 544	Scaffold	
+bsubtilis	Bacillus subtilis	GCF_000009045.1	Bacillus subtilis subsp. subtilis str. 168	Complete Genome	
+bwashoensis	Candidatus Bartonella washoeensis	GCF_000278135.1	Candidatus Bartonella washoeensis Sb944nv	Scaffold	
+campylobacter	Campylobacter jejuni	GCF_000009085.1	Campylobacter jejuni subsp. jejuni NCTC 11168 = ATCC 700819	Complete Genome	
+campylobacter_nonjejuni	Campylobacter helveticus	GCF_002080395.1	Campylobacter helveticus	Complete Genome	
+campylobacter_nonjejuni_2	Campylobacter insulaenigrae	GCF_000816185.1	Campylobacter insulaenigrae NCTC 12927	Complete Genome	
+campylobacter_nonjejuni_3	Campylobacter lari	GCF_008245025.1	Campylobacter lari subsp. concheus	Complete Genome	
+campylobacter_nonjejuni_4	Campylobacter upsaliensis	GCF_013372245.1	Campylobacter upsaliensis RM3940	Complete Genome	
+campylobacter_nonjejuni_5	Campylobacter concisus	GCF_001298465.1	Campylobacter concisus	Complete Genome	
+campylobacter_nonjejuni_6	Campylobacter hyointestinalis	GCF_013372165.1	Campylobacter hyointestinalis subsp. lawsonii	Complete Genome	
+campylobacter_nonjejuni_7	Campylobacter lanienae	GCF_002139935.1	Campylobacter lanienae NCTC 13004	Complete Genome	
+campylobacter_nonjejuni_8	Campylobacter sputorum	GCF_008245005.1	Campylobacter sputorum subsp. sputorum	Complete Genome	
+campylobacter_nonjejuni_9	Campylobacter fetus	GCF_011600945.2	Campylobacter fetus	Complete Genome	
+cbotulinum	Clostridium botulinum	GCF_000063585.1	Clostridium botulinum A str. ATCC 3502	Complete Genome	
+cdifficile	Clostridioides difficile	GCF_018885085.1	Clostridioides difficile	Complete Genome	
+cdiphtheriae	Corynebacterium diphtheriae	GCF_001457455.1	Corynebacterium diphtheriae	Complete Genome	
+cfreundii	Citrobacter	GCF_020099335.1	Citrobacter amalonaticus	Complete Genome	
+chlamydiales	Chlamydiales	GCF_002817655.1	Candidatus Chlamydia corallus	Contig	
+cmaltaromaticum	Carnobacterium maltaromaticum	GCF_949790605.1	Carnobacterium maltaromaticum	Complete Genome	
+cperfringens	Clostridium perfringens	GCF_016027375.1	Clostridium perfringens	Complete Genome	
+cronobacter	Cronobacter	GCF_001277255.1	Cronobacter condimenti 1330	Complete Genome	
+csepticum	Clostridium septicum	GCF_003606265.1	Clostridium septicum	Complete Genome	
+diphtheria_3	Corynebacterium diphtheriae	GCF_001457455.1	Corynebacterium diphtheriae	Complete Genome	
+dnodosus	Dichelobacter nodosus	GCF_000015345.1	Dichelobacter nodosus VCS1703A	Complete Genome	
+ecloacae	Enterobacter	GCF_041937165.1	Enterobacter adelaidei	Complete Genome	
+ecoli	Escherichia coli	GCF_000008865.2	Escherichia coli O157:H7 str. Sakai	Complete Genome	
+ecoli_achtman_4	Escherichia coli	GCF_000008865.2	Escherichia coli O157:H7 str. Sakai	Complete Genome	
+edwardsiella	Edwardsiella	GCF_000264765.2	Edwardsiella anguillarum ET080813	Complete Genome	
+efaecalis	Enterococcus faecalis	GCF_000393015.1	Enterococcus faecalis EnGen0336	Scaffold	
+efaecium	Enterococcus faecium	GCF_009734005.1	Enterococcus faecium	Complete Genome	
+fpsychrophilum	Flavobacterium psychrophilum	GCF_000754405.1	Flavobacterium psychrophilum FPG3	Complete Genome	
+gallibacterium	Gallibacterium anatis	GCF_000772265.1	Gallibacterium anatis DSM 16844 = F 149	Contig	
+geotrichum	Geotrichum candidum	GCA_013365045.1	Geotrichum candidum		
+halobacteria	Halobacteria	GCF_000495475.1	Candidatus Halobonum tyrrellensis G22	Contig	
+hcinaedi	Helicobacter cinaedi	GCF_000284635.1	Helicobacter cinaedi PAGU611	Complete Genome	
+helicobacter	Helicobacter pylori	GCF_025998455.1	Helicobacter pylori	Complete Genome	
+hinfluenzae	Haemophilus influenzae	GCF_020736045.1	Haemophilus influenzae	Complete Genome	
+hparasuis	Glaesserella parasuis	GCF_017352235.1	Glaesserella parasuis	Complete Genome	
+hsuis	Helicobacter suis	GCF_013374215.1	Helicobacter suis	Complete Genome	
+kaerogenes	Klebsiella aerogenes	GCF_019048125.1	Klebsiella aerogenes	Complete Genome	
+kingella	Kingella kingae	GCF_900475905.1	Kingella kingae	Complete Genome	
+klebsiella	Klebsiella pneumoniae	GCF_000240185.1	Klebsiella pneumoniae subsp. pneumoniae HS11286	Complete Genome	
+koxytoca	Klebsiella oxytoca	GCF_900636985.1	Klebsiella oxytoca	Complete Genome	
+leptospira	Leptospira	GCF_016918735.1	Leptospira abararensis	Contig	
+leptospira_2	Leptospira	GCF_016918735.1	Leptospira abararensis	Contig	
+leptospira_3	Leptospira	GCF_016918735.1	Leptospira abararensis	Contig	
+lgarvieae	Lactococcus garvieae	GCF_016026695.1	Lactococcus garvieae	Complete Genome	
+liberibacter	Liberibacter	GCF_001021085.1	Candidatus Liberibacter africanus PTSAPSY	Complete Genome	
+listeria_2	Listeria monocytogenes	GCF_000196035.1	Listeria monocytogenes EGD-e	Complete Genome	
+llactis_phage	Lactococcus phage 936	GCF_002592905.1	Lactococcus phage 936	Complete Genome	
+lsalivarius	Ligilactobacillus salivarius	GCF_035231985.1	Ligilactobacillus salivarius	Complete Genome	
+mabscessus	Mycobacteroides abscessus	GCF_000069185.1	Mycobacteroides abscessus ATCC 19977	Complete Genome	
+magalactiae	Mycoplasmopsis agalactiae	GCF_000063605.1	Mycoplasmopsis agalactiae PG2	Complete Genome	
+mamphoriforme	Mycoplasma amphoriforme	GCF_000723365.1	Mycoplasma amphoriforme A39	Complete Genome	
+manserisalpingitidis	Mycoplasma anserisalpingitidis	GCF_007859615.1	Mycoplasma anserisalpingitidis	Complete Genome	
+mbovis	Mycoplasmopsis bovis	GCF_000183385.1	Mycoplasmopsis bovis PG45	Complete Genome	
+mbovis_2	Mycoplasmopsis bovis	GCF_000183385.1	Mycoplasmopsis bovis PG45	Complete Genome	
+mcanis	Macrococcoides canis	GCF_002119805.1	Macrococcoides canis	Complete Genome	
+mcaseolyticus	Macrococcoides caseolyticum	GCF_016028795.1	Macrococcoides caseolyticum	Complete Genome	
+mcatarrhalis_achtman_6	Moraxella catarrhalis	GCF_900476075.1	Moraxella catarrhalis	Complete Genome	
+mflocculare	Mesomycoplasma flocculare	GCF_000815065.1	Mesomycoplasma flocculare ATCC 27399	Complete Genome	
+mgallisepticum	Mycoplasmoides gallisepticum	GCF_900476085.1	Mycoplasmoides gallisepticum	Complete Genome	
+mgallisepticum_2	Mycoplasmoides gallisepticum	GCF_900476085.1	Mycoplasmoides gallisepticum	Complete Genome	
+mgenitalium	Mycoplasmoides genitalium	GCF_040556925.1	Mycoplasmoides genitalium	Complete Genome	
+mhaemolytica	Mannheimia haemolytica	GCF_002285575.1	Mannheimia haemolytica	Complete Genome	
+mhominis	Metamycoplasma hominis	GCF_000767725.1	Metamycoplasma hominis ATCC 27545	Complete Genome	
+mhominis_3	Metamycoplasma hominis	GCF_000767725.1	Metamycoplasma hominis ATCC 27545	Complete Genome	
+mhyopneumoniae	Mesomycoplasma hyopneumoniae	GCF_000008205.1	Mesomycoplasma hyopneumoniae J	Complete Genome	
+mhyorhinis	Mesomycoplasma hyorhinis	GCF_900476065.1	Mesomycoplasma hyorhinis	Complete Genome	
+mhyosynoviae	Metamycoplasma hyosynoviae	GCF_024297005.1	Metamycoplasma hyosynoviae	Complete Genome	
+miowae	Malacoplasma iowae	GCF_900660615.1	Malacoplasma iowae	Complete Genome	
+mplutonius	Melissococcus plutonius	GCF_003966875.1	Melissococcus plutonius	Chromosome	
+mpneumoniae	Mycoplasmoides pneumoniae	GCF_900660465.1	Mycoplasmoides pneumoniae	Complete Genome	
+msciuri	Mammaliicoccus sciuri	GCF_900474615.1	Mammaliicoccus sciuri	Complete Genome	
+msynoviae	Mycoplasmopsis synoviae	GCF_000969765.1	Mycoplasmopsis synoviae ATCC 25204	Complete Genome	
+mycobacteria_2	Mycobacterium	GCF_023515995.1	Candidatus Mycobacterium methanotrophicum	Complete Genome	
+neisseria	Neisseria meningitidis	GCF_022869645.1	Neisseria meningitidis	Complete Genome	
+oralstrep	Streptococcus oralis	GCF_900637025.1	Streptococcus oralis ATCC 35037	Complete Genome	
+orhinotracheale	Ornithobacterium rhinotracheale	GCF_000265465.1	Ornithobacterium rhinotracheale DSM 15997	Complete Genome	
+otsutsugamushi	Orientia tsutsugamushi	GCF_900327255.1	Orientia tsutsugamushi	Complete Genome	
+pacnes_3	Cutibacterium acnes	GCF_006739385.1	Cutibacterium acnes subsp. acnes	Complete Genome	
+paeruginosa	Pseudomonas aeruginosa	GCF_000006765.1	Pseudomonas aeruginosa PAO1	Complete Genome	
+pdamselae	Photobacterium damselae	GCF_038086725.1	Photobacterium damselae subsp. damselae	Complete Genome	
+pfluorescens	Pseudomonas fluorescens	GCF_900215245.1	Pseudomonas fluorescens	Chromosome	
+pgingivalis	Porphyromonas gingivalis	GCF_000010505.1	Porphyromonas gingivalis ATCC 33277	Complete Genome	
+plarvae	Paenibacillus larvae	GCF_002951935.1	Paenibacillus larvae subsp. larvae	Complete Genome	
+pmultocida	Pasteurella multocida	GCF_002073255.2	Pasteurella multocida	Complete Genome	
+pmultocida_2	Pasteurella multocida	GCF_002073255.2	Pasteurella multocida	Complete Genome	
+ppentosaceus	Pediococcus pentosaceus	GCF_000014505.1	Pediococcus pentosaceus ATCC 25745	Complete Genome	
+pputida	Pseudomonas putida	GCF_000412675.1	Pseudomonas putida NBRC 14164	Complete Genome	
+proteus	Proteus	GCF_002607735.1	Proteus alimentorum	Scaffold	
+providencia	Providencia	GCF_964026685.1	Candidatus Providencia siddallii	Complete Genome	
+psalmonis	Piscirickettsia salmonis	GCF_009708955.1	Piscirickettsia salmonis	Complete Genome	
+ranatipestifer	Riemerella anatipestifer	GCF_000183155.1	Riemerella anatipestifer ATCC 11845 = DSM 15868	Complete Genome	
+rhodococcus	Rhodococcus	GCF_004011865.1	Rhodococcus (subgen. Prescottella) agglutinans	Contig	
+sagalactiae	Streptococcus agalactiae	GCF_949788565.1	Streptococcus agalactiae	Complete Genome	
+salmonella	Salmonella enterica	GCF_000006945.2	Salmonella enterica subsp. enterica serovar Typhimurium str. LT2	Complete Genome	
+saureus	Staphylococcus aureus	GCF_000013425.1	Staphylococcus aureus subsp. aureus NCTC 8325	Complete Genome	
+sbsec	Streptococcus equinus	GCF_049393805.1	Streptococcus equinus	Complete Genome	
+scanis	Streptococcus equinus	GCF_049393805.1	Streptococcus equinus	Complete Genome	
+schromogenes	Staphylococcus chromogenes	GCF_007814525.1	Staphylococcus chromogenes	Complete Genome	
+sdysgalactiae	Streptococcus dysgalactiae	GCF_016128095.1	Streptococcus dysgalactiae	Complete Genome	
+senterica_achtman_2	Salmonella enterica	GCF_000006945.2	Salmonella enterica subsp. enterica serovar Typhimurium str. LT2	Complete Genome	
+sepidermidis	Staphylococcus epidermidis	GCF_006094375.1	Staphylococcus epidermidis	Complete Genome	
+serratia	Serratia	GCF_044865145.1	Serratia aquatilis	Complete Genome	
+sgallolyticus	Streptococcus gallolyticus	GCF_013267695.1	Streptococcus gallolyticus	Complete Genome	
+shaemolyticus	Staphylococcus haemolyticus	GCF_006094395.1	Staphylococcus haemolyticus	Complete Genome	
+shewanella	Shewanella	GCF_023284025.1	Shewanella abyssi	Contig	
+shominis	Staphylococcus hominis	GCF_003812505.1	Staphylococcus hominis	Complete Genome	
+siniae	Streptococcus iniae	GCF_000831485.1	Streptococcus iniae	Complete Genome	
+sinorhizobium	Sinorhizobium	GCF_008932245.1	Sinorhizobium alkalisoli	Complete Genome	
+smaltophilia	Stenotrophomonas	GCF_014109845.1	Stenotrophomonas acidaminiphila	Complete Genome	
+smitis	Streptococcus mitis	GCF_018603625.2	Streptococcus mitis	Complete Genome	
+spneumoniae	Streptococcus pneumoniae	GCF_001457635.1	Streptococcus pneumoniae	Complete Genome	
+spseudintermedius	Staphylococcus pseudintermedius	GCF_034042775.1	Staphylococcus pseudintermedius	Complete Genome	
+spyogenes	Streptococcus pyogenes	GCF_900475035.1	Streptococcus pyogenes	Complete Genome	
+ssuis	Streptococcus suis	GCF_000026745.1	Streptococcus suis BM407	Complete Genome	
+staphlugdunensis	Staphylococcus lugdunensis	GCF_001558775.1	Staphylococcus lugdunensis	Complete Genome	
+sthermophilus	Streptococcus thermophilus	GCF_903886475.1	Streptococcus thermophilus	Complete Genome	
+streptomyces	Streptomyces	GCF_059553635.1	Candidatus Streptomyces philanthi	Contig	
+streptothermophilus	Streptococcus thermophilus	GCF_903886475.1	Streptococcus thermophilus	Complete Genome	
+suberis	Streptococcus uberis	GCF_900475595.1	Streptococcus uberis	Complete Genome	
+szooepidemicus	Streptococcus equi subsp. zooepidemicus	GCF_015689395.1	Streptococcus equi subsp. zooepidemicus	Complete Genome	
+taylorella	Taylorella	GCF_000226625.1	Taylorella asinigenitalis MCE3	Complete Genome	
+tenacibaculum	Tenacibaculum	GCF_008124875.1	Tenacibaculum adriaticum	Scaffold	
+tpallidum	Treponema pallidum	GCF_000410535.2	Treponema pallidum subsp. pallidum str. Nichols	Chromosome	
+tpyogenes	Trueperella pyogenes	GCF_001281085.1	Trueperella pyogenes	Complete Genome	
+tvaginalis	Trichomonas vaginalis	GCF_026262505.1	Trichomonas vaginalis G3	Chromosome	
+ureaplasma	Ureaplasma	GCF_000712165.1	Ureaplasma canigenitalium ATCC 51252	Scaffold	
+vcholerae	Vibrio cholerae	GCF_008369605.1	Vibrio cholerae		
+vcholerae_2	Vibrio cholerae O1	GCF_000250855.1	Vibrio cholerae IEC224	Complete Genome	
+vibrio	Vibrio	GCF_024346755.1	Vibrio aerogenes	Complete Genome	
+vparahaemolyticus	Vibrio parahaemolyticus	GCF_000196095.1	Vibrio parahaemolyticus RIMD 2210633	Complete Genome	
+vtapetis	Vibrio tapetis	GCF_030409945.1	Vibrio tapetis subsp. quintayensis	Scaffold	
+vvulnificus	Vibrio vulnificus	GCF_002224265.1	Vibrio vulnificus NBRC 15645 = ATCC 27562	Complete Genome	
+wolbachia	Wolbachia	GCF_014771645.1	Candidatus Wolbachia massiliensis	Chromosome	
+xfastidiosa	Xylella fastidiosa	GCF_028891345.1	Xylella fastidiosa	Complete Genome	
+yersinia	Yersinia	GCF_000834395.1	Yersinia aldovae 670-83	Complete Genome	
+ypseudotuberculosis_achtman_3	Yersinia pseudotuberculosis	GCF_900637475.1	Yersinia pseudotuberculosis	Complete Genome	
+yruckeri	Yersinia ruckeri	GCF_017498685.1	Yersinia ruckeri	Complete Genome	
+spyogenes	Streptococcus pyogenes (Group A Strep) SF370	GCF_000006785.2	Streptococcus pyogenes (Group A Strep) SF370		priority: Group A Strep, expected ST28
+neisseria	Neisseria gonorrhoeae FA 1090	GCF_000006845.1	Neisseria gonorrhoeae FA 1090		priority: N. gonorrhoeae
+salmonella	Salmonella enterica Typhimurium LT2	GCF_000006945.2	Salmonella enterica Typhimurium LT2		priority: Salmonella, expected ST19
+ecoli_achtman_4	Shigella sonnei Ss046	GCF_000092525.1	Shigella sonnei Ss046		priority: Shigella sonnei, expected ST152
+ecoli_achtman_4	Shigella flexneri 2a 301	GCF_000006925.2	Shigella flexneri 2a 301		priority: Shigella flexneri
+mycobacteria_2	Mycobacterium tuberculosis H37Rv	GCF_000195955.2	Mycobacterium tuberculosis H37Rv		priority: M. tuberculosis

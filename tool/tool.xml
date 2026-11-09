@@ -1,0 +1,178 @@
+<tool id="mlst_typing" name="MLST typing" version="@TOOL_VERSION@+galaxy0" profile="22.05">
+    <description>sequence type from assemblies against PubMLST schemes</description>
+    <macros>
+        <token name="@TOOL_VERSION@">0.1.0</token>
+    </macros>
+    <requirements>
+        <requirement type="package" version="2.16.0">blast</requirement>
+        <requirement type="package" version="3.12">python</requirement>
+    </requirements>
+    <required_files>
+        <include path="mlst_typing.py"/>
+        <include path="database/*" type="glob"/>
+    </required_files>
+    <version_command>python '$__tool_directory__/mlst_typing.py' --db '$__tool_directory__/database' --version</version_command>
+    <command detect_errors="exit_code"><![CDATA[
+python '$__tool_directory__/mlst_typing.py'
+    --db '$__tool_directory__/database'
+    --fofn '$fofn'
+    --threads \${GALAXY_SLOTS:-1}
+    #if $scheme_mode.mode == 'force'
+        --scheme '$scheme_mode.scheme'
+        $scheme_mode.legacy
+    #else
+        --minscore $scheme_mode.minscore
+        #if str($scheme_mode.exclude).strip()
+            --exclude '$scheme_mode.exclude'
+        #end if
+    #end if
+    $full
+    --minid $adv.minid
+    --mincov $adv.mincov
+    #if $adv.want_json
+        --json '$json_out'
+    #end if
+    #if $adv.want_novel
+        --novel '$novel_out'
+    #end if
+    --outfile '$report'
+    ]]></command>
+    <configfiles>
+        <configfile name="fofn"><![CDATA[#for $f in $input
+${f}	${f.element_identifier}
+#end for
+]]></configfile>
+    </configfiles>
+    <inputs>
+        <param name="input" type="data" format="fasta,fasta.gz,genbank,genbank.gz,embl" multiple="true"
+               label="Assemblies"
+               help="One or more assemblies (FASTA, GenBank or EMBL), or a collection. Sample names come from the dataset/element names."/>
+        <conditional name="scheme_mode">
+            <param name="mode" type="select" label="Scheme">
+                <option value="auto" selected="true">Detect automatically (best-scoring scheme)</option>
+                <option value="force">Use one scheme</option>
+            </param>
+            <when value="auto">
+                <param name="minscore" type="integer" value="50" min="0" max="100"
+                       label="Minimum score to report a scheme" help="Out of 100."/>
+                <param name="exclude" type="text" value="ecoli,abaumannii,vcholerae_2,senterica_achtman_2"
+                       label="Schemes to ignore" help="Comma-separated scheme names.">
+                    <validator type="regex" message="Scheme names, comma-separated">^[A-Za-z0-9_,]*$</validator>
+                </param>
+            </when>
+            <when value="force">
+                <param name="scheme" type="text" value="" label="Scheme name"
+                       help="For example saureus, spyogenes, neisseria, salmonella, ecoli_achtman_4.">
+                    <validator type="regex" message="One scheme name">^[A-Za-z0-9_]+$</validator>
+                </param>
+                <param name="legacy" type="boolean" truevalue="--legacy" falsevalue="" checked="false"
+                       label="Legacy layout (one column per locus with a header row)"/>
+            </when>
+        </conditional>
+        <param name="full" type="boolean" truevalue="--full" falsevalue="" checked="true"
+               label="Detailed output (STATUS and SCORE columns)"/>
+        <section name="adv" title="Advanced" expanded="false">
+            <param name="minid" type="float" value="95" min="50" max="100"
+                   label="Minimum % identity of a full-length allele for a '~' call"/>
+            <param name="mincov" type="float" value="50" min="10" max="100"
+                   label="Minimum % coverage for a partial '?' call"/>
+            <param name="want_json" type="boolean" checked="false" label="Also output JSON"/>
+            <param name="want_novel" type="boolean" checked="false" label="Also output novel alleles (FASTA)"/>
+        </section>
+    </inputs>
+    <outputs>
+        <data name="report" format="tabular" label="${tool.name} on ${on_string}"/>
+        <data name="json_out" format="json" label="${tool.name} on ${on_string}: JSON">
+            <filter>adv['want_json']</filter>
+        </data>
+        <data name="novel_out" format="fasta" label="${tool.name} on ${on_string}: novel alleles">
+            <filter>adv['want_novel']</filter>
+        </data>
+    </outputs>
+    <tests>
+        <!-- Synthetic assembly of real S. aureus alleles 1 at all 7 loci: ST1. -->
+        <test expect_num_outputs="1">
+            <param name="input" value="saureus_st1.fasta"/>
+            <output name="report">
+                <assert_contents>
+                    <has_line_matching expression="^saureus_st1.fasta\tsaureus\t1\tPERFECT\t100\tarcC\(1\);aroE\(1\);glpF\(1\);gmk\(1\);pta\(1\);tpi\(1\);yqiL\(1\)$"/>
+                </assert_contents>
+            </output>
+        </test>
+        <!-- Sequence with no MLST loci: no scheme. -->
+        <test expect_num_outputs="2">
+            <param name="input" value="no_loci.fasta"/>
+            <param name="full" value="false"/>
+            <section name="adv">
+                <param name="want_json" value="true"/>
+            </section>
+            <output name="report">
+                <assert_contents>
+                    <has_line_matching expression="^no_loci.fasta\t-\t-$"/>
+                </assert_contents>
+            </output>
+            <output name="json_out">
+                <assert_contents>
+                    <has_text text="&quot;scheme&quot;: &quot;-&quot;"/>
+                </assert_contents>
+            </output>
+        </test>
+        <!-- Forced scheme, legacy layout. -->
+        <test expect_num_outputs="1">
+            <param name="input" value="saureus_st1.fasta"/>
+            <conditional name="scheme_mode">
+                <param name="mode" value="force"/>
+                <param name="scheme" value="saureus"/>
+                <param name="legacy" value="true"/>
+            </conditional>
+            <param name="full" value="false"/>
+            <output name="report">
+                <assert_contents>
+                    <has_line line="FILE&#9;SCHEME&#9;ST&#9;arcC&#9;aroE&#9;glpF&#9;gmk&#9;pta&#9;tpi&#9;yqiL"/>
+                    <has_line line="saureus_st1.fasta&#9;saureus&#9;1&#9;1&#9;1&#9;1&#9;1&#9;1&#9;1&#9;1"/>
+                </assert_contents>
+            </output>
+        </test>
+    </tests>
+    <help><![CDATA[
+**What it does**
+
+Finds the MLST scheme that fits each assembly best and reports its
+**sequence type (ST)** and per-locus alleles. It checks every scheme in the
+bundled database at once, so you do not need to know the species.
+
+mlst-typing is a Python redesign of Torsten Seemann's *mlst*: same method,
+same allele notation and output, rebuilt in Python with a database updater
+that follows current PubMLST schemes.
+
+**Allele calls**
+
+=========  ===========================================================
+``N``      exact match to allele N
+``~N``     full length, not exact; closest is N (possible novel allele)
+``N?``     partial match to allele N (coverage ≥ mincov)
+``-``      allele missing
+``N,M``    more than one exact allele (possible contamination)
+=========  ===========================================================
+
+**Detailed output columns**
+
+FILE, SCHEME, ST, STATUS (PERFECT / OK / NOVEL / MIXED / MISSING / BAD /
+NONE), SCORE (out of 100), ALLELES.
+
+**Database**
+
+Allele and profile definitions from PubMLST (https://pubmlst.org) and
+BIGSdb-Pasteur. This release holds the standard, freely available data:
+submitted up to 31 December 2024.
+    ]]></help>
+    <citations>
+        <citation type="doi">10.12688/wellcomeopenres.14826.1</citation>
+        <citation type="bibtex">@misc{mlst,
+  author = {Seemann, Torsten},
+  title = {mlst},
+  publisher = {GitHub},
+  url = {https://github.com/tseemann/mlst}
+}</citation>
+    </citations>
+</tool>
