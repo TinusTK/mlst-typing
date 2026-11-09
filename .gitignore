@@ -17,3 +17,6 @@ dist/
 # Validation genomes are downloaded, not committed
 validation/genomes/
 .DS_Store
+
+# planemo test output
+tool_test_output.*

@@ -153,10 +153,23 @@ def test_best_scheme_tie_picks_name_order(tmp_path):
     res = {"bbb": {"x": "1"}, "aaa": {"x": "1"}}
     best = mt.best_scheme(res, {"aaa": a, "bbb": b}, minscore=50)
     assert best[0] == "aaa"
+    assert best[4] == "TIE: aaa (ST1), bbb (ST1)"
+
+
+def test_best_scheme_no_tie_no_warning(tmp_path):
+    a = make_scheme(tmp_path, "aaa", [["ST", "x"], ["1", "1"]])
+    b = make_scheme(tmp_path, "bbb", [["ST", "x"], ["1", "1"]])
+    best = mt.best_scheme({"aaa": {"x": "1"}, "bbb": {"x": "~1"}}, {"aaa": a, "bbb": b}, 0)
+    assert best[0] == "aaa" and best[4] == ""
+
+
+def test_tie_text_no_st():
+    assert mt.tie_text([("a", "5"), ("b", "-")]) == "TIE: a (ST5), b (no ST)"
+    assert mt.tie_text([("a", "5")]) == ""
 
 
 def test_best_scheme_none(tmp_path):
-    assert mt.best_scheme({}, {}, 50) == ("-", "-", "-/-/-/-/-/-/-", 0)
+    assert mt.best_scheme({}, {}, 50) == ("-", "-", "-/-/-/-/-/-/-", 0, "")
 
 
 @pytest.mark.parametrize("st,score,code,status", [
@@ -247,8 +260,15 @@ def test_list_and_info():
 def test_sepidermidis(name):
     r = run("-q", os.path.join(DATA, name))
     assert r.returncode == 0, r.stderr
-    f = r.stdout.split("\t")
+    f = r.stdout.rstrip("\n").split("\t")
     assert f[1] == "sepidermidis" and f[2] == "184"
+    assert f[-1] == ""          # WARNINGS column, empty: no tie
+
+
+@needs_blast
+def test_full_header_has_warnings():
+    r = run("-q", "--full", os.path.join(DATA, "example.fna.gz"))
+    assert r.stdout.splitlines()[0].split("\t")[-1] == "WARNINGS"
 
 
 @needs_blast
@@ -295,6 +315,11 @@ def upstream(*args):
                           capture_output=True, text=True)
 
 
+def drop_warnings(text, sep):
+    """Remove mlst-typing's extra last column (WARNINGS) to compare with mlst."""
+    return "".join(line.rsplit(sep, 1)[0] + "\n" for line in text.splitlines())
+
+
 @needs_upstream
 @pytest.mark.parametrize("mode", MODES, ids=lambda m: " ".join(m) or "default")
 def test_same_as_upstream(mode):
@@ -302,4 +327,5 @@ def test_same_as_upstream(mode):
     a = upstream("-q", *mode, *files)
     b = run("-q", *mode, *files)
     assert a.returncode == b.returncode == 0, a.stderr + b.stderr
-    assert b.stdout == a.stdout
+    ours = b.stdout if "--legacy" in mode else drop_warnings(b.stdout, "," if "--csv" in mode else "\t")
+    assert ours == a.stdout

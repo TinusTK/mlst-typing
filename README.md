@@ -26,8 +26,11 @@ What changed:
 - **Database fixes**: profile files hold only ST and loci, so extra columns
   such as `MLST_cluster` are no longer treated as a locus; loci with names
   like `EF-2` or `rpoB'` are now matched.
-- **Ties** between equally scoring schemes are settled in name order every
-  run (mlst picks at random) and are still reported as a warning.
+- **Ties are shown, not hidden.** When two or more schemes get the same top
+  score, mlst picks one of them at random, so the same genome can get a
+  different scheme and ST from run to run. mlst-typing reports the first by
+  name (the same answer every run) and lists every tied scheme with its ST
+  in a new last column, `WARNINGS`.
 - **Galaxy wrapper** ready for Galaxy Australia.
 
 ## Install
@@ -53,8 +56,9 @@ mlst-typing --version                           # tool and database version
 Output (default, tab-separated):
 
 ```
-FILE          SCHEME        ST   ALLELES...
-sample1.fasta sepidermidis  184  arcC(16) aroE(20) gtr(5) mutS(5) pyrR(15) tpiA(5) yqiL(16)
+FILE          SCHEME        ST   ALLELES...                                          WARNINGS
+sample1.fasta sepidermidis  184  arcC(16) aroE(1) gtr(2) mutS(1) pyrR(2) tpiA(1) yqiL(1)
+HS11286.fna   ecoli_achtman_4 14464 adk(1769) ... recA(866)                     TIE: ecoli_achtman_4 (ST14464), klebsiella (ST11)
 ```
 
 | Call  | Meaning |
@@ -67,8 +71,18 @@ sample1.fasta sepidermidis  184  arcC(16) aroE(20) gtr(5) mutS(5) pyrR(15) tpiA(
 
 `--full` adds STATUS (`PERFECT`, `OK`, `NOVEL`, `MIXED`, `MISSING`, `BAD`,
 `NONE`) and SCORE (out of 100). `--json FILE` and `--novel FILE` write JSON
-results and novel allele sequences. The options and output are the same as
-mlst 2.35.0, so existing pipelines can switch without changes.
+results and novel allele sequences.
+
+**WARNINGS** (last column in the default and `--full` layouts, `warnings`
+in JSON) is empty unless several schemes tie for the top score. It then
+reads `TIE: scheme (STx), scheme (STy)`. The tied schemes number their STs
+separately, so the ST depends on which scheme is right for your species:
+for example *Klebsiella pneumoniae* HS11286 ties between `klebsiella` ST11
+(correct) and `ecoli_achtman_4` ST14464. Check the species and use that
+scheme, or rerun with `--scheme`.
+
+Apart from that extra column the options and output are the same as mlst
+2.35.0, so pipelines that read columns by position keep working.
 
 ## Database
 

@@ -95,7 +95,7 @@ ${f}	${f.element_identifier}
             <param name="input" value="saureus_st1.fasta"/>
             <output name="report">
                 <assert_contents>
-                    <has_line_matching expression="^saureus_st1.fasta\tsaureus\t1\tPERFECT\t100\tarcC\(1\);aroE\(1\);glpF\(1\);gmk\(1\);pta\(1\);tpi\(1\);yqiL\(1\)$"/>
+                    <has_line_matching expression="^saureus_st1.fasta\tsaureus\t1\tPERFECT\t100\tarcC\(1\);aroE\(1\);glpF\(1\);gmk\(1\);pta\(1\);tpi\(1\);yqiL\(1\)\t$"/>
                 </assert_contents>
             </output>
         </test>
@@ -108,7 +108,7 @@ ${f}	${f.element_identifier}
             </section>
             <output name="report">
                 <assert_contents>
-                    <has_line_matching expression="^no_loci.fasta\t-\t-$"/>
+                    <has_line_matching expression="^no_loci.fasta\t-\t-\t$"/>
                 </assert_contents>
             </output>
             <output name="json_out">
@@ -158,7 +158,14 @@ that follows current PubMLST schemes.
 **Detailed output columns**
 
 FILE, SCHEME, ST, STATUS (PERFECT / OK / NOVEL / MIXED / MISSING / BAD /
-NONE), SCORE (out of 100), ALLELES.
+NONE), SCORE (out of 100), ALLELES, WARNINGS.
+
+**WARNINGS column** (also added to the default layout, as the last column)
+
+Empty, or ``TIE: scheme (STx), scheme (STy)`` when more than one scheme
+gets the same top score. The first scheme by name is reported in SCHEME/ST
+(the original mlst picks one of them at random); check the tied schemes and
+use the one for your species.
 
 **Database**
 

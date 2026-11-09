@@ -316,8 +316,21 @@ def score_scheme(scheme, calls):
     return st, sig, score
 
 
+def tie_text(tied):
+    """WARNINGS text for schemes sharing the top score: 'TIE: a (ST1), b (ST2)'."""
+    if len(tied) < 2:
+        return ""
+    return "TIE: " + ", ".join(
+        f"{name} (ST{st})" if st != "-" else f"{name} (no ST)" for name, st in tied)
+
+
 def best_scheme(res, schemes, minscore, force_scheme=None, allele_cnt=7, fname=""):
-    """Pick the top-scoring scheme. Ties go to the first name (A-Z) and are warned."""
+    """Pick the top-scoring scheme.
+
+    Returns (scheme, ST, signature, score, warnings). On a tie the first
+    scheme by name (A-Z) is reported (mlst picks one at random), and every
+    tied scheme with its ST goes into warnings.
+    """
     sigs = [((force_scheme or "-"), "-", "/".join(["-"] * allele_cnt), 0)]
     for name in sorted(res):
         if name not in schemes:
@@ -331,7 +344,9 @@ def best_scheme(res, schemes, minscore, force_scheme=None, allele_cnt=7, fname="
     for other in sigs[1:]:
         if other[3] == sigs[0][3]:
             Log.wrn(f"{sigs[0][0]}({sigs[0][1]})=={other[0]}({other[1]}) score={other[3]} {fname}")
-    return sigs[0]
+    sentinel = sigs[0] if sigs[0][1:] == ("-", "/".join(["-"] * allele_cnt), 0) else None
+    tied = [(s[0], s[1]) for s in sigs if s is not sentinel and s[3] == sigs[0][3]]
+    return (*sigs[0], tie_text(tied))
 
 
 def status_column(st, score, code):
@@ -382,14 +397,14 @@ def type_genome(path, label, opts, schemes, tmpdir, nov_all):
     res, nov = call_alleles(hits, opts.mincov, opts.scheme, opts.exclude_set,
                             bool(opts.novel))
     allele_cnt = len(schemes[opts.scheme].genes) if opts.scheme else 7
-    sch, st, sig, score = best_scheme(res, schemes, opts.minscore, opts.scheme,
-                                      allele_cnt, path)
+    sch, st, sig, score, warnings = best_scheme(res, schemes, opts.minscore,
+                                                opts.scheme, allele_cnt, path)
     # keep novel alleles of the chosen scheme only
     nov_all.setdefault(label, {}).update({k: v for k, v in nov.items() if k == sch})
     for k in list(nov_all[label]):
         if k != sch:
             del nov_all[label][k]
-    return sch, st, sig, score
+    return sch, st, sig, score, warnings
 
 
 # --------------------------------------------------------------------------
@@ -555,7 +570,7 @@ def run(o, db):
     if o.scheme and o.legacy:
         out.row("FILE", "SCHEME", "ST", *schemes[o.scheme].genes)
     elif o.full:
-        out.row("FILE", "SCHEME", "ST", "STATUS", "SCORE", "ALLELES")
+        out.row("FILE", "SCHEME", "ST", "STATUS", "SCORE", "ALLELES", "WARNINGS")
 
     results, nov_all = [], {}
     with tempfile.TemporaryDirectory(prefix="mlst-typing_") as tmp:
@@ -567,7 +582,7 @@ def run(o, db):
             label = o.label or labels.get(path) or (os.path.basename(path) if o.nopath else path)
             if label != path:
                 Log.msg(f"Using label '{label}' for file {path}")
-            sch, st, sig, score = type_genome(path, label, o, schemes, tmp, nov_all)
+            sch, st, sig, score, warnings = type_genome(path, label, o, schemes, tmp, nov_all)
             if o.scheme and sch != o.scheme:
                 err(f"BUG: got back {sch} despite --scheme {o.scheme}")
             code = [] if sch == "-" else sort_duplicates(sig.split("/"))
@@ -578,12 +593,13 @@ def run(o, db):
                 alleles = [f"{g}({c})" for g, c in zip(genes, code)]
                 if o.full:
                     out.row(label, sch, st, status_column(st, score, code), score,
-                            ";".join(alleles))
+                            ";".join(alleles), warnings)
                 else:
-                    out.row(label, sch, st, *alleles)
+                    out.row(label, sch, st, *alleles, warnings)
             results.append({
                 "id": label, "filename": path, "scheme": sch, "sequence_type": st,
                 "alleles": None if sch == "-" else dict(zip(genes, code)),
+                "warnings": [warnings] if warnings else [],
             })
 
     if o.json:
