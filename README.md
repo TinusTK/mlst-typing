@@ -48,8 +48,11 @@ What changed:
 ```bash
 conda env create -f environment.yml    # python 3.12 + blast 2.16.0
 conda activate mlst-typing
-pip install .                          # gives the mlst-typing command
+pip install .                          # gives the mlst-typing command, with the database
 ```
+
+The database is installed with it, so the command works from any folder. To
+use another copy, pass `--db` or set `MLST_TYPING_DB`.
 
 or run the script directly: `python tool/mlst_typing.py`.
 
