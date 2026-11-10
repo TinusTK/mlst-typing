@@ -152,7 +152,8 @@ that follows current PubMLST schemes.
 ``~N``     full length, not exact; closest is N (possible novel allele)
 ``N?``     partial match to allele N (coverage ≥ mincov)
 ``-``      allele missing
-``N,M``    more than one exact allele (possible contamination)
+``N,N``    several copies of the same exact allele (multi-copy locus)
+``N,M``    different exact alleles (possible contamination)
 =========  ===========================================================
 
 **Detailed output columns**
@@ -160,9 +161,11 @@ that follows current PubMLST schemes.
 FILE, SCHEME, ST, ALLELES, STATUS, SCORE (out of 100), WARNINGS.
 
 STATUS: PERFECT (full ST), PARTIAL (all loci found, some not exact, no ST),
-NOVEL (all alleles exact but a new combination), MIXED (more than one exact
-allele at a locus), MISSING (a locus not found), BAD (score under 70),
-NONE (no scheme). The original mlst calls PARTIAL "OK".
+NOVEL (all alleles exact but a new combination), MULTICOPY (a locus in
+several copies of the same allele; the ST is still reported), MIXED
+(different exact alleles at one locus, no ST), MISSING (a locus not found),
+BAD (score under 70), NONE (no scheme). The original mlst calls PARTIAL "OK"
+and reports MULTICOPY as MIXED without an ST.
 
 **WARNINGS column** (also added to the default layout, as the last column)
 

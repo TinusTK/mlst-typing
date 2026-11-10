@@ -302,7 +302,9 @@ def call_alleles(hits, mincov, force_scheme=None, exclude=(), novel=False):
 def score_scheme(scheme, calls):
     """(ST, signature, score) of one scheme, score out of 100."""
     sig = scheme.signature_of(calls)
-    st = scheme.sequence_type(sig)
+    # several identical copies of a locus (e.g. 16S "5,5,5") are one allele
+    # for the ST lookup; the copies stay in the signature that is reported
+    st = scheme.sequence_type("/".join(collapse_copies(c) for c in sig.split("/")))
     if st != "-" and "/-" in sig:
         sig = sig.replace("/-", "/0")   # null alleles: gene(0), not gene(-)
     n = scheme.num_genes
@@ -349,15 +351,25 @@ def best_scheme(res, schemes, minscore, force_scheme=None, allele_cnt=7, fname="
     return (*sigs[0], tie_text(tied))
 
 
+def collapse_copies(call):
+    """'5,5,5' -> '5' (identical copies of one allele); '1,142' stays as it is."""
+    parts = call.split(",")
+    return parts[0] if len(parts) > 1 and len(set(parts)) == 1 else call
+
+
 def status_column(st, score, code):
+    # a locus in several identical copies ("5,5,5"); mlst calls this MIXED
+    multi = any(collapse_copies(c) != c for c in code)
     if re.fullmatch(r"\d+", st):
-        return "PERFECT"
+        return "MULTICOPY" if multi else "PERFECT"
     if score <= 0:
         return "NONE"
     if not any(re.search(r"\D", c) for c in code):
         return "NOVEL"
-    if any("," in c for c in code):
-        return "MIXED"
+    if any("," in collapse_copies(c) for c in code):
+        return "MIXED"       # different alleles at one locus
+    if multi:
+        return "MULTICOPY"
     if any("-" in c for c in code):
         return "MISSING"
     if score < 70:

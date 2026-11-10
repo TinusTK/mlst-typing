@@ -177,12 +177,32 @@ def test_best_scheme_none(tmp_path):
     ("-", 0, [], "NONE"),
     ("-", 90, ["1", "2"], "NOVEL"),
     ("-", 80, ["1,2", "~3"], "MIXED"),
+    ("5", 100, ["3,3,3", "2"], "MULTICOPY"),      # identical copies, full ST
+    ("-", 90, ["3,3", "2"], "MULTICOPY"),         # identical copies, no ST
+    ("-", 90, ["1,1,4,4", "2"], "MIXED"),         # two different alleles
+    ("-", 85, ["3,3", "~2"], "MULTICOPY"),
     ("-", 80, ["1", "-"], "MISSING"),
     ("-", 60, ["1", "~2"], "BAD"),
     ("-", 85, ["1", "~2"], "PARTIAL"),
 ])
 def test_status(st, score, code, status):
     assert mt.status_column(st, score, code) == status
+
+
+def test_collapse_copies():
+    assert [mt.collapse_copies(c) for c in ["5,5,5", "1,142", "7", "~3", "-"]] == \
+        ["5", "1,142", "7", "~3", "-"]
+
+
+def test_multicopy_gets_st():
+    class S:
+        num_genes = 2
+        genes = ["a", "b"]
+        genotypes = {"5/2": "9"}
+        signature_of = mt.Scheme.signature_of
+        sequence_type = mt.Scheme.sequence_type
+    assert mt.score_scheme(S(), {"a": "5,5,5", "b": "2"}) == ("9", "5,5,5/2", 100)
+    assert mt.score_scheme(S(), {"a": "5,6", "b": "2"}) == ("-", "5,6/2", 90)
 
 
 def test_sort_duplicates():
@@ -324,11 +344,12 @@ def drop_warnings(text, sep):
 
 
 def as_mlst_full(text):
-    """mlst-typing --full -> mlst --full: FILE SCHEME ST STATUS SCORE ALLELES, OK not PARTIAL."""
+    """mlst-typing --full -> mlst --full: FILE SCHEME ST STATUS SCORE ALLELES;
+    mlst says OK for PARTIAL and MIXED for MULTICOPY."""
     out = []
     for line in text.splitlines():
         f = line.split("\t")[:6]                    # drop WARNINGS
-        f = f[:3] + [f[4].replace("PARTIAL", "OK"), f[5], f[3]]
+        f = f[:3] + [f[4].replace("PARTIAL", "OK").replace("MULTICOPY", "MIXED"), f[5], f[3]]
         out.append("\t".join(f) + "\n")
     return "".join(out)
 

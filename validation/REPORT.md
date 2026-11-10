@@ -4,10 +4,10 @@ Run 2026-11-10: 194 genomes listed (one public NCBI assembly per scheme + priori
 
 - Typed: 194 (0 without a genome)
 - Called the scheme the genome was picked for: 151/194
-- PERFECT (full ST): 142/194
-- Same result as upstream mlst on the same database: **185/194**
-- Upstream picked another of the tied schemes this run: 8/194 (see Ties)
-- Loci mlst cannot read by name, typed by mlst-typing: 1/194 (see Locus-name fix)
+- Full ST (PERFECT or MULTICOPY): 146/194
+- Same result as upstream mlst on the same database: **180/194**
+- Upstream picked another of the tied schemes this run: 9/194 (see Ties)
+- Deliberate differences (identical copies of a locus, locus names mlst cannot read): 5/194 (see Deliberate differences)
 - Real differences: **0/194**
 
 ## Priority organisms
@@ -28,14 +28,14 @@ Some schemes cover a whole genus, and the first NCBI pick was a species the sche
 | Scheme | First pick: result | Matched genome | Called scheme | ST in this scheme | Status | Score | Same as mlst | Warnings | Note |
 |---|---|---|---|---|---|---|---|---|---|
 | arcobacter | Arcobacter acticola: NONE | Aliarcobacter butzleri 6V (GCF_004283115.1) | arcobacter | 537 | PERFECT | 100 | yes | none | A. butzleri, the main species of the scheme |
-| brachyspira | Brachyspira aalborgi: NONE | Brachyspira hyodysenteriae ATCC 27164 (GCF_001676785.2) | brachyspira | 5 | PERFECT | 100 | yes | TIE: brachyspira (ST5), brachyspira_2 (ST56) | B. hyodysenteriae (genus-wide scheme) |
+| brachyspira | Brachyspira aalborgi: NONE | Brachyspira hyodysenteriae ATCC 27164 (GCF_001676785.2) | brachyspira | 5 | PERFECT | 100 | tie | TIE: brachyspira (ST5), brachyspira_2 (ST56) | B. hyodysenteriae (genus-wide scheme) |
 | brachyspira_2 | Brachyspira aalborgi: NONE | Brachyspira hyodysenteriae BH718 (GCF_002850235.1) | brachyspira_2 | 83 | PERFECT | 100 | yes | none | scheme is B. hyodysenteriae MLST |
 | brachyspira_3 | Brachyspira aalborgi: NONE | Brachyspira intermedia PWS/A (GCF_000223215.1) | brachyspira_3 | - | NOVEL | 90 | yes | none | scheme is B. intermedia MLST; all alleles exact, combination has no ST yet |
 | brachyspira_4 | Brachyspira aalborgi: NONE | Brachyspira pilosicoli 95/1000 (GCF_000143725.1) | brachyspira_4 | 138 | PERFECT | 100 | yes | none | scheme is B. pilosicoli MLST |
 | brachyspira_5 | Brachyspira aalborgi: NONE | Brachyspira hampsonii 30446 (GCF_000316195.1) | brachyspira_5 | 7 | PERFECT | 100 | yes | none | scheme is B. hampsonii MLST |
-| halobacteria | Candidatus Halobonum tyrrellensis G22: NONE | Halorubrum lacusprofundi ATCC 49239 (GCF_000022205.1) | halobacteria | - | NOVEL | 90 | no (locus-name fix) | none | Halorubrum; the scheme has no public ST profiles, so no ST is possible |
-| leptospira | Leptospira abararensis: NONE | Leptospira interrogans serovar Copenhageni FDAARGOS_203 (GCF_002073495.2) | leptospira | 17 | PERFECT | 100 | yes | TIE: leptospira (ST17), leptospira_2 (ST47) | L. interrogans |
-| leptospira_2 | Leptospira abararensis: NONE | Leptospira interrogans serovar Copenhageni FDAARGOS_203 (GCF_002073495.2) | leptospira | 47 (tie) | PERFECT | 100 | tie | TIE: leptospira (ST17), leptospira_2 (ST47) | L. interrogans |
+| halobacteria | Candidatus Halobonum tyrrellensis G22: NONE | Halorubrum lacusprofundi ATCC 49239 (GCF_000022205.1) | halobacteria | - | NOVEL | 90 | no (deliberate, see below) | none | Halorubrum; the scheme has no public ST profiles, so no ST is possible |
+| leptospira | Leptospira abararensis: NONE | Leptospira interrogans serovar Copenhageni FDAARGOS_203 (GCF_002073495.2) | leptospira | 17 | PERFECT | 100 | tie | TIE: leptospira (ST17), leptospira_2 (ST47), leptospira_3 (ST2) | L. interrogans |
+| leptospira_2 | Leptospira abararensis: NONE | Leptospira interrogans serovar Copenhageni FDAARGOS_203 (GCF_002073495.2) | leptospira | 47 (tie) | PERFECT | 100 | tie | TIE: leptospira (ST17), leptospira_2 (ST47), leptospira_3 (ST2) | L. interrogans |
 | leptospira_3 | Leptospira abararensis: NONE | Leptospira interrogans CUDO5 (GCF_002370085.3) | leptospira | 188 (tie) | PERFECT | 100 | yes | TIE: leptospira (ST26), leptospira_3 (ST188) | L. interrogans |
 | liberibacter | Candidatus Liberibacter africanus PTSAPSY: NONE | Candidatus Liberibacter solanacearum CLso-ZC1 (GCF_000183665.1) | liberibacter | 10 | PERFECT | 100 | yes | none | Ca. L. solanacearum |
 | mycobacteria_2 | Candidatus Mycobacterium methanotrophicum: NONE | Mycobacterium tuberculosis H37Rv (GCF_000195955.2) | mycobacteria_2 | 215 | PERFECT | 100 | yes | none | M. tuberculosis (same genome as the priority list) |
@@ -58,13 +58,17 @@ Some schemes cover a whole genus, and the first NCBI pick was a species the sche
 
 None.
 
-## Locus-name fix (loci mlst reports as missing) (1)
+## Deliberate differences from upstream mlst (5)
 
-mlst cannot read locus names such as `EF-2` or `rpoB'` and reports those loci as missing. mlst-typing matches them (a deliberate change), so these genomes get more loci and a higher score than with mlst.
+Two things mlst-typing does differently on purpose. (1) When a locus is in the genome in several copies of the same allele, e.g. `16S(1,1)`, mlst reports MIXED and no ST; mlst-typing keeps the copies in the allele column, looks up the ST and reports MULTICOPY. MIXED is kept for different alleles at one locus. (2) mlst cannot read locus names such as `EF-2` or `rpoB'` and reports those loci as missing; mlst-typing matches them.
 
-| Genome | mlst-typing | upstream mlst |
-|---|---|---|
-| Halorubrum lacusprofundi ATCC 49239 (GCF_000022205.1) | halobacteria: atpB(4);EF-2(4);radA(4);rpoB'(3);secY(4), NOVEL, score 90 | halobacteria: atpB(4);EF-2(-);radA(4);rpoB'(-);secY(4), MISSING, score 54 |
+| Genome | Why | mlst-typing | upstream mlst |
+|---|---|---|---|
+| Bartonella henselae (GCF_019930925.1) | identical copies of a locus: ST reported, MULTICOPY | bhenselae ST1: 16S(1,1);batR(1);ftsZ(1);gltA(1);groEL(1);nlpD(1);ribC(1);rpoB(1), MULTICOPY, score 100 | bhenselae ST-: 16S(1,1);batR(1);ftsZ(1);gltA(1);groEL(1);nlpD(1);ribC(1);rpoB(1), MIXED, score 90 |
+| Candidatus Chlamydia corallus (GCF_002817655.1) | identical copies of a locus: ST reported, MULTICOPY | chlamydiales ST265: gatA(79);oppA(73);hflX(84);gidA(86);enoA(90);hemN(70,70);fumC(72), MULTICOPY, score 100 | chlamydiales ST-: gatA(79);oppA(73);hflX(84);gidA(86);enoA(90);hemN(70,70);fumC(72), MIXED, score 90 |
+| Helicobacter cinaedi PAGU611 (GCF_000284635.1) | identical copies of a locus: ST reported, MULTICOPY | hcinaedi ST8: 23S_rRNA(3,3);ppa(4);aspA(4);aroE(3);atpA(2);tkt(3);cdtB(2), MULTICOPY, score 100 | hcinaedi ST-: 23S_rRNA(3,3);ppa(4);aspA(4);aroE(3);atpA(2);tkt(3);cdtB(2), MIXED, score 90 |
+| Porphyromonas gingivalis ATCC 33277 (GCF_000010505.1) | identical copies of a locus: ST reported, MULTICOPY | pgingivalis ST96: ftsQ(5);gpdxJ(9);hagB(1,1);mcmA(1);pepO(1);pga(5);recA(5), MULTICOPY, score 100 | pgingivalis ST-: ftsQ(5);gpdxJ(9);hagB(1,1);mcmA(1);pepO(1);pga(5);recA(5), MIXED, score 90 |
+| Halorubrum lacusprofundi ATCC 49239 (GCF_000022205.1) | locus names mlst cannot read | halobacteria ST-: atpB(4);EF-2(4);radA(4);rpoB'(3);secY(4), NOVEL, score 90 | halobacteria ST-: atpB(4);EF-2(-);radA(4);rpoB'(-);secY(4), MISSING, score 54 |
 
 ## Ties (same top score for more than one scheme) (15)
 
@@ -73,7 +77,7 @@ Two or more schemes give these genomes the same top score. Upstream mlst picks o
 | Genome | mlst-typing reports | upstream mlst (this run) | Score | Warnings |
 |---|---|---|---|---|
 | Bacillus licheniformis (GCF_034478925.1) | blicheniformis_14 ST1 | blicheniformis_14 ST1 | 100 | TIE: blicheniformis_14 (ST1), bsubtilis (ST29) |
-| Corynebacterium diphtheriae (GCF_001457455.1) | cdiphtheriae ST26 | cdiphtheriae ST26 | 100 | TIE: cdiphtheriae (ST26), diphtheria_3 (ST26) |
+| Corynebacterium diphtheriae (GCF_001457455.1) | cdiphtheriae ST26 | diphtheria_3 ST26 | 100 | TIE: cdiphtheriae (ST26), diphtheria_3 (ST26) |
 | Klebsiella pneumoniae subsp. pneumoniae HS11286 (GCF_000240185.1) | ecoli_achtman_4 ST14464 | klebsiella ST11 | 100 | TIE: ecoli_achtman_4 (ST14464), klebsiella (ST11) |
 | Mycobacteroides abscessus ATCC 19977 (GCF_000069185.1) | mabscessus ST5 | mycobacteria_2 ST5 | 100 | TIE: mabscessus (ST5), mycobacteria_2 (ST5) |
 | Mycoplasmopsis bovis PG45 (GCF_000183385.1) | mbovis ST17 | mbovis ST17 | 100 | TIE: mbovis (ST17), mbovis_2 (ST12) |
@@ -81,11 +85,11 @@ Two or more schemes give these genomes the same top score. Upstream mlst picks o
 | Pasteurella multocida (GCF_002073255.2) | pmultocida ST124 | pmultocida ST124 | 100 | TIE: pmultocida (ST124), pmultocida_2 (ST8) |
 | Streptococcus gallolyticus (GCF_013267695.1) | sbsec ST34 | sbsec ST34 | 100 | TIE: sbsec (ST34), sgallolyticus (ST117) |
 | Vibrio parahaemolyticus RIMD 2210633 (GCF_000196095.1) | vibrio ST152 | vparahaemolyticus ST3 | 100 | TIE: vibrio (ST152), vparahaemolyticus (ST3) |
-| Vibrio vulnificus NBRC 15645 = ATCC 27562 (GCF_002224265.1) | vibrio ST126 | vibrio ST126 | 100 | TIE: vibrio (ST126), vvulnificus (ST3) |
+| Vibrio vulnificus NBRC 15645 = ATCC 27562 (GCF_002224265.1) | vibrio ST126 | vvulnificus ST3 | 100 | TIE: vibrio (ST126), vvulnificus (ST3) |
 | Yersinia pseudotuberculosis (GCF_900637475.1) | yersinia ST90 | yersinia ST90 | 100 | TIE: yersinia (ST90), ypseudotuberculosis_achtman_3 (ST9) |
-| Yersinia ruckeri (GCF_017498685.1) | yersinia ST44 | ypseudotuberculosis_achtman_3 ST276 | 100 | TIE: yersinia (ST44), ypseudotuberculosis_achtman_3 (ST276), yruckeri (ST33) |
-| Brachyspira hyodysenteriae ATCC 27164 (GCF_001676785.2) | brachyspira ST5 | brachyspira ST5 | 100 | TIE: brachyspira (ST5), brachyspira_2 (ST56) |
-| Leptospira interrogans serovar Copenhageni FDAARGOS_203 (GCF_002073495.2) | leptospira ST17 | leptospira ST17 | 100 | TIE: leptospira (ST17), leptospira_2 (ST47) |
+| Yersinia ruckeri (GCF_017498685.1) | yersinia ST44 | yersinia ST44 | 100 | TIE: yersinia (ST44), ypseudotuberculosis_achtman_3 (ST276), yruckeri (ST33) |
+| Brachyspira hyodysenteriae ATCC 27164 (GCF_001676785.2) | brachyspira ST5 | brachyspira_2 ST56 | 100 | TIE: brachyspira (ST5), brachyspira_2 (ST56) |
+| Leptospira interrogans serovar Copenhageni FDAARGOS_203 (GCF_002073495.2) | leptospira ST17 | leptospira_2 ST47 | 100 | TIE: leptospira (ST17), leptospira_2 (ST47), leptospira_3 (ST2) |
 | Leptospira interrogans CUDO5 (GCF_002370085.3) | leptospira ST26 | leptospira ST26 | 100 | TIE: leptospira (ST26), leptospira_3 (ST188) |
 
 ## Other scheme called than the one picked for (43)
@@ -135,7 +139,7 @@ Each genome was picked from NCBI for one scheme, but typing chose another (or no
 | yersinia | Yersinia aldovae 670-83 (GCF_000834395.1) | ypseudotuberculosis_achtman_3 | ST217 | PERFECT | `ypseudotuberculosis_achtman_3` scores higher than `yersinia` for this genome |  |
 | ypseudotuberculosis_achtman_3 | Yersinia pseudotuberculosis (GCF_900637475.1) | yersinia | ST90 | PERFECT | Tie with `ypseudotuberculosis_achtman_3` (same score); the first by name is reported | TIE: yersinia (ST90), ypseudotuberculosis_achtman_3 (ST9) |
 | yruckeri | Yersinia ruckeri (GCF_017498685.1) | yersinia | ST44 | PERFECT | Tie with `yruckeri` (same score); the first by name is reported | TIE: yersinia (ST44), ypseudotuberculosis_achtman_3 (ST276), yruckeri (ST33) |
-| leptospira_2 | Leptospira interrogans serovar Copenhageni FDAARGOS_203 (GCF_002073495.2) | leptospira | ST17 | PERFECT | Tie with `leptospira_2` (same score); the first by name is reported | TIE: leptospira (ST17), leptospira_2 (ST47) |
+| leptospira_2 | Leptospira interrogans serovar Copenhageni FDAARGOS_203 (GCF_002073495.2) | leptospira | ST17 | PERFECT | Tie with `leptospira_2` (same score); the first by name is reported | TIE: leptospira (ST17), leptospira_2 (ST47), leptospira_3 (ST2) |
 | leptospira_3 | Leptospira interrogans CUDO5 (GCF_002370085.3) | leptospira | ST26 | PERFECT | Tie with `leptospira_3` (same score); the first by name is reported | TIE: leptospira (ST26), leptospira_3 (ST188) |
 
 ## Schemes without a validation genome (0)
@@ -159,7 +163,7 @@ Each genome once, as `mlst-typing --full` reports it.
 | Burkholderia aenigmatica (GCF_048627025.1) | bcc | 2120 | atpD(180);gltB(210);gyrB(1351);recA(778);lepA(887);phaC(310);trpB(851) | PERFECT | 100 | none |
 | Bacillus cereus ATCC 14579 (GCF_006094295.1) | bcereus | 4 | glp(13);gmk(8);ilv(8);pta(11);pur(11);pyc(12);tpi(7) | PERFECT | 100 | none |
 | Bacteroides fragilis NCTC 9343 (GCF_000025985.1) | bfragilis | 26 | dnaJ(4);fusA(3);groL(5);prfA(2);recA(2);rpoB(15);rprX(13) | PERFECT | 100 | none |
-| Bartonella henselae (GCF_019930925.1) | bhenselae | - | 16S(1,1);batR(1);ftsZ(1);gltA(1);groEL(1);nlpD(1);ribC(1);rpoB(1) | MIXED | 90 | none |
+| Bartonella henselae (GCF_019930925.1) | bhenselae | 1 | 16S(1,1);batR(1);ftsZ(1);gltA(1);groEL(1);nlpD(1);ribC(1);rpoB(1) | MULTICOPY | 100 | none |
 | Bacillus licheniformis (GCF_034478925.1) | blicheniformis_14 | 1 | adk(1);ccpA(1);recF(1);rpoB(1);spo0A(1);sucC(1) | PERFECT | 100 | TIE: blicheniformis_14 (ST1), bsubtilis (ST29) |
 | Bordetella pertussis (GCF_004008975.1) | bordetella_3 | 2 | adk(1);fumC(1);glyA(1);tyrB(3);icd(1);pepA(1);pgm(1) | PERFECT | 100 | none |
 | Borrelia anserina Es (GCF_001936255.1) | borrelia | 668 | clpA(212);clpX(179);nifS(161);pepX(186);pyrG(196);recG(204);rplB(170);uvrA(188) | PERFECT | 100 | none |
@@ -182,7 +186,7 @@ Each genome once, as `mlst-typing --full` reports it.
 | Clostridioides difficile (GCF_018885085.1) | cdifficile | 8 | adk(1);atpA(1);dxr(2);glyA(6);recA(1);sodA(5);tpi(1) | PERFECT | 100 | none |
 | Corynebacterium diphtheriae (GCF_001457455.1) | cdiphtheriae | 26 | atpA(8);dnaE(2);dnaK(16);fusA(1);leuA(3);odhA(3);rpoB(12) | PERFECT | 100 | TIE: cdiphtheriae (ST26), diphtheria_3 (ST26) |
 | Citrobacter amalonaticus (GCF_020099335.1) | cfreundii | 710 | aspC(137);clpX(152);fadD(215);mdh(212);arcA(75);dnaG(184);lysP(186) | PERFECT | 100 | none |
-| Candidatus Chlamydia corallus (GCF_002817655.1) | chlamydiales | - | gatA(79);oppA(73);hflX(84);gidA(86);enoA(90);hemN(70,70);fumC(72) | MIXED | 90 | none |
+| Candidatus Chlamydia corallus (GCF_002817655.1) | chlamydiales | 265 | gatA(79);oppA(73);hflX(84);gidA(86);enoA(90);hemN(70,70);fumC(72) | MULTICOPY | 100 | none |
 | Carnobacterium maltaromaticum (GCF_949790605.1) | cmaltaromaticum | - | dapE(12);ddlA(4);glpQ(7);ilvE(4);leuS(3);pyc(10);pyrE(3) | NOVEL | 90 | none |
 | Clostridium perfringens (GCF_016027375.1) | cperfringens | - | colA(2);groEL(3);sodA(1);plc(10);gyrB(3);sigK(2);pgk(1);nadA(114) | NOVEL | 90 | none |
 | Cronobacter condimenti 1330 (GCF_001277255.1) | cronobacter | 98 | atpD(24);fusA(86);glnS(96);gltB(28);gyrB(63);infB(42);pps(147) | PERFECT | 100 | none |
@@ -197,7 +201,7 @@ Each genome once, as `mlst-typing --full` reports it.
 | Gallibacterium anatis DSM 16844 = F 149 (GCF_000772265.1) | gallibacterium | - | adk(14);atpD(21);fumC(~22);gyrB(7);infB(32);mdh(9?);recN(21);thdF(6) | PARTIAL | 81 | none |
 | Geotrichum candidum (GCA_013365045.1) | geotrichum | - | NUP116(8);URA1(6);URA3(4);SAPT4(2?);PLB3(5) | PARTIAL | 81 | none |
 | Candidatus Halobonum tyrrellensis G22 (GCF_000495475.1) | - | - |  | NONE | 0 | none |
-| Helicobacter cinaedi PAGU611 (GCF_000284635.1) | hcinaedi | - | 23S_rRNA(3,3);ppa(4);aspA(4);aroE(3);atpA(2);tkt(3);cdtB(2) | MIXED | 90 | none |
+| Helicobacter cinaedi PAGU611 (GCF_000284635.1) | hcinaedi | 8 | 23S_rRNA(3,3);ppa(4);aspA(4);aroE(3);atpA(2);tkt(3);cdtB(2) | MULTICOPY | 100 | none |
 | Helicobacter pylori (GCF_025998455.1) | helicobacter | - | atpA(2663);efp(2487);mutY(2684);ppa(1965);trpC(1536);ureI(2754);yphC(2775) | NOVEL | 90 | none |
 | Haemophilus influenzae (GCF_020736045.1) | hinfluenzae | 3 | adk(1);atpG(1);frdB(1);fucK(1);mdh(1);pgi(1);recA(5) | PERFECT | 100 | none |
 | Glaesserella parasuis (GCF_017352235.1) | hparasuis | 428 | atpD(7);infB(67);mdh(34);rpoB(1);6pgd(43);g3pd(3);frdB(39) | PERFECT | 100 | none |
@@ -242,7 +246,7 @@ Each genome once, as `mlst-typing --full` reports it.
 | Pseudomonas aeruginosa PAO1 (GCF_000006765.1) | paeruginosa | 549 | acsA(7);aroE(5);guaA(12);mutL(3);nuoD(4);ppsA(1);trpE(7) | PERFECT | 100 | none |
 | Photobacterium damselae subsp. damselae (GCF_038086725.1) | vibrio | - | gyrB(~247);pyrH(209);recA(~238);atpA(~174) | BAD | 69 | none |
 | Pseudomonas fluorescens (GCF_900215245.1) | pfluorescens | 128 | glnS(22);gyrB(22);ileS(102);nuoD(22);recA(22);rpoB(96);rpoD(22) | PERFECT | 100 | none |
-| Porphyromonas gingivalis ATCC 33277 (GCF_000010505.1) | pgingivalis | - | ftsQ(5);gpdxJ(9);hagB(1,1);mcmA(1);pepO(1);pga(5);recA(5) | MIXED | 90 | none |
+| Porphyromonas gingivalis ATCC 33277 (GCF_000010505.1) | pgingivalis | 96 | ftsQ(5);gpdxJ(9);hagB(1,1);mcmA(1);pepO(1);pga(5);recA(5) | MULTICOPY | 100 | none |
 | Paenibacillus larvae subsp. larvae (GCF_002951935.1) | plarvae | 8 | glpF(1);sigF(2);glpT(2);Natrans(1);rpoB(2);ftsA(1);clpC(1) | PERFECT | 100 | none |
 | Pasteurella multocida (GCF_002073255.2) | pmultocida | 124 | mh_adk(10);mh_aroA(40);mh_deoD(3);mh_gdhA(29);mh_g6pd(29);mh_mdh(16);mh_pgi(33) | PERFECT | 100 | TIE: pmultocida (ST124), pmultocida_2 (ST8) |
 | Pediococcus pentosaceus ATCC 25745 (GCF_000014505.1) | ppentosaceus | 1 | gyrB(1);pyc(1);pgm(1);leuS(1);glnA(1);dalR(1);pgI(1) | PERFECT | 100 | none |
@@ -306,7 +310,7 @@ Each genome once, as `mlst-typing --full` reports it.
 | Brachyspira pilosicoli 95/1000 (GCF_000143725.1) | brachyspira_4 | 138 | Bpi_adh(5);Bpi_alp(71);Bpi_est(39);Bpi_gdh(34);Bpi_glpK(64);Bpi_pgm(93);Bpi_thi(72) | PERFECT | 100 | none |
 | Brachyspira hampsonii 30446 (GCF_000316195.1) | brachyspira_5 | 7 | Bha_adh(2);Bha_est(2);Bha_gdh(2);Bha_glpK(3);Bha_pgm(3);Bha_thi(1) | PERFECT | 100 | none |
 | Halorubrum lacusprofundi ATCC 49239 (GCF_000022205.1) | halobacteria | - | atpB(4);EF-2(4);radA(4);rpoB'(3);secY(4) | NOVEL | 90 | none |
-| Leptospira interrogans serovar Copenhageni FDAARGOS_203 (GCF_002073495.2) | leptospira | 17 | glmU_1(1);pntA_1(1);sucA_1(2);tpiA_1(2);pfkB_1(10);mreA_1(4);caiB_1(8) | PERFECT | 100 | TIE: leptospira (ST17), leptospira_2 (ST47) |
+| Leptospira interrogans serovar Copenhageni FDAARGOS_203 (GCF_002073495.2) | leptospira | 17 | glmU_1(1);pntA_1(1);sucA_1(2);tpiA_1(2);pfkB_1(10);mreA_1(4);caiB_1(8) | PERFECT | 100 | TIE: leptospira (ST17), leptospira_2 (ST47), leptospira_3 (ST2) |
 | Leptospira interrogans CUDO5 (GCF_002370085.3) | leptospira | 26 | glmU_1(1);pntA_1(18);sucA_1(2);tpiA_1(2);pfkB_1(4);mreA_1(6);caiB_1(6) | PERFECT | 100 | TIE: leptospira (ST26), leptospira_3 (ST188) |
 | Candidatus Liberibacter solanacearum CLso-ZC1 (GCF_000183665.1) | liberibacter | 10 | adk(5);atpA(6);fbpA(5);ftsZ(8);glyA(5);groEL(5);gyrB(7) | PERFECT | 100 | none |
 | Providencia stuartii 41 (GCF_035747985.1) | providencia | 233 | fusA(7);gyrB(7);ileS(12);lepA(20);leuS(12) | PERFECT | 100 | none |

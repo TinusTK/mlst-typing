@@ -57,6 +57,16 @@ def locus_name_fix(a, b):
         re.search(r"[-']", k) and theirs[k] == "-" for k in odd)
 
 
+def multicopy_fix(a, b):
+    """True when the rows differ only because a locus has identical copies.
+
+    mlst reports e.g. 16S(1,1) as MIXED with no ST; mlst-typing looks up the
+    ST and reports MULTICOPY (a deliberate difference).
+    """
+    return bool(b) and a[0] == b[0] and a[2] == "MULTICOPY" and b[2] == "MIXED" \
+        and a[4] == b[4] and b[1] == "-"
+
+
 def full_row(cmd, path):
     """(--full row without FILE, error, {tied scheme: ST}) for one genome."""
     r = subprocess.run(cmd + ["-q", "--full", path], capture_output=True, text=True)
@@ -115,7 +125,7 @@ def main():
             "status", "score", "warnings", "upstream_same", "note"]
     n = dict(typed=0, expected=0, perfect=0, same=0, tie=0, fix=0, diff=0, missing=0)
     diffs, ties, wrong, nogenome, matched, fixes = [], [], [], [], [], []
-    tie_seen = set()
+    tie_seen, fix_seen = set(), set()
     # first NCBI pick per scheme (the row the picker wrote), for the matched table
     first = {}
     for g, a, _, _, _ in results:
@@ -133,7 +143,7 @@ def main():
                 continue
             n["typed"] += 1
             n["expected"] += a[0] == g["scheme"]
-            n["perfect"] += a[2] == "PERFECT"
+            n["perfect"] += a[2] == "PERFECT" or (a[2] == "MULTICOPY" and a[1] != "-")
             same = ""
             if tied and g["accession"] not in tie_seen:
                 # equal top scores: mlst picks one of the tied schemes at
@@ -143,15 +153,22 @@ def main():
                 ties.append(f"| {g['organism']} ({g['accession']}) | "
                             f"{a[0]} ST{a[1]} | {up} | {a[3]} | {g.get('warnings', '')} |")
             if theirs:
-                if a == b:
+                # identical copies of a locus, no ST: mlst-typing says MULTICOPY
+                # where mlst says MIXED (a name only, like PARTIAL / OK)
+                named = a[:2] + ["MIXED"] + a[3:] if a[1:3] == ["-", "MULTICOPY"] else a
+                if named == b:
                     same = "yes"
                 elif b and a[3] == b[3]:
                     same = "tie"
-                elif locus_name_fix(a, b):
+                elif locus_name_fix(a, b) or multicopy_fix(a, b):
                     same = "fix"
-                    fixes.append(f"| {g['organism']} ({g['accession']}) | "
-                                 f"{a[0]}: {a[4]}, {a[2]}, score {a[3]} | "
-                                 f"{b[0]}: {b[4]}, {b[2]}, score {b[3]} |")
+                    why = ("locus names mlst cannot read" if locus_name_fix(a, b) else
+                           "identical copies of a locus: ST reported, MULTICOPY")
+                    if g["accession"] not in fix_seen:
+                        fix_seen.add(g["accession"])
+                        fixes.append(f"| {g['organism']} ({g['accession']}) | {why} | "
+                                     f"{a[0]} ST{a[1]}: {a[4]}, {a[2]}, score {a[3]} | "
+                                     f"{b[0]} ST{b[1]}: {b[4]}, {b[2]}, score {b[3]} |")
                 else:
                     same = "NO"
                     diffs.append(f"{g['accession']} ({g['scheme']}): mlst-typing {a[:4]} vs mlst {b[:4] if b else b}")
@@ -168,7 +185,7 @@ def main():
                 matched.append(f"| {g['scheme']} | {first.get(g['scheme'], '')} | "
                                f"{g['taxon']} ({g['accession']}) | {a[0]} | {st_here} | "
                                f"{a[2]} | {a[3]} | "
-                               f"{'no (locus-name fix)' if same == 'fix' else same or 'not run'} | "
+                               f"{'no (deliberate, see below)' if same == 'fix' else same or 'not run'} | "
                                f"{g.get('warnings') or 'none'} | "
                                f"{g['note'].split(':', 1)[-1].strip()} |")
             if a[0] != g["scheme"]:
@@ -186,14 +203,14 @@ def main():
              f"genomes).", "",
              f"- Typed: {n['typed']} ({n['missing']} without a genome)",
              f"- Called the scheme the genome was picked for: {n['expected']}/{n['typed']}",
-             f"- PERFECT (full ST): {n['perfect']}/{n['typed']}"]
+             f"- Full ST (PERFECT or MULTICOPY): {n['perfect']}/{n['typed']}"]
     if theirs:
         total = n["same"] + n["tie"] + n["fix"] + n["diff"]
         lines += [f"- Same result as upstream mlst on the same database: **{n['same']}/{total}**",
                   f"- Upstream picked another of the tied schemes this run: {n['tie']}/{total} "
                   f"(see Ties)",
-                  f"- Loci mlst cannot read by name, typed by mlst-typing: {n['fix']}/{total} "
-                  f"(see Locus-name fix)",
+                  f"- Deliberate differences (identical copies of a locus, locus names "
+                  f"mlst cannot read): {n['fix']}/{total} (see Deliberate differences)",
                   f"- Real differences: **{n['diff']}/{total}**"]
     lines += ["", "## Priority organisms", "",
               "| Genome | Scheme | ST | Alleles | Status | Score | Warnings |",
@@ -229,10 +246,14 @@ def main():
                  "warning listing the others in the WARNINGS column.",
                  "| Genome | mlst-typing reports | upstream mlst (this run) | Score | Warnings |\n"
                  "|---|---|---|---|---|"),
-        "fixes": ("mlst cannot read locus names such as `EF-2` or `rpoB'` and reports "
-                  "those loci as missing. mlst-typing matches them (a deliberate change), "
-                  "so these genomes get more loci and a higher score than with mlst.",
-                  "| Genome | mlst-typing | upstream mlst |\n|---|---|---|"),
+        "fixes": ("Two things mlst-typing does differently on purpose. (1) When a locus "
+                  "is in the genome in several copies of the same allele, e.g. `16S(1,1)`, "
+                  "mlst reports MIXED and no ST; mlst-typing keeps the copies in the "
+                  "allele column, looks up the ST and reports MULTICOPY. MIXED is kept "
+                  "for different alleles at one locus. (2) mlst cannot read locus names "
+                  "such as `EF-2` or `rpoB'` and reports those loci as missing; "
+                  "mlst-typing matches them.",
+                  "| Genome | Why | mlst-typing | upstream mlst |\n|---|---|---|---|"),
         "wrong": ("Each genome was picked from NCBI for one scheme, but typing chose "
                   "another (or none). This is about the genome choice and overlapping "
                   "schemes, not a disagreement between the tools.",
@@ -243,7 +264,7 @@ def main():
                   "|---|---|---|---|---|---|---|"),
     }
     for key, title, items in (("diffs", "Real differences from upstream mlst", diffs),
-                              ("fixes", "Locus-name fix (loci mlst reports as missing)", fixes),
+                              ("fixes", "Deliberate differences from upstream mlst", fixes),
                               ("ties", "Ties (same top score for more than one scheme)", ties),
                               ("wrong", "Other scheme called than the one picked for", wrong),
                               ("none", "Schemes without a validation genome", nogenome),

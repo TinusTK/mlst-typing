@@ -14,8 +14,8 @@ current PubMLST schemes. The typing method (BLAST of every scheme's alleles,
 the scoring and the allele notation) follows mlst, and the results are
 checked against mlst on the same database: the same scheme, ST, alleles,
 status and score on mlst's own test genomes and on one public genome for
-every scheme, apart from ties that mlst breaks at random and loci that mlst
-cannot read by name ([validation/REPORT.md](validation/REPORT.md)).
+every scheme, apart from ties that mlst breaks at random and the deliberate
+differences listed below ([validation/REPORT.md](validation/REPORT.md)).
 
 What changed:
 
@@ -32,6 +32,11 @@ What changed:
   different scheme and ST from run to run. mlst-typing reports the first by
   name (the same answer every run) and lists every tied scheme with its ST
   in a new last column, `WARNINGS`.
+- **MULTICOPY, a new status.** Some loci (16S, 23S and others) are in the
+  genome in several copies. When every copy is the same allele, e.g.
+  `16S(5,5,5,5,5)`, mlst reports `MIXED` and no ST. mlst-typing keeps all the
+  copies in the output, looks up the ST and reports `MULTICOPY`, so `MIXED`
+  only means different alleles at one locus, e.g. `glyA(1,142)`.
 - **Clearer `--full` report**: columns FILE, SCHEME, ST, ALLELES, STATUS,
   SCORE, WARNINGS, and the status `OK` (some loci not exact, no ST) is
   renamed `PARTIAL` so it is not mistaken for a good result.
@@ -82,7 +87,8 @@ column per locus, then WARNINGS.
 | `~N`  | full length but not exact; closest is N (possible novel allele) |
 | `N?`  | partial match (coverage at least `--mincov`) |
 | `-`   | missing |
-| `N,M` | more than one exact allele (possible contamination) |
+| `N,N` | more than one copy of the same exact allele (multi-copy locus) |
+| `N,M` | more than one different exact allele (possible contamination) |
 
 `--full` puts the alleles in one column and adds STATUS and SCORE (out of
 100). STATUS is one of:
@@ -92,7 +98,8 @@ column per locus, then WARNINGS.
 | `PERFECT` | all loci exact and the profile has an ST |
 | `PARTIAL` | all loci found, some not exact (`~N`/`N?`), so no ST (mlst calls this `OK`) |
 | `NOVEL` | all alleles exact, but a combination with no ST yet |
-| `MIXED` | more than one exact allele at a locus (possible contamination) |
+| `MULTICOPY` | a locus is there in several copies of the same allele (`N,N`); the ST is reported when the profile has one (mlst calls this `MIXED`, without an ST) |
+| `MIXED` | different exact alleles at one locus (`N,M`), so no ST (possible contamination) |
 | `MISSING` | a locus was not found |
 | `BAD` | score under 70 |
 | `NONE` | no scheme matched |
@@ -110,7 +117,9 @@ scheme, or rerun with `--scheme`.
 Compared with mlst 2.35.0: the default layout only gains the WARNINGS
 column at the end, so pipelines that read it by position keep working. The
 `--full` layout is reordered to FILE, SCHEME, ST, ALLELES, STATUS, SCORE,
-WARNINGS, and mlst's `OK` status is called `PARTIAL`.
+WARNINGS, and mlst's `OK` status is called `PARTIAL`. Genomes with several
+identical copies of a locus are `MULTICOPY` with their ST, where mlst
+reports `MIXED` and no ST.
 
 ## Database
 

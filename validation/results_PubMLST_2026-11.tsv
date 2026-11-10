@@ -11,7 +11,7 @@ bbacilliformis	GCF_000015445.1	Bartonella bacilliformis KC583	bbacilliformis	1	f
 bcc	GCF_048627025.1	Burkholderia aenigmatica	bcc	2120	atpD(180);gltB(210);gyrB(1351);recA(778);lepA(887);phaC(310);trpB(851)	PERFECT	100		yes	
 bcereus	GCF_006094295.1	Bacillus cereus ATCC 14579	bcereus	4	glp(13);gmk(8);ilv(8);pta(11);pur(11);pyc(12);tpi(7)	PERFECT	100		yes	
 bfragilis	GCF_000025985.1	Bacteroides fragilis NCTC 9343	bfragilis	26	dnaJ(4);fusA(3);groL(5);prfA(2);recA(2);rpoB(15);rprX(13)	PERFECT	100		yes	
-bhenselae	GCF_019930925.1	Bartonella henselae	bhenselae	-	16S(1,1);batR(1);ftsZ(1);gltA(1);groEL(1);nlpD(1);ribC(1);rpoB(1)	MIXED	90		yes	
+bhenselae	GCF_019930925.1	Bartonella henselae	bhenselae	1	16S(1,1);batR(1);ftsZ(1);gltA(1);groEL(1);nlpD(1);ribC(1);rpoB(1)	MULTICOPY	100		fix	
 blicheniformis_14	GCF_034478925.1	Bacillus licheniformis	blicheniformis_14	1	adk(1);ccpA(1);recF(1);rpoB(1);spo0A(1);sucC(1)	PERFECT	100	TIE: blicheniformis_14 (ST1), bsubtilis (ST29)	yes	
 bordetella_3	GCF_004008975.1	Bordetella pertussis	bordetella_3	2	adk(1);fumC(1);glyA(1);tyrB(3);icd(1);pepA(1);pgm(1)	PERFECT	100		yes	
 borrelia	GCF_001936255.1	Borrelia anserina Es	borrelia	668	clpA(212);clpX(179);nifS(161);pepX(186);pyrG(196);recG(204);rplB(170);uvrA(188)	PERFECT	100		yes	
@@ -36,9 +36,9 @@ campylobacter_nonjejuni_8	GCF_008245005.1	Campylobacter sputorum subsp. sputorum
 campylobacter_nonjejuni_9	GCF_011600945.2	Campylobacter fetus	campylobacter_nonjejuni_9	6	Cfe_aspA(1);Cfe_glnA(2);Cfe_gltA(2);Cfe_glyA(2);Cfe_pgm(1);Cfe_tkt(2);Cfe_uncA(4)	PERFECT	100		yes	
 cbotulinum	GCF_000063585.1	Clostridium botulinum A str. ATCC 3502	cbotulinum	9	aroE(13);mdh(6);aceK(9);oppB(10);rpoB(9);recA(8);hsp(9)	PERFECT	100		yes	
 cdifficile	GCF_018885085.1	Clostridioides difficile	cdifficile	8	adk(1);atpA(1);dxr(2);glyA(6);recA(1);sodA(5);tpi(1)	PERFECT	100		yes	
-cdiphtheriae	GCF_001457455.1	Corynebacterium diphtheriae	cdiphtheriae	26	atpA(8);dnaE(2);dnaK(16);fusA(1);leuA(3);odhA(3);rpoB(12)	PERFECT	100	TIE: cdiphtheriae (ST26), diphtheria_3 (ST26)	yes	
+cdiphtheriae	GCF_001457455.1	Corynebacterium diphtheriae	cdiphtheriae	26	atpA(8);dnaE(2);dnaK(16);fusA(1);leuA(3);odhA(3);rpoB(12)	PERFECT	100	TIE: cdiphtheriae (ST26), diphtheria_3 (ST26)	tie	
 cfreundii	GCF_020099335.1	Citrobacter amalonaticus	cfreundii	710	aspC(137);clpX(152);fadD(215);mdh(212);arcA(75);dnaG(184);lysP(186)	PERFECT	100		yes	
-chlamydiales	GCF_002817655.1	Candidatus Chlamydia corallus	chlamydiales	-	gatA(79);oppA(73);hflX(84);gidA(86);enoA(90);hemN(70,70);fumC(72)	MIXED	90		yes	
+chlamydiales	GCF_002817655.1	Candidatus Chlamydia corallus	chlamydiales	265	gatA(79);oppA(73);hflX(84);gidA(86);enoA(90);hemN(70,70);fumC(72)	MULTICOPY	100		fix	
 cmaltaromaticum	GCF_949790605.1	Carnobacterium maltaromaticum	cmaltaromaticum	-	dapE(12);ddlA(4);glpQ(7);ilvE(4);leuS(3);pyc(10);pyrE(3)	NOVEL	90		yes	
 cperfringens	GCF_016027375.1	Clostridium perfringens	cperfringens	-	colA(2);groEL(3);sodA(1);plc(10);gyrB(3);sigK(2);pgk(1);nadA(114)	NOVEL	90		yes	
 cronobacter	GCF_001277255.1	Cronobacter condimenti 1330	cronobacter	98	atpD(24);fusA(86);glnS(96);gltB(28);gyrB(63);infB(42);pps(147)	PERFECT	100		yes	
@@ -55,7 +55,7 @@ fpsychrophilum	GCF_000754405.1	Flavobacterium psychrophilum FPG3	fpsychrophilum	
 gallibacterium	GCF_000772265.1	Gallibacterium anatis DSM 16844 = F 149	gallibacterium	-	adk(14);atpD(21);fumC(~22);gyrB(7);infB(32);mdh(9?);recN(21);thdF(6)	PARTIAL	81		yes	
 geotrichum	GCA_013365045.1	Geotrichum candidum	geotrichum	-	NUP116(8);URA1(6);URA3(4);SAPT4(2?);PLB3(5)	PARTIAL	81		yes	
 halobacteria	GCF_000495475.1	Candidatus Halobonum tyrrellensis G22	-	-		NONE	0		yes	
-hcinaedi	GCF_000284635.1	Helicobacter cinaedi PAGU611	hcinaedi	-	23S_rRNA(3,3);ppa(4);aspA(4);aroE(3);atpA(2);tkt(3);cdtB(2)	MIXED	90		yes	
+hcinaedi	GCF_000284635.1	Helicobacter cinaedi PAGU611	hcinaedi	8	23S_rRNA(3,3);ppa(4);aspA(4);aroE(3);atpA(2);tkt(3);cdtB(2)	MULTICOPY	100		fix	
 helicobacter	GCF_025998455.1	Helicobacter pylori	helicobacter	-	atpA(2663);efp(2487);mutY(2684);ppa(1965);trpC(1536);ureI(2754);yphC(2775)	NOVEL	90		yes	
 hinfluenzae	GCF_020736045.1	Haemophilus influenzae	hinfluenzae	3	adk(1);atpG(1);frdB(1);fucK(1);mdh(1);pgi(1);recA(5)	PERFECT	100		yes	
 hparasuis	GCF_017352235.1	Glaesserella parasuis	hparasuis	428	atpD(7);infB(67);mdh(34);rpoB(1);6pgd(43);g3pd(3);frdB(39)	PERFECT	100		yes	
@@ -83,7 +83,7 @@ mcaseolyticus	GCF_016028795.1	Macrococcoides caseolyticum	mcaseolyticus	4	ack(3)
 mcatarrhalis_achtman_6	GCF_900476075.1	Moraxella catarrhalis	mcatarrhalis_achtman_6	54	abcZ(8);adk(24);efp(3);fumC(7);glyBeta(30);mutY(3);ppa(23);trpE(2)	PERFECT	100		yes	
 mflocculare	GCF_000815065.1	Mesomycoplasma flocculare ATCC 27399	mflocculare	1	adk(1);rpoB(1);tpiA(1)	PERFECT	100		yes	
 mgallisepticum	GCF_900476085.1	Mycoplasmoides gallisepticum	mgallisepticum	23	atpG(2);dppC(25);DUF3196(2);lgT(26);mraW(1);plsC(10);ugpA(1)	PERFECT	100	TIE: mgallisepticum (ST23), mgallisepticum_2 (ST1)	yes	
-mgallisepticum_2	GCF_900476085.1	Mycoplasmoides gallisepticum	mgallisepticum	23	atpG(2);dppC(25);DUF3196(2);lgT(26);mraW(1);plsC(10);ugpA(1)	PERFECT	100	TIE: mgallisepticum (ST23), mgallisepticum_2 (ST1)	tie	
+mgallisepticum_2	GCF_900476085.1	Mycoplasmoides gallisepticum	mgallisepticum	23	atpG(2);dppC(25);DUF3196(2);lgT(26);mraW(1);plsC(10);ugpA(1)	PERFECT	100	TIE: mgallisepticum (ST23), mgallisepticum_2 (ST1)	yes	
 mgenitalium	GCF_040556925.1	Mycoplasmoides genitalium	mgenitalium	-	MLST_adk(1);MLST_atpA(1);MLST_gmk(1);MLST_gyrB(1);MLST_pgm(1);MLST_ppa(1)	NOVEL	90		yes	
 mhaemolytica	GCF_002285575.1	Mannheimia haemolytica	mhaemolytica	1	adk(1);aroE(2);deoD(1);gapDH(2);gnd(1);mdh(2);zwf(1)	PERFECT	100		yes	
 mhominis	GCF_000767725.1	Metamycoplasma hominis ATCC 27545	mhominis	-	uvrA(19);gyrB(16);ftsY(18);tuf(7);gap(25)	NOVEL	90		yes	
@@ -105,10 +105,10 @@ pacnes_3	GCF_006739385.1	Cutibacterium acnes subsp. acnes	pacnes_3	-	aroE(1);atp
 paeruginosa	GCF_000006765.1	Pseudomonas aeruginosa PAO1	paeruginosa	549	acsA(7);aroE(5);guaA(12);mutL(3);nuoD(4);ppsA(1);trpE(7)	PERFECT	100		yes	
 pdamselae	GCF_038086725.1	Photobacterium damselae subsp. damselae	vibrio	-	gyrB(~247);pyrH(209);recA(~238);atpA(~174)	BAD	69		yes	
 pfluorescens	GCF_900215245.1	Pseudomonas fluorescens	pfluorescens	128	glnS(22);gyrB(22);ileS(102);nuoD(22);recA(22);rpoB(96);rpoD(22)	PERFECT	100		yes	
-pgingivalis	GCF_000010505.1	Porphyromonas gingivalis ATCC 33277	pgingivalis	-	ftsQ(5);gpdxJ(9);hagB(1,1);mcmA(1);pepO(1);pga(5);recA(5)	MIXED	90		yes	
+pgingivalis	GCF_000010505.1	Porphyromonas gingivalis ATCC 33277	pgingivalis	96	ftsQ(5);gpdxJ(9);hagB(1,1);mcmA(1);pepO(1);pga(5);recA(5)	MULTICOPY	100		fix	
 plarvae	GCF_002951935.1	Paenibacillus larvae subsp. larvae	plarvae	8	glpF(1);sigF(2);glpT(2);Natrans(1);rpoB(2);ftsA(1);clpC(1)	PERFECT	100		yes	
 pmultocida	GCF_002073255.2	Pasteurella multocida	pmultocida	124	mh_adk(10);mh_aroA(40);mh_deoD(3);mh_gdhA(29);mh_g6pd(29);mh_mdh(16);mh_pgi(33)	PERFECT	100	TIE: pmultocida (ST124), pmultocida_2 (ST8)	yes	
-pmultocida_2	GCF_002073255.2	Pasteurella multocida	pmultocida	124	mh_adk(10);mh_aroA(40);mh_deoD(3);mh_gdhA(29);mh_g6pd(29);mh_mdh(16);mh_pgi(33)	PERFECT	100	TIE: pmultocida (ST124), pmultocida_2 (ST8)	tie	
+pmultocida_2	GCF_002073255.2	Pasteurella multocida	pmultocida	124	mh_adk(10);mh_aroA(40);mh_deoD(3);mh_gdhA(29);mh_g6pd(29);mh_mdh(16);mh_pgi(33)	PERFECT	100	TIE: pmultocida (ST124), pmultocida_2 (ST8)	yes	
 ppentosaceus	GCF_000014505.1	Pediococcus pentosaceus ATCC 25745	ppentosaceus	1	gyrB(1);pyc(1);pgm(1);leuS(1);glnA(1);dalR(1);pgI(1)	PERFECT	100		yes	
 pputida	GCF_000412675.1	Pseudomonas putida NBRC 14164	pputida	2	argS(3);gyrB(15);ileS(29);nuoC(5);ppsA(17);recA(20);rpoB(10);rpoD(21)	PERFECT	100		yes	
 proteus	GCF_002607735.1	Proteus alimentorum	proteus	3	atpD(4);dnaJ(6);mdh(3);pyrC(4);recA(3);rpoD(3)	PERFECT	100		yes	
@@ -155,12 +155,12 @@ vcholerae_2	GCF_000250855.1	Vibrio cholerae IEC224	vcholerae	69	adk(7);gyrB(11);
 vibrio	GCF_024346755.1	Vibrio aerogenes	-	-		NONE	0		yes	
 vparahaemolyticus	GCF_000196095.1	Vibrio parahaemolyticus RIMD 2210633	vibrio	152	gyrB(130);pyrH(101);recA(62);atpA(19)	PERFECT	100	TIE: vibrio (ST152), vparahaemolyticus (ST3)	tie	
 vtapetis	GCF_030409945.1	Vibrio tapetis subsp. quintayensis	-	-		NONE	0		yes	
-vvulnificus	GCF_002224265.1	Vibrio vulnificus NBRC 15645 = ATCC 27562	vibrio	126	gyrB(104);pyrH(80);recA(98);atpA(77)	PERFECT	100	TIE: vibrio (ST126), vvulnificus (ST3)	yes	
+vvulnificus	GCF_002224265.1	Vibrio vulnificus NBRC 15645 = ATCC 27562	vibrio	126	gyrB(104);pyrH(80);recA(98);atpA(77)	PERFECT	100	TIE: vibrio (ST126), vvulnificus (ST3)	tie	
 wolbachia	GCF_014771645.1	Candidatus Wolbachia massiliensis	-	-		NONE	0		yes	
 xfastidiosa	GCF_028891345.1	Xylella fastidiosa	xfastidiosa	2	leuA(1);petC(1);malF(4);cysG(1);holC(1);nuoL(1);gltT(1)	PERFECT	100		yes	
 yersinia	GCF_000834395.1	Yersinia aldovae 670-83	ypseudotuberculosis_achtman_3	217	adk(56);argA(59);aroA(64);glnA(61);thrA(69);tmk(69);trpE(67)	PERFECT	100		yes	
 ypseudotuberculosis_achtman_3	GCF_900637475.1	Yersinia pseudotuberculosis	yersinia	90	aarF(39);dfp(43);galR(51);glnS(56);hemA(44);rfaE(42);speA(41)	PERFECT	100	TIE: yersinia (ST90), ypseudotuberculosis_achtman_3 (ST9)	yes	
-yruckeri	GCF_017498685.1	Yersinia ruckeri	yersinia	44	aarF(13);dfp(10);galR(14);glnS(13);hemA(15);rfaE(14);speA(14)	PERFECT	100	TIE: yersinia (ST44), ypseudotuberculosis_achtman_3 (ST276), yruckeri (ST33)	tie	
+yruckeri	GCF_017498685.1	Yersinia ruckeri	yersinia	44	aarF(13);dfp(10);galR(14);glnS(13);hemA(15);rfaE(14);speA(14)	PERFECT	100	TIE: yersinia (ST44), ypseudotuberculosis_achtman_3 (ST276), yruckeri (ST33)	yes	
 spyogenes	GCF_000006785.2	Streptococcus pyogenes (Group A Strep) SF370	spyogenes	28	gki(4);gtr(3);murI(4);mutS(4);recP(4);xpt(2);yqiL(4)	PERFECT	100		yes	priority: Group A Strep, expected ST28
 neisseria	GCF_000006845.1	Neisseria gonorrhoeae FA 1090	neisseria	1899	abcZ(109);adk(39);aroE(67);fumC(190);gdh(147);pdhC(71);pgm(65)	PERFECT	100		yes	priority: N. gonorrhoeae
 salmonella	GCF_000006945.2	Salmonella enterica Typhimurium LT2	salmonella	19	aroC(10);dnaN(7);hemD(12);hisD(9);purE(5);sucA(9);thrA(2)	PERFECT	100		yes	priority: Salmonella, expected ST19
@@ -168,14 +168,14 @@ ecoli_achtman_4	GCF_000092525.1	Shigella sonnei Ss046	ecoli_achtman_4	152	adk(11
 ecoli_achtman_4	GCF_000006925.2	Shigella flexneri 2a 301	ecoli_achtman_4	245	adk(6);fumC(61);gyrB(6);icd(11);mdh(13);purA(3);recA(50)	PERFECT	100		yes	priority: Shigella flexneri
 mycobacteria_2	GCF_000195955.2	Mycobacterium tuberculosis H37Rv	mycobacteria_2	215	S14Z(17);L35(15);S19(20);L19(19);S12(20);S8(18);L16(22);S7(19)	PERFECT	100		yes	priority: M. tuberculosis
 arcobacter	GCF_004283115.1	Aliarcobacter butzleri 6V	arcobacter	537	aspA(236);atpA(161);glnA(1);gltA(183);glyA(521);pgm(296);tkt(207)	PERFECT	100		yes	matched: A. butzleri, the main species of the scheme
-brachyspira	GCF_001676785.2	Brachyspira hyodysenteriae ATCC 27164	brachyspira	5	Bra_adh(1);Bra_alp(4);Bra_est(4);Bra_gdh(5);Bra_glp(7);Bra_pgm(2);Bra_thi(3)	PERFECT	100	TIE: brachyspira (ST5), brachyspira_2 (ST56)	yes	matched: B. hyodysenteriae (genus-wide scheme)
+brachyspira	GCF_001676785.2	Brachyspira hyodysenteriae ATCC 27164	brachyspira	5	Bra_adh(1);Bra_alp(4);Bra_est(4);Bra_gdh(5);Bra_glp(7);Bra_pgm(2);Bra_thi(3)	PERFECT	100	TIE: brachyspira (ST5), brachyspira_2 (ST56)	tie	matched: B. hyodysenteriae (genus-wide scheme)
 brachyspira_2	GCF_002850235.1	Brachyspira hyodysenteriae BH718	brachyspira_2	83	Bhy_adh(2);Bhy_alp(11);Bhy_est(3);Bhy_gdh(5);Bhy_glpK(12);Bhy_pgm(2);Bhy_thi(6)	PERFECT	100		yes	matched: scheme is B. hyodysenteriae MLST
 brachyspira_3	GCF_000223215.1	Brachyspira intermedia PWS/A	brachyspira_3	-	Bin_adh(10);Bin_alp(15);Bin_est(26);Bin_gdh(17);Bin_glpK(25);Bin_pgm(26);Bin_thi(25)	NOVEL	90		yes	matched: scheme is B. intermedia MLST; all alleles exact, combination has no ST yet
 brachyspira_4	GCF_000143725.1	Brachyspira pilosicoli 95/1000	brachyspira_4	138	Bpi_adh(5);Bpi_alp(71);Bpi_est(39);Bpi_gdh(34);Bpi_glpK(64);Bpi_pgm(93);Bpi_thi(72)	PERFECT	100		yes	matched: scheme is B. pilosicoli MLST
 brachyspira_5	GCF_000316195.1	Brachyspira hampsonii 30446	brachyspira_5	7	Bha_adh(2);Bha_est(2);Bha_gdh(2);Bha_glpK(3);Bha_pgm(3);Bha_thi(1)	PERFECT	100		yes	matched: scheme is B. hampsonii MLST
 halobacteria	GCF_000022205.1	Halorubrum lacusprofundi ATCC 49239	halobacteria	-	atpB(4);EF-2(4);radA(4);rpoB'(3);secY(4)	NOVEL	90		fix	matched: Halorubrum; the scheme has no public ST profiles, so no ST is possible
-leptospira	GCF_002073495.2	Leptospira interrogans serovar Copenhageni FDAARGOS_203	leptospira	17	glmU_1(1);pntA_1(1);sucA_1(2);tpiA_1(2);pfkB_1(10);mreA_1(4);caiB_1(8)	PERFECT	100	TIE: leptospira (ST17), leptospira_2 (ST47)	yes	matched: L. interrogans
-leptospira_2	GCF_002073495.2	Leptospira interrogans serovar Copenhageni FDAARGOS_203	leptospira	17	glmU_1(1);pntA_1(1);sucA_1(2);tpiA_1(2);pfkB_1(10);mreA_1(4);caiB_1(8)	PERFECT	100	TIE: leptospira (ST17), leptospira_2 (ST47)	tie	matched: L. interrogans
+leptospira	GCF_002073495.2	Leptospira interrogans serovar Copenhageni FDAARGOS_203	leptospira	17	glmU_1(1);pntA_1(1);sucA_1(2);tpiA_1(2);pfkB_1(10);mreA_1(4);caiB_1(8)	PERFECT	100	TIE: leptospira (ST17), leptospira_2 (ST47), leptospira_3 (ST2)	tie	matched: L. interrogans
+leptospira_2	GCF_002073495.2	Leptospira interrogans serovar Copenhageni FDAARGOS_203	leptospira	17	glmU_1(1);pntA_1(1);sucA_1(2);tpiA_1(2);pfkB_1(10);mreA_1(4);caiB_1(8)	PERFECT	100	TIE: leptospira (ST17), leptospira_2 (ST47), leptospira_3 (ST2)	tie	matched: L. interrogans
 leptospira_3	GCF_002370085.3	Leptospira interrogans CUDO5	leptospira	26	glmU_1(1);pntA_1(18);sucA_1(2);tpiA_1(2);pfkB_1(4);mreA_1(6);caiB_1(6)	PERFECT	100	TIE: leptospira (ST26), leptospira_3 (ST188)	yes	matched: L. interrogans
 liberibacter	GCF_000183665.1	Candidatus Liberibacter solanacearum CLso-ZC1	liberibacter	10	adk(5);atpA(6);fbpA(5);ftsZ(8);glyA(5);groEL(5);gyrB(7)	PERFECT	100		yes	matched: Ca. L. solanacearum
 mycobacteria_2	GCF_000195955.2	Mycobacterium tuberculosis H37Rv	mycobacteria_2	215	S14Z(17);L35(15);S19(20);L19(19);S12(20);S8(18);L16(22);S7(19)	PERFECT	100		yes	matched: M. tuberculosis (same genome as the priority list)
