@@ -6,3 +6,30 @@ salmonella	Salmonella enterica Typhimurium LT2	GCF_000006945.2	priority: Salmone
 ecoli_achtman_4	Shigella sonnei Ss046	GCF_000092525.1	priority: Shigella sonnei, expected ST152
 ecoli_achtman_4	Shigella flexneri 2a 301	GCF_000006925.2	priority: Shigella flexneri
 mycobacteria_2	Mycobacterium tuberculosis H37Rv	GCF_000195955.2	priority: M. tuberculosis
+# Matched genomes (2026-11-10): a species the scheme covers, for schemes whose first NCBI pick typed NONE or BAD.
+arcobacter	Aliarcobacter butzleri 6V	GCF_004283115.1	matched: A. butzleri, the main species of the scheme
+brachyspira	Brachyspira hyodysenteriae ATCC 27164	GCF_001676785.2	matched: B. hyodysenteriae (genus-wide scheme)
+brachyspira_2	Brachyspira hyodysenteriae BH718	GCF_002850235.1	matched: scheme is B. hyodysenteriae MLST
+brachyspira_3	Brachyspira intermedia PWS/A	GCF_000223215.1	matched: scheme is B. intermedia MLST; all alleles exact, combination has no ST yet
+brachyspira_4	Brachyspira pilosicoli 95/1000	GCF_000143725.1	matched: scheme is B. pilosicoli MLST
+brachyspira_5	Brachyspira hampsonii 30446	GCF_000316195.1	matched: scheme is B. hampsonii MLST
+halobacteria	Halorubrum lacusprofundi ATCC 49239	GCF_000022205.1	matched: Halorubrum; the scheme has no public ST profiles, so no ST is possible
+leptospira	Leptospira interrogans serovar Copenhageni FDAARGOS_203	GCF_002073495.2	matched: L. interrogans
+leptospira_2	Leptospira interrogans serovar Copenhageni FDAARGOS_203	GCF_002073495.2	matched: L. interrogans
+leptospira_3	Leptospira interrogans CUDO5	GCF_002370085.3	matched: L. interrogans
+liberibacter	Candidatus Liberibacter solanacearum CLso-ZC1	GCF_000183665.1	matched: Ca. L. solanacearum
+mycobacteria_2	Mycobacterium tuberculosis H37Rv	GCF_000195955.2	matched: M. tuberculosis (same genome as the priority list)
+providencia	Providencia stuartii 41	GCF_035747985.1	matched: P. stuartii
+rhodococcus	Rhodococcus (Prescottella) equi WY	GCF_007197835.1	matched: R. equi
+serratia	Serratia marcescens ELP1.10	GCF_030291735.1	matched: S. marcescens
+shewanella	Shewanella algae MARS 14	GCF_000947195.1	matched: S. algae
+sinorhizobium	Sinorhizobium (Ensifer) meliloti MABNR56	GCF_037023865.1	matched: S. meliloti
+streptomyces	Streptomyces griseus NRRL B-2165	GCF_001723115.1	matched: S. griseus
+ureaplasma	Ureaplasma parvum serovar 3 ATCC 27815	GCF_000019345.1	matched: U. parvum
+vibrio	Vibrio parahaemolyticus RIMD 2210633	GCF_000196095.1	matched: V. parahaemolyticus (same genome as picked for vparahaemolyticus)
+vtapetis	Vibrio tapetis subsp. tapetis	GCF_900233005.1	matched: V. tapetis subsp. tapetis; closest public genome, 8 of 10 loci exact
+wolbachia	Wolbachia endosymbiont of Drosophila melanogaster wMelPlus	GCF_947533255.1	matched: Wolbachia wMel
+aeromonas	Aeromonas hydrophila subsp. hydrophila ATCC 7966	GCF_000014805.1	matched: A. hydrophila
+pdamselae	Photobacterium damselae subsp. piscicida AS-16-0555-7	GCF_014775695.1	matched: P. damselae subsp. piscicida
+scanis	Streptococcus canis NCTC12191	GCF_900636575.1	matched: S. canis
+smaltophilia	Stenotrophomonas maltophilia ISMMS3	GCF_001274595.1	matched: S. maltophilia

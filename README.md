@@ -14,8 +14,8 @@ current PubMLST schemes. The typing method (BLAST of every scheme's alleles,
 the scoring and the allele notation) follows mlst, and the results are
 checked against mlst on the same database: the same scheme, ST, alleles,
 status and score on mlst's own test genomes and on one public genome for
-every scheme, apart from ties that mlst breaks at random
-([validation/REPORT.md](validation/REPORT.md)).
+every scheme, apart from ties that mlst breaks at random and loci that mlst
+cannot read by name ([validation/REPORT.md](validation/REPORT.md)).
 
 What changed:
 
@@ -122,11 +122,6 @@ WARNINGS, and mlst's `OK` status is called `PARTIAL`.
 
 See [database/README.md](database/README.md) for the source, the terms of
 use and how to update it.
-
-The database is refreshed **once a year** (1 January) by a GitHub Actions
-workflow. It downloads the schemes again, runs the tests and, if anything
-changed, opens a pull request with a summary of the changes to accept or
-reject. Nothing changes in the tool until that pull request is merged.
 
 ## Credits and citation
 

@@ -42,6 +42,21 @@ def why_other(g, a, tied):
     return f"`{a[0]}` scores higher than `{g['scheme']}` for this genome"
 
 
+def locus_name_fix(a, b):
+    """True when the two rows differ only at loci named like `EF-2` or `rpoB'`.
+
+    mlst cannot read those names and reports them missing; mlst-typing
+    matches them (a deliberate difference, see README "What changed").
+    """
+    if not b or a[0] != b[0]:
+        return False
+    ours = dict(re.findall(r"([^;(]+)\(([^)]*)\)", a[4]))
+    theirs = dict(re.findall(r"([^;(]+)\(([^)]*)\)", b[4]))
+    odd = [k for k in ours if ours[k] != theirs.get(k)]
+    return bool(odd) and ours.keys() == theirs.keys() and all(
+        re.search(r"[-']", k) and theirs[k] == "-" for k in odd)
+
+
 def full_row(cmd, path):
     """(--full row without FILE, error, {tied scheme: ST}) for one genome."""
     r = subprocess.run(cmd + ["-q", "--full", path], capture_output=True, text=True)
@@ -98,9 +113,14 @@ def main():
     out = os.path.join(vdir, f"results_{version}.tsv")
     cols = ["expected_scheme", "accession", "organism", "scheme", "ST", "alleles",
             "status", "score", "warnings", "upstream_same", "note"]
-    n = dict(typed=0, expected=0, perfect=0, same=0, tie=0, diff=0, missing=0)
-    diffs, ties, wrong, nogenome = [], [], [], []
+    n = dict(typed=0, expected=0, perfect=0, same=0, tie=0, fix=0, diff=0, missing=0)
+    diffs, ties, wrong, nogenome, matched, fixes = [], [], [], [], [], []
     tie_seen = set()
+    # first NCBI pick per scheme (the row the picker wrote), for the matched table
+    first = {}
+    for g, a, _, _, _ in results:
+        if not g.get("note", "").startswith(("matched", "priority")):
+            first.setdefault(g["scheme"], f"{g['organism']}: {a[2] if a else 'not run'}")
     with open(out, "w", newline="") as fh:
         w = csv.writer(fh, delimiter="\t", lineterminator="\n")
         w.writerow(cols)
@@ -127,10 +147,30 @@ def main():
                     same = "yes"
                 elif b and a[3] == b[3]:
                     same = "tie"
+                elif locus_name_fix(a, b):
+                    same = "fix"
+                    fixes.append(f"| {g['organism']} ({g['accession']}) | "
+                                 f"{a[0]}: {a[4]}, {a[2]}, score {a[3]} | "
+                                 f"{b[0]}: {b[4]}, {b[2]}, score {b[3]} |")
                 else:
                     same = "NO"
                     diffs.append(f"{g['accession']} ({g['scheme']}): mlst-typing {a[:4]} vs mlst {b[:4] if b else b}")
-                n[{"yes": "same", "tie": "tie", "NO": "diff"}[same]] += 1
+                n[{"yes": "same", "tie": "tie", "fix": "fix", "NO": "diff"}[same]] += 1
+            if g.get("note", "").startswith("matched"):
+                # ST in the scheme the genome was matched to: the call itself,
+                # or the tied scheme's ST when another tied scheme is reported
+                if a[0] == g["scheme"]:
+                    st_here = a[1]
+                elif g["scheme"] in tied:
+                    st_here = f"{tied[g['scheme']]} (tie)"
+                else:
+                    st_here = "-"
+                matched.append(f"| {g['scheme']} | {first.get(g['scheme'], '')} | "
+                               f"{g['taxon']} ({g['accession']}) | {a[0]} | {st_here} | "
+                               f"{a[2]} | {a[3]} | "
+                               f"{'no (locus-name fix)' if same == 'fix' else same or 'not run'} | "
+                               f"{g.get('warnings') or 'none'} | "
+                               f"{g['note'].split(':', 1)[-1].strip()} |")
             if a[0] != g["scheme"]:
                 st = f"ST{a[1]}" if a[1] != "-" else "-"
                 wrong.append(f"| {g['scheme']} | {g['organism']} ({g['accession']}) | "
@@ -142,15 +182,18 @@ def main():
     priority = [(g, a) for g, a, _, _, _ in results if g.get("note", "").startswith("priority")]
     lines = [f"# Validation, database {version}", "",
              f"Run {dt.date.today().isoformat()}: {len(genomes)} genomes listed "
-             f"(one public NCBI assembly per scheme + priority organisms).", "",
+             f"(one public NCBI assembly per scheme + priority organisms + matched "
+             f"genomes).", "",
              f"- Typed: {n['typed']} ({n['missing']} without a genome)",
              f"- Called the scheme the genome was picked for: {n['expected']}/{n['typed']}",
              f"- PERFECT (full ST): {n['perfect']}/{n['typed']}"]
     if theirs:
-        total = n["same"] + n["tie"] + n["diff"]
+        total = n["same"] + n["tie"] + n["fix"] + n["diff"]
         lines += [f"- Same result as upstream mlst on the same database: **{n['same']}/{total}**",
                   f"- Upstream picked another of the tied schemes this run: {n['tie']}/{total} "
                   f"(see Ties)",
+                  f"- Loci mlst cannot read by name, typed by mlst-typing: {n['fix']}/{total} "
+                  f"(see Locus-name fix)",
                   f"- Real differences: **{n['diff']}/{total}**"]
     lines += ["", "## Priority organisms", "",
               "| Genome | Scheme | ST | Alleles | Status | Score | Warnings |",
@@ -161,6 +204,17 @@ def main():
                          f"{a[2]} | {a[3]} | {g.get('warnings') or 'none'} |")
         else:
             lines.append(f"| {g['taxon']} ({g['accession']}) | not run | | | | | |")
+    if matched:
+        lines += ["", f"## Matched genomes for schemes whose first NCBI pick did not type ({len(matched)})", "",
+                  "Some schemes cover a whole genus, and the first NCBI pick was a species "
+                  "the scheme does not cover, so it typed NONE or BAD. Those first picks stay "
+                  "in the tables below: they show mlst-typing and mlst agree there too. Here "
+                  "each of those schemes gets a genome of a species it does cover. \"ST in "
+                  "this scheme\" is the ST the scheme gives; \"(tie)\" means another scheme "
+                  "with the same score is reported first and this scheme's ST is in Warnings.", "",
+                  "| Scheme | First pick: result | Matched genome | Called scheme | "
+                  "ST in this scheme | Status | Score | Same as mlst | Warnings | Note |",
+                  "|---|---|---|---|---|---|---|---|---|---|", *matched]
     # every genome, as mlst-typing --full reports it (incl. WARNINGS)
     seen, every = set(), []
     for g, a, _, _, _ in results:
@@ -175,6 +229,10 @@ def main():
                  "warning listing the others in the WARNINGS column.",
                  "| Genome | mlst-typing reports | upstream mlst (this run) | Score | Warnings |\n"
                  "|---|---|---|---|---|"),
+        "fixes": ("mlst cannot read locus names such as `EF-2` or `rpoB'` and reports "
+                  "those loci as missing. mlst-typing matches them (a deliberate change), "
+                  "so these genomes get more loci and a higher score than with mlst.",
+                  "| Genome | mlst-typing | upstream mlst |\n|---|---|---|"),
         "wrong": ("Each genome was picked from NCBI for one scheme, but typing chose "
                   "another (or none). This is about the genome choice and overlapping "
                   "schemes, not a disagreement between the tools.",
@@ -185,6 +243,7 @@ def main():
                   "|---|---|---|---|---|---|---|"),
     }
     for key, title, items in (("diffs", "Real differences from upstream mlst", diffs),
+                              ("fixes", "Locus-name fix (loci mlst reports as missing)", fixes),
                               ("ties", "Ties (same top score for more than one scheme)", ties),
                               ("wrong", "Other scheme called than the one picked for", wrong),
                               ("none", "Schemes without a validation genome", nogenome),

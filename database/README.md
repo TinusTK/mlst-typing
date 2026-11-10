@@ -18,9 +18,12 @@ The layout matches mlst's `db/`, so upstream mlst can also run on it
 ## Data and terms
 
 The data is the **standard, freely available** set: alleles and profiles
-submitted to PubMLST / BIGSdb-Pasteur up to **31 December 2024**, which is
-what both servers give without authentication. Data submitted from 2025 on
-is covered by newer PubMLST terms (no redistribution) and is not included.
+submitted to PubMLST up to **31 December 2024**, which is what the server
+gives without authentication. Data submitted from 2025 on is covered by
+newer PubMLST terms (no redistribution) and is not included.
+
+To use data submitted from 2025 onward you must create your own PubMLST
+account at https://pubmlst.org and accept its terms.
 
 Allele and profile definitions are the work of the PubMLST and
 BIGSdb-Pasteur curators. Please cite PubMLST (Jolley et al. 2018,
@@ -33,6 +36,11 @@ https://pubmlst.org before reusing the data.
 python scripts/update_database.py --db database --version-label PubMLST_YYYY-MM \
     --summary CHANGES_DB.md
 ```
+
+The database is refreshed **once a year** (1 January) by a GitHub Actions
+workflow. It downloads the schemes again, runs the tests and, if anything
+changed, opens a pull request with a summary of the changes to accept or
+reject. Nothing changes in the tool until that pull request is merged.
 
 Exit code 3 means nothing changed. After an update: run the tests and
 `scripts/validate.py`, add the new version to the README table, and raise
