@@ -20,6 +20,28 @@ jobs:
       - name: pytest
         run: python -m pytest -v
 
+  # The README's install route: the installed command must find its database
+  # from any folder, with the source tree out of the way.
+  pip-install:
+    name: pip install carries the database
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install BLAST+ and the tool
+        run: |
+          sudo apt-get update && sudo apt-get install -y ncbi-blast+
+          pip install .
+      - name: Type a test genome from another folder
+        run: |
+          cp tests/data/example.fna.gz "$RUNNER_TEMP/"
+          cd "$RUNNER_TEMP"
+          mlst-typing example.fna.gz | tee result.tsv
+          # a scheme and a sequence type, not "-"
+          awk -F'\t' '$2 == "-" || $3 == "-" { exit 1 }' result.tsv
+
   planemo-lint:
     name: Galaxy wrapper lint (bundle)
     runs-on: ubuntu-latest

@@ -146,11 +146,13 @@ def load_schemes(datadir):
 
 
 def find_database(arg_db):
-    """--db, then $MLST_TYPING_DB, then database/ next to or above this script."""
+    """--db, then $MLST_TYPING_DB, then database/ next to or above this script,
+    then the copy a pip install puts beside the module (mlst_typing_database/)."""
     here = os.path.dirname(os.path.realpath(__file__))
     for cand in (arg_db, os.environ.get(ENV_DB),
                  os.path.join(here, "database"),
-                 os.path.join(here, "..", "database")):
+                 os.path.join(here, "..", "database"),
+                 os.path.join(here, "mlst_typing_database")):
         if cand and os.path.isdir(cand):
             return os.path.realpath(cand)
     return os.path.realpath(arg_db or os.environ.get(ENV_DB) or os.path.join(here, "database"))

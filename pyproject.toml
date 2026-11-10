@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=61"]
+requires = ["setuptools>=64"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -15,9 +15,15 @@ dependencies = []
 [project.scripts]
 mlst-typing = "mlst_typing:main"
 
+# The database travels with a pip install: database/ is installed beside the
+# module as the data folder "mlst_typing_database", where find_database() looks.
 [tool.setuptools]
-package-dir = {"" = "tool"}
+package-dir = {"" = "tool", "mlst_typing_database" = "database"}
 py-modules = ["mlst_typing"]
+packages = ["mlst_typing_database"]
+
+[tool.setuptools.package-data]
+mlst_typing_database = ["**/*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
