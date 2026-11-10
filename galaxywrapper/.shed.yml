@@ -7,5 +7,7 @@ type: unrestricted
 long_description: |
   Finds the best-fitting MLST scheme for each assembly and reports its sequence type
   and per-locus alleles. A Python redesign of Torsten Seemann's mlst with the same
-  method and output, and a database updater that follows current PubMLST schemes.
+  method, improved to give the same answer every run when schemes tie (listed in a
+  WARNINGS column), keep the ST for genomes with identical multi-copy loci
+  (MULTICOPY), and type loci that mlst reports as missing.
 homepage_url: https://github.com/TinusTK/mlst-typing

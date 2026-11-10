@@ -29,7 +29,7 @@ jobs:
         with:
           python-version: "3.12"
       - run: pip install planemo
-      # Lint the bundle, not tool/: <required_files> lists database/*, which
+      # Lint the bundle, not galaxywrapper/: <required_files> lists database/*, which
       # only sits next to tool.xml in the bundle (lint errors on no match).
       - name: planemo lint + shed_lint
         run: |

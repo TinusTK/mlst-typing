@@ -61,8 +61,8 @@ jobs:
           python - <<'EOF'
           import csv, os, re
           label = os.environ["LABEL"]
-          # tool/tool.xml: database-only change -> bump the +galaxyN suffix
-          p = "tool/tool.xml"; s = open(p).read()
+          # galaxywrapper/tool.xml: database-only change -> bump the +galaxyN suffix
+          p = "galaxywrapper/tool.xml"; s = open(p).read()
           s = re.sub(r"\+galaxy(\d+)", lambda m: f"+galaxy{int(m.group(1)) + 1}", s, count=1)
           open(p, "w").write(s)
           # README: new row at the top of the database version table
@@ -93,5 +93,5 @@ jobs:
           labels: database-update
           add-paths: |
             database/
-            tool/tool.xml
+            galaxywrapper/tool.xml
             README.md

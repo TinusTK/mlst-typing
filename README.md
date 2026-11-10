@@ -40,7 +40,8 @@ What changed:
 - **Clearer `--full` report**: columns FILE, SCHEME, ST, ALLELES, STATUS,
   SCORE, WARNINGS, and the status `OK` (some loci not exact, no ST) is
   renamed `PARTIAL` so it is not mistaken for a good result.
-- **Galaxy wrapper** ready for Galaxy Australia.
+- **Galaxy wrapper** ready for Galaxy Australia, in
+  [galaxywrapper/](galaxywrapper/).
 
 ## Install
 

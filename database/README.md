@@ -44,4 +44,4 @@ reject. Nothing changes in the tool until that pull request is merged.
 
 Exit code 3 means nothing changed. After an update: run the tests and
 `scripts/validate.py`, add the new version to the README table, and raise
-the `+galaxyN` suffix in `tool/tool.xml` (database-only change).
+the `+galaxyN` suffix in `galaxywrapper/tool.xml` (database-only change).

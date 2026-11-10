@@ -1,6 +1,6 @@
 name: Update Tool Shed page details
 
-# Pushes the description, homepage and categories from .shed.yml to the
+# Pushes the description, homepage and categories from galaxywrapper/.shed.yml to the
 # Galaxy Tool Shed WITHOUT uploading a new version. Run from the Actions tab.
 on:
   workflow_dispatch:
@@ -24,4 +24,4 @@ jobs:
             --shed_target toolshed \
             --shed_key "$TOOLSHED_API_KEY" \
             --skip_upload
-          echo "::notice::Tool Shed page details updated from .shed.yml"
+          echo "::notice::Tool Shed page details updated from galaxywrapper/.shed.yml"
