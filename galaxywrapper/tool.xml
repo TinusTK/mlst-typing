@@ -1,5 +1,5 @@
 <tool id="mlst_typing" name="MLST typing" version="@TOOL_VERSION@+galaxy0" profile="22.05">
-    <description>sequence type from assemblies against PubMLST schemes, cross-checked with EnteroBase</description>
+    <description>sequence type from assemblies against PubMLST and EnteroBase schemes</description>
     <macros>
         <token name="@TOOL_VERSION@">0.2.0</token>
     </macros>
@@ -166,8 +166,8 @@ ${f}	${f.element_identifier}
     <help><![CDATA[
 **What it does**
 
-Finds the MLST scheme that fits each assembly best and reports its
-**sequence type (ST)** and per-locus alleles. It checks every scheme in the
+Finds the PubMLST and EnteroBase schemes that fit each assembly best and
+reports the **sequence type (ST)** and per-locus alleles. It checks every scheme in the
 bundled database at once, so you do not need to know the species.
 
 Each assembly is typed against **PubMLST** (the main source) and, separately,

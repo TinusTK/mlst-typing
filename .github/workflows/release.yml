@@ -28,6 +28,8 @@ jobs:
             echo "::error::database/ is empty - merge a database update before releasing"; exit 1
           fi
           echo "DBV=$DBV" >> "$GITHUB_ENV"
+          # line 2 of VERSION.txt: the EnteroBase part (empty if there is none)
+          echo "EBV=$(sed -n 2p database/VERSION.txt)" >> "$GITHUB_ENV"
 
       - name: Bundle tool + database
         run: bash scripts/bundle_tool.sh build
@@ -48,9 +50,15 @@ jobs:
             # Release was created on the GitHub website: attach the files to it
             gh release upload "$GITHUB_REF_NAME" *.tar.gz build/planemo_report.html --clobber
           else
+            {
+              echo "Galaxy tool bundle with the database. Tool tests passed (report attached)."
+              echo
+              echo "Database:"
+              echo "- **$DBV**"
+              [ -n "$EBV" ] && echo "- **$EBV**"
+            } > release_notes.md
             gh release create "$GITHUB_REF_NAME" *.tar.gz build/planemo_report.html \
-              --title "$GITHUB_REF_NAME (database $DBV)" \
-              --notes "Galaxy tool bundle with database **$DBV**. Tool tests passed (report attached)."
+              --title "$GITHUB_REF_NAME" --notes-file release_notes.md
           fi
 
       - name: Publish to Galaxy Tool Shed
@@ -65,4 +73,4 @@ jobs:
             --shed_key "$TOOLSHED_API_KEY" \
             --force_repository_creation \
             --check_diff \
-            --message "${GITHUB_REF_NAME}: database ${DBV}"
+            --message "${GITHUB_REF_NAME}: database ${DBV}${EBV:+ + $EBV}"
