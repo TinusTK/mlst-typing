@@ -1,15 +1,16 @@
 name: mlst_typing
 owner: tinustk
-description: Automatic MLST typing of assemblies against PubMLST schemes, cross-checked with EnteroBase (Python redesign of mlst)
+description: Automatic MLST typing of assemblies against PubMLST and EnteroBase schemes (Python redesign of mlst)
 categories:
   - Sequence Analysis
 type: unrestricted
 long_description: |
-  Finds the best-fitting MLST scheme for each assembly and reports its sequence type
-  and per-locus alleles. A Python redesign of Torsten Seemann's mlst with the same
-  method, improved to give the same answer every run when schemes tie (listed in a
-  WARNINGS column), keep the ST for genomes with identical multi-copy loci
+  Finds the best-fitting PubMLST and EnteroBase schemes for each assembly and reports
+  the sequence type and per-locus alleles. Every assembly is typed against PubMLST
+  (the main source) and against the EnteroBase 7-gene schemes (Escherichia, Salmonella,
+  Yersinia, Moraxella); when PubMLST has no ST and EnteroBase has one, the EnteroBase
+  result is reported and flagged in WARNINGS. A Python redesign of Torsten Seemann's
+  mlst with the same method, improved to give the same answer every run when schemes
+  tie (listed in WARNINGS), keep the ST for genomes with identical multi-copy loci
   (MULTICOPY), and type loci that mlst reports as missing.
-  Each assembly is also typed against the EnteroBase 7-gene schemes: when PubMLST
-  has no ST and EnteroBase has one, that result is reported and flagged in WARNINGS.
 homepage_url: https://github.com/TinusTK/mlst-typing
