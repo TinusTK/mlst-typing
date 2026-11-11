@@ -1,7 +1,7 @@
 <tool id="mlst_typing" name="MLST typing" version="@TOOL_VERSION@+galaxy0" profile="22.05">
-    <description>sequence type from assemblies against PubMLST schemes</description>
+    <description>sequence type from assemblies against PubMLST schemes, cross-checked with EnteroBase</description>
     <macros>
-        <token name="@TOOL_VERSION@">0.1.0</token>
+        <token name="@TOOL_VERSION@">0.2.0</token>
     </macros>
     <requirements>
         <requirement type="package" version="2.16.0">blast</requirement>
@@ -36,6 +36,8 @@ python '$__tool_directory__/mlst_typing.py'
         --novel '$novel_out'
     #end if
     --outfile '$report'
+    --outfile-pubmlst '$report_pubmlst'
+    --outfile-enterobase '$report_enterobase'
     ]]></command>
     <configfiles>
         <configfile name="fofn"><![CDATA[#for $f in $input
@@ -82,6 +84,8 @@ ${f}	${f.element_identifier}
     </inputs>
     <outputs>
         <data name="report" format="tabular" label="${tool.name} on ${on_string}"/>
+        <data name="report_pubmlst" format="tabular" label="${tool.name} on ${on_string}: PubMLST only"/>
+        <data name="report_enterobase" format="tabular" label="${tool.name} on ${on_string}: EnteroBase only"/>
         <data name="json_out" format="json" label="${tool.name} on ${on_string}: JSON">
             <filter>adv['want_json']</filter>
         </data>
@@ -91,16 +95,41 @@ ${f}	${f.element_identifier}
     </outputs>
     <tests>
         <!-- Synthetic assembly of real S. aureus alleles 1 at all 7 loci: ST1. -->
-        <test expect_num_outputs="1">
+        <test expect_num_outputs="3">
             <param name="input" value="saureus_st1.fasta"/>
             <output name="report">
                 <assert_contents>
                     <has_line_matching expression="^saureus_st1.fasta\tsaureus\t1\tarcC\(1\);aroE\(1\);glpF\(1\);gmk\(1\);pta\(1\);tpi\(1\);yqiL\(1\)\tPERFECT\t100\t$"/>
                 </assert_contents>
             </output>
+            <output name="report_enterobase">
+                <assert_contents>
+                    <has_line_matching expression="^saureus_st1.fasta\t-\t-\t\tNONE\t0\t$"/>
+                </assert_contents>
+            </output>
+        </test>
+        <!-- Synthetic E. coli assembly whose ST (17227) is only in EnteroBase:
+             the report shows the EnteroBase result and says so in WARNINGS. -->
+        <test expect_num_outputs="3">
+            <param name="input" value="ecoli_enterobase_only.fasta"/>
+            <output name="report">
+                <assert_contents>
+                    <has_line_matching expression="^ecoli_enterobase_only.fasta\tecoli_achtman_enterobase\t17227\tadk\(10\);fumC\(11\);gyrB\(4\);icd\(8\);mdh\(8\);purA\(8\);recA\(644\)\tPERFECT\t100\tEnteroBase ST, no PubMLST \(PubMLST: ecoli_achtman_4 NOVEL\)$"/>
+                </assert_contents>
+            </output>
+            <output name="report_pubmlst">
+                <assert_contents>
+                    <has_line_matching expression="^ecoli_enterobase_only.fasta\tecoli_achtman_4\t-\t.*\tNOVEL\t90\t$"/>
+                </assert_contents>
+            </output>
+            <output name="report_enterobase">
+                <assert_contents>
+                    <has_line_matching expression="^ecoli_enterobase_only.fasta\tecoli_achtman_enterobase\t17227\t.*\tPERFECT\t100\t$"/>
+                </assert_contents>
+            </output>
         </test>
         <!-- Sequence with no MLST loci: no scheme. -->
-        <test expect_num_outputs="2">
+        <test expect_num_outputs="4">
             <param name="input" value="no_loci.fasta"/>
             <param name="full" value="false"/>
             <section name="adv">
@@ -108,7 +137,7 @@ ${f}	${f.element_identifier}
             </section>
             <output name="report">
                 <assert_contents>
-                    <has_line_matching expression="^no_loci.fasta\t-\t-\t$"/>
+                    <has_line_matching expression="^no_loci.fasta\t-\t-\tNo ST: PubMLST NONE, EnteroBase NONE$"/>
                 </assert_contents>
             </output>
             <output name="json_out">
@@ -118,7 +147,7 @@ ${f}	${f.element_identifier}
             </output>
         </test>
         <!-- Forced scheme, legacy layout. -->
-        <test expect_num_outputs="1">
+        <test expect_num_outputs="3">
             <param name="input" value="saureus_st1.fasta"/>
             <conditional name="scheme_mode">
                 <param name="mode" value="force"/>
@@ -140,6 +169,12 @@ ${f}	${f.element_identifier}
 Finds the MLST scheme that fits each assembly best and reports its
 **sequence type (ST)** and per-locus alleles. It checks every scheme in the
 bundled database at once, so you do not need to know the species.
+
+Each assembly is typed against **PubMLST** (the main source) and, separately,
+against the **EnteroBase** 7-gene schemes (*Escherichia*, *Salmonella*,
+*Yersinia*, *Moraxella*), which hold newer STs. The report shows the PubMLST
+result; when PubMLST has no ST and EnteroBase has one, the EnteroBase result
+is shown and WARNINGS says so.
 
 mlst-typing is a Python redesign of Torsten Seemann's *mlst*: same method,
 same allele notation and output, rebuilt in Python with a database updater
@@ -163,25 +198,61 @@ FILE, SCHEME, ST, ALLELES, STATUS, SCORE (out of 100), WARNINGS.
 STATUS: PERFECT (full ST), PARTIAL (all loci found, some not exact, no ST),
 NOVEL (all alleles exact but a new combination), MULTICOPY (a locus in
 several copies of the same allele; the ST is still reported), MIXED
-(different exact alleles at one locus, no ST), MISSING (a locus not found),
-BAD (score under 70), NONE (no scheme). The original mlst calls PARTIAL "OK"
+(different exact alleles at one locus, no ST), MISSING (at least one allele
+missing, ``-``), BAD (score under 70), NONE (no scheme). The original mlst calls PARTIAL "OK"
 and reports MULTICOPY as MIXED without an ST.
 
-**WARNINGS column** (also added to the default layout, as the last column)
+**Outputs**
 
-Empty, or ``TIE: scheme (STx), scheme (STy)`` when more than one scheme
-gets the same top score. The first scheme by name is reported in SCHEME/ST
-(the original mlst picks one of them at random); check the tied schemes and
-use the one for your species.
+- **Report**: PubMLST and EnteroBase combined (use this one).
+- **PubMLST only** and **EnteroBase only**: what each source gives on its
+  own, in the same layout. EnteroBase scheme names end in ``_enterobase``.
+
+**How to read the report (WARNINGS column)**
+
+SCHEME, ST, ALLELES, STATUS and SCORE always come from the source shown in
+the row. "ST" below means a numbered ST (STATUS PERFECT, or MULTICOPY with
+an ST). "Same scheme" means the two schemes have the same loci.
+
+.. csv-table::
+   :header: "#", "PubMLST", "EnteroBase", "Row shows", "WARNINGS"
+   :widths: 3, 14, 20, 12, 51
+
+   1, "ST", "no scheme", "PubMLST", "(empty)"
+   2, "ST", "same scheme, same ST", "PubMLST", "(empty)"
+   3, "ST", "same scheme, different ST", "PubMLST", "``EnteroBase differs: <scheme> (ST<n>)``"
+   4, "ST", "same scheme, no ST", "PubMLST", "(empty)"
+   5, "ST", "different scheme", "PubMLST", "(empty); see the EnteroBase-only report"
+   6, "scheme, no ST", "ST", "EnteroBase", "``EnteroBase ST, no PubMLST (PubMLST: <scheme> <STATUS>)``"
+   7, "no scheme", "ST", "EnteroBase", "``EnteroBase ST, no PubMLST (PubMLST: NONE)``"
+   8, "scheme, no ST", "scheme, no ST", "PubMLST", "``No ST: PubMLST <STATUS>, EnteroBase <scheme> <STATUS>``"
+   9, "scheme, no ST", "no scheme", "PubMLST", "``No ST: PubMLST <STATUS>, EnteroBase NONE``"
+   10, "no scheme", "scheme, no ST", "PubMLST (``-``, NONE)", "``No ST: PubMLST NONE, EnteroBase <scheme> <STATUS>``"
+   11, "no scheme", "no scheme", "PubMLST (``-``, NONE)", "``No ST: PubMLST NONE, EnteroBase NONE``"
+
+In case 6 the row is an EnteroBase scheme; check that the PubMLST scheme
+named in the warning is the same organism (EnteroBase's *E. coli* scheme
+also holds STs of other species).
+
+WARNINGS can also hold ``TIE: scheme (STx), scheme (STy)`` when more than
+one scheme of the source shown gets the same top score. The first scheme by
+name is reported in SCHEME/ST (the original mlst picks one of them at
+random); check the tied schemes and use the one for your species. Several
+warnings are joined with ``;``. WARNINGS is also the last column of the
+default layout. With a forced scheme only that scheme is typed and the two
+sources are not compared.
 
 **Database**
 
 Allele and profile definitions from PubMLST (https://pubmlst.org) and
-BIGSdb-Pasteur. This release holds the standard, freely available data:
-submitted up to 31 December 2024.
+BIGSdb-Pasteur: the standard, freely available data, submitted up to
+31 December 2024. EnteroBase schemes (https://enterobase.warwick.ac.uk):
+current data from its public scheme downloads, for academic use; please
+cite EnteroBase when you report an EnteroBase ST.
     ]]></help>
     <citations>
         <citation type="doi">10.12688/wellcomeopenres.14826.1</citation>
+        <citation type="doi">10.1101/gr.251678.119</citation>
         <citation type="bibtex">@misc{mlst,
   author = {Seemann, Torsten},
   title = {mlst},

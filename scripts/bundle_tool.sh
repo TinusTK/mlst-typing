@@ -14,6 +14,6 @@ DEST="$OUT/mlst_typing"
 rm -rf "$DEST" && mkdir -p "$DEST/database"
 cp "$ROOT"/galaxywrapper/tool.xml "$ROOT"/galaxywrapper/.shed.yml "$ROOT"/tool/mlst_typing.py "$ROOT"/LICENSE "$DEST"/
 cp -r "$ROOT"/galaxywrapper/test-data "$DEST"/
-cp -r "$ROOT"/database/pubmlst "$ROOT"/database/blast "$DEST"/database/
+cp -r "$ROOT"/database/pubmlst "$ROOT"/database/enterobase "$ROOT"/database/blast "$DEST"/database/
 cp "$ROOT"/database/VERSION.txt "$ROOT"/database/manifest.tsv "$ROOT"/database/README.md "$DEST"/database/
-echo "Bundled tool at $DEST (database $(head -1 "$ROOT/database/VERSION.txt"))"
+echo "Bundled tool at $DEST (database $(paste -sd+ "$ROOT/database/VERSION.txt" | sed "s/+/ + /"))"

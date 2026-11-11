@@ -326,6 +326,141 @@ def test_json_and_novel(tmp_path):
 # same answers as upstream mlst on the same database
 # --------------------------------------------------------------------------
 
+# --------------------------------------------------------------------------
+# PubMLST + EnteroBase: the combined row (README "How to read the report")
+# --------------------------------------------------------------------------
+
+ACHTMAN = ["adk", "fumC", "gyrB", "icd", "mdh", "purA", "recA"]
+
+
+def res(scheme="-", st="-", sig="1/1/1/1/1/1/1", score=None, genes=ACHTMAN, warnings=""):
+    if score is None:
+        score = 0 if scheme == "-" else (100 if st != "-" else 90)
+    return mt.Result(scheme, st, sig, score, warnings, genes)
+
+
+P_ST = dict(scheme="ecoli_achtman_4", st="10")
+P_NOVEL = dict(scheme="ecoli_achtman_4")
+P_MISSING = dict(scheme="ecoli_achtman_4", sig="1/1/1/1/1/1/-", score=77)
+E_SAME = dict(scheme="ecoli_achtman_enterobase", st="10")
+E_OTHER_ST = dict(scheme="ecoli_achtman_enterobase", st="11")
+E_NOVEL = dict(scheme="ecoli_achtman_enterobase")
+E_OTHER_SCHEME = dict(scheme="yersinia_mcnally_enterobase", st="5",
+                      genes=["aarF", "dfp", "galR", "glnS", "hemA", "rfaE", "speA"])
+NOTHING = {}
+
+
+@pytest.mark.parametrize("case,pub,eb,source,warning", [
+    (1, P_ST, NOTHING, "pubmlst", ""),
+    (2, P_ST, E_SAME, "pubmlst", ""),
+    (3, P_ST, E_OTHER_ST, "pubmlst",
+     "EnteroBase differs: ecoli_achtman_enterobase (ST11)"),
+    (4, P_ST, E_NOVEL, "pubmlst", ""),
+    (5, P_ST, E_OTHER_SCHEME, "pubmlst", ""),
+    (6, P_NOVEL, E_SAME, "enterobase",
+     "EnteroBase ST, no PubMLST (PubMLST: ecoli_achtman_4 NOVEL)"),
+    (6, dict(scheme="klebsiella", genes=["gapA", "infB", "mdh", "pgi", "phoE", "rpoB", "tonB"]),
+     E_SAME, "enterobase", "EnteroBase ST, no PubMLST (PubMLST: klebsiella NOVEL)"),
+    (7, NOTHING, E_SAME, "enterobase", "EnteroBase ST, no PubMLST (PubMLST: NONE)"),
+    (8, P_MISSING, E_NOVEL, "pubmlst",
+     "No ST: PubMLST MISSING, EnteroBase ecoli_achtman_enterobase NOVEL"),
+    (9, P_NOVEL, NOTHING, "pubmlst", "No ST: PubMLST NOVEL, EnteroBase NONE"),
+    (10, NOTHING, E_NOVEL, "pubmlst",
+     "No ST: PubMLST NONE, EnteroBase ecoli_achtman_enterobase NOVEL"),
+    (11, NOTHING, NOTHING, "pubmlst", "No ST: PubMLST NONE, EnteroBase NONE"),
+])
+def test_combine_cases(case, pub, eb, source, warning):
+    p, e = res(**pub), res(**eb)
+    shown, src, warn = mt.combine(p, e)
+    assert (src, warn) == (source, warning)
+    assert shown is (e if source == "enterobase" else p)
+
+
+def test_combine_keeps_tie_of_row_shown():
+    tie = "TIE: a (ST1), b (ST2)"
+    _, _, warn = mt.combine(res(**P_ST, warnings=tie), res(**E_OTHER_ST))
+    assert warn == "EnteroBase differs: ecoli_achtman_enterobase (ST11); " + tie
+    _, _, warn = mt.combine(res(**P_NOVEL, warnings=tie), res(**E_SAME, warnings="TIE: x (ST3)"))
+    assert warn == ("EnteroBase ST, no PubMLST (PubMLST: ecoli_achtman_4 NOVEL); "
+                    "TIE: x (ST3)")
+    _, _, warn = mt.combine(res(**P_NOVEL, warnings=tie), res())
+    assert warn == "No ST: PubMLST NOVEL, EnteroBase NONE; " + tie
+
+
+def test_combine_multicopy_st_counts_as_st():
+    p = res(scheme="ecoli_achtman_4", st="10", sig="1,1/1/1/1/1/1/1")
+    assert p.status == "MULTICOPY" and p.has_st
+    assert mt.combine(p, res())[1:] == ("pubmlst", "")
+
+
+EB_ONLY = os.path.join(DATA, "ecoli_enterobase_only.fa")   # ST17227, EnteroBase only
+EB_ROW = ("ecoli_achtman_enterobase\t17227\t"
+          "adk(10);fumC(11);gyrB(4);icd(8);mdh(8);purA(8);recA(644)\tPERFECT\t100\t")
+PM_ROW = ("ecoli_achtman_4\t-\t"
+          "adk(10);fumC(11);gyrB(4);icd(8);mdh(8);purA(8);recA(644)\tNOVEL\t90\t")
+
+
+@needs_blast
+def test_three_reports(tmp_path):
+    files = [EB_ONLY, os.path.join(DATA, "example.fna.gz"), os.path.join(DATA, "none.fa")]
+    pm, eb = tmp_path / "pubmlst.tsv", tmp_path / "enterobase.tsv"
+    r = run("-q", "--full", "--nopath", "--outfile-pubmlst", str(pm),
+            "--outfile-enterobase", str(eb), *files)
+    assert r.returncode == 0, r.stderr
+    head = "FILE\tSCHEME\tST\tALLELES\tSTATUS\tSCORE\tWARNINGS\n"
+    sepi = ("example.fna.gz\tsepidermidis\t184\t"
+            "arcC(16);aroE(1);gtr(2);mutS(1);pyrR(2);tpiA(1);yqiL(1)\tPERFECT\t100\t\n")
+    assert r.stdout == (
+        head
+        + "ecoli_enterobase_only.fa\t" + EB_ROW
+        + "EnteroBase ST, no PubMLST (PubMLST: ecoli_achtman_4 NOVEL)\n"
+        + sepi
+        + "none.fa\t-\t-\t\tNONE\t0\tNo ST: PubMLST NONE, EnteroBase NONE\n")
+    assert pm.read_text() == (head + "ecoli_enterobase_only.fa\t" + PM_ROW + "\n" + sepi
+                              + "none.fa\t-\t-\t\tNONE\t0\t\n")
+    assert eb.read_text() == (head + "ecoli_enterobase_only.fa\t" + EB_ROW + "\n"
+                              + "example.fna.gz\t-\t-\t\tNONE\t0\t\n"
+                              + "none.fa\t-\t-\t\tNONE\t0\t\n")
+
+
+@needs_blast
+def test_no_enterobase_is_pubmlst_only(tmp_path):
+    pm = tmp_path / "pubmlst.tsv"
+    a = run("-q", "--full", "--no-enterobase", EB_ONLY)
+    b = run("-q", "--full", "--outfile-pubmlst", str(pm), "--outfile", os.devnull, EB_ONLY)
+    assert a.returncode == b.returncode == 0, a.stderr + b.stderr
+    assert a.stdout == pm.read_text()
+    assert a.stdout.splitlines()[1].endswith("NOVEL\t90\t")
+    r = run("-q", "--no-enterobase", "--outfile-enterobase", str(tmp_path / "x"), EB_ONLY)
+    assert r.returncode != 0 and "--outfile-enterobase" in r.stderr
+
+
+@needs_blast
+def test_forced_enterobase_scheme_and_lists():
+    r = run("-q", "--full", "--scheme", "ecoli_achtman_enterobase", EB_ONLY)
+    assert r.returncode == 0, r.stderr
+    assert r.stdout.splitlines()[1].endswith(EB_ROW.rstrip("\t") + "\t")   # no cross-check
+    r = run("-q", "--full", "--scheme", "ecoli_achtman_4", EB_ONLY)
+    assert r.stdout.splitlines()[1].endswith(PM_ROW.rstrip("\t") + "\t")
+    names = run("--list").stdout.split()
+    assert "ecoli_achtman_enterobase" in names and "ecoli_achtman_4" in names
+    assert "ecoli_achtman_enterobase" not in run("--list", "--no-enterobase").stdout.split()
+
+
+@needs_blast
+def test_json_has_both_sources(tmp_path):
+    js = tmp_path / "out.json"
+    r = run("-q", "--json", str(js), "--outfile", os.devnull, EB_ONLY)
+    assert r.returncode == 0, r.stderr
+    row = json.loads(js.read_text())[0]
+    assert row["scheme"] == "ecoli_achtman_enterobase" and row["sequence_type"] == "17227"
+    assert row["source"] == "enterobase"
+    assert row["warnings"] == ["EnteroBase ST, no PubMLST (PubMLST: ecoli_achtman_4 NOVEL)"]
+    assert row["pubmlst"]["scheme"] == "ecoli_achtman_4"
+    assert row["pubmlst"]["status"] == "NOVEL" and row["pubmlst"]["sequence_type"] == "-"
+    assert row["enterobase"]["status"] == "PERFECT"
+
+
 INPUTS = ["example.fna.gz", "example.gbk.gz", "novel.fasta.bz2", "mixed.fa.zip",
           "none.fa", "novel.fa"]
 MODES = [[], ["--full"], ["--csv"], ["--scheme", "sepidermidis", "--legacy"],
@@ -359,7 +494,7 @@ def as_mlst_full(text):
 def test_same_as_upstream(mode):
     files = [os.path.join(DATA, f) for f in INPUTS]
     a = upstream("-q", *mode, *files)
-    b = run("-q", *mode, *files)
+    b = run("-q", "--no-enterobase", *mode, *files)   # mlst has no EnteroBase
     assert a.returncode == b.returncode == 0, a.stderr + b.stderr
     if "--legacy" in mode:
         ours = b.stdout

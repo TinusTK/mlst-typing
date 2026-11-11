@@ -48,6 +48,7 @@ dnodosus	pubmlst	7	157	120	2026-10-28	True	Dichelobacter nodosus	https://rest.pu
 ecloacae	pubmlst	7	4750	3290	2026-11-04	True	Enterobacter	https://rest.pubmlst.org/db/pubmlst_ecloacae_seqdef/schemes/1
 ecoli	pasteur	8	2932	2114	2026-11-02	True	Shigella	https://bigsdb.pasteur.fr/api/db/pubmlst_ecoli_seqdef/schemes/1
 ecoli_achtman_4	pubmlst	7	12598	16242	2025-01-03	True	Escherichia coli	https://rest.pubmlst.org/db/pubmlst_ecoli_achtman_seqdef/schemes/4
+ecoli_achtman_enterobase	enterobase	7	14532	18978	2026-11-11	False	Escherichia coli	https://enterobase.warwick.ac.uk/schemes/Escherichia.Achtman7GeneMLST
 edwardsiella	pubmlst	10	120	24	2026-10-07	True	Edwardsiella	https://rest.pubmlst.org/db/pubmlst_edwardsiella_seqdef/schemes/1
 efaecalis	pubmlst	7	891	1968	2026-10-13	True	Enterococcus faecalis	https://rest.pubmlst.org/db/pubmlst_efaecalis_seqdef/schemes/1
 efaecium	pubmlst	7	1207	2755	2026-11-05	True	Enterococcus faecium	https://rest.pubmlst.org/db/pubmlst_efaecium_seqdef/schemes/1
@@ -81,6 +82,7 @@ mbovis_2	pubmlst	7	258	288	2026-10-09	True	Mycoplasmopsis bovis	https://rest.pub
 mcanis	pubmlst	7	155	83	2019-10-21	True	Macrococcoides canis	https://rest.pubmlst.org/db/pubmlst_mcanis_seqdef/schemes/1
 mcaseolyticus	pubmlst	7	126	68	2026-06-19	True	Macrococcoides caseolyticum	https://rest.pubmlst.org/db/pubmlst_mcaseolyticus_seqdef/schemes/1
 mcatarrhalis_achtman_6	pubmlst	8	1503	934	2026-07-14	True	Moraxella catarrhalis	https://rest.pubmlst.org/db/pubmlst_mcatarrhalis_achtman_seqdef/schemes/6
+mcatarrhalis_achtman_enterobase	enterobase	8	1554	949	2026-11-11	False	Moraxella catarrhalis	https://enterobase.warwick.ac.uk/schemes/Moraxella.Achtman7GeneMLST
 mflocculare	pubmlst	3	22	8	2018-07-03	True	Mesomycoplasma flocculare	https://rest.pubmlst.org/db/pubmlst_mflocculare_seqdef/schemes/1
 mgallisepticum	pubmlst	7	240	109	2026-11-06	True	Mycoplasmoides gallisepticum	https://rest.pubmlst.org/db/pubmlst_mgallisepticum_seqdef/schemes/1
 mgallisepticum_2	pubmlst	6	177	148	2026-09-24	True	Mycoplasmoides gallisepticum	https://rest.pubmlst.org/db/pubmlst_mgallisepticum_seqdef/schemes/2
@@ -124,6 +126,7 @@ scanis	pubmlst	7	116	101	2025-09-05	True	Streptococcus equinus	https://rest.pubm
 schromogenes	pubmlst	7	291	193	2026-04-22	True	Staphylococcus chromogenes	https://rest.pubmlst.org/db/pubmlst_schromogenes_seqdef/schemes/1
 sdysgalactiae	pubmlst	7	628	792	2026-11-05	True	Streptococcus dysgalactiae	https://rest.pubmlst.org/db/pubmlst_sdysgalactiae_seqdef/schemes/1
 senterica_achtman_2	pubmlst	7	11592	11157	2025-01-03	True	Salmonella enterica	https://rest.pubmlst.org/db/pubmlst_senterica_achtman_seqdef/schemes/2
+senterica_achtman_enterobase	enterobase	7	13475	13704	2026-11-11	False	Salmonella enterica	https://enterobase.warwick.ac.uk/schemes/Salmonella.Achtman7GeneMLST
 sepidermidis	pubmlst	7	626	1253	2026-10-23	True	Staphylococcus epidermidis	https://rest.pubmlst.org/db/pubmlst_sepidermidis_seqdef/schemes/1
 serratia	pubmlst	6	2669	1511	2026-09-23	True	Serratia	https://rest.pubmlst.org/db/pubmlst_serratia_seqdef/schemes/1
 sgallolyticus	pubmlst	7	214	121	2026-11-06	True	Streptococcus gallolyticus	https://rest.pubmlst.org/db/pubmlst_sgallolyticus_seqdef/schemes/1
@@ -159,5 +162,7 @@ vvulnificus	pubmlst	10	1460	696	2026-11-04	True	Vibrio vulnificus	https://rest.p
 wolbachia	pubmlst	5	1764	579	2020-09-01	True	Wolbachia	https://rest.pubmlst.org/db/pubmlst_wolbachia_seqdef/schemes/1
 xfastidiosa	pubmlst	7	156	90	2022-06-29	True	Xylella fastidiosa	https://rest.pubmlst.org/db/pubmlst_xfastidiosa_seqdef/schemes/1
 yersinia	pubmlst	7	545	170	2015-06-16	True	Yersinia	https://rest.pubmlst.org/db/pubmlst_yersinia_seqdef/schemes/1
+yersinia_mcnally_enterobase	enterobase	7	1838	1244	2026-11-11	False	Yersinia	https://enterobase.warwick.ac.uk/schemes/Yersinia.McNally
 ypseudotuberculosis_achtman_3	pubmlst	7	1601	1094	2026-10-12	True	Yersinia pseudotuberculosis	https://rest.pubmlst.org/db/pubmlst_ypseudotuberculosis_achtman_seqdef/schemes/3
+ypseudotuberculosis_achtman_enterobase	enterobase	7	1762	1276	2026-11-11	False	Yersinia pseudotuberculosis	https://enterobase.warwick.ac.uk/schemes/Yersinia.Achtman7GeneMLST
 yruckeri	pubmlst	6	52	54	2023-10-17	True	Yersinia ruckeri	https://rest.pubmlst.org/db/pubmlst_yruckeri_seqdef/schemes/1

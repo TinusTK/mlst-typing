@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 mlst-typing - automatic MLST typing of assembled genomes against PubMLST
-schemes.
+schemes, cross-checked with EnteroBase.
 
 A Python redesign of Torsten Seemann's mlst (https://github.com/tseemann/mlst,
 GPL-2.0). The typing method follows mlst: BLAST the genome against every
@@ -11,6 +11,11 @@ the best one. Allele notation and output columns are the same as mlst.
     mlst-typing contigs.fasta [more.fasta ...]
     mlst-typing --scheme saureus --full contigs.gbk.gz
     mlst-typing --list | --longlist | --info
+
+Each genome is typed against PubMLST (the main source) and, separately,
+against the EnteroBase schemes. The report shows the PubMLST result; when
+PubMLST gives no ST and EnteroBase does, the EnteroBase result is shown and
+WARNINGS says so (see combine()).
 
 Needs only Python 3.8+ and BLAST+ (blastn).
 """
@@ -30,7 +35,7 @@ import sys
 import tempfile
 import zipfile
 
-VERSION = "0.1.0"
+VERSION = "0.2.0"
 EXE = "mlst-typing"
 URL = "https://github.com/TinusTK/mlst-typing"
 
@@ -159,9 +164,10 @@ def find_database(arg_db):
 
 
 def db_version(db):
+    """VERSION.txt: line 1 PubMLST, line 2 EnteroBase -> 'a + b'."""
     try:
         with open(os.path.join(db, "VERSION.txt")) as fh:
-            return fh.readline().strip() or "unknown"
+            return " + ".join(l.strip() for l in fh if l.strip()) or "unknown"
     except OSError:
         return "unknown"
 
@@ -401,24 +407,81 @@ def run_blast(fasta, blastdb, threads, minid, outfile):
         err(f"COMMAND FAILED: {' '.join(cmd)}\n{r.stderr.strip()}")
 
 
-def type_genome(path, label, opts, schemes, tmpdir, nov_all):
-    fna = os.path.join(tmpdir, "mlst.fna")
-    bls = os.path.join(tmpdir, "mlst.bls")
-    write_fasta(parse_sequences(read_bytes(path)), fna)
-    run_blast(fna, opts.blastdb, opts.threads, opts.minid, bls)
+class Result:
+    """Best scheme of one genome in one source (PubMLST or EnteroBase)."""
+
+    def __init__(self, scheme="-", st="-", sig="", score=0, warnings="",
+                 genes=(), novel=None):
+        self.scheme, self.st, self.score, self.warnings = scheme, st, score, warnings
+        self.code = [] if scheme == "-" else sort_duplicates(sig.split("/"))
+        self.genes = [] if scheme == "-" else list(genes)
+        self.novel = novel or {}
+
+    @property
+    def has_st(self):
+        return bool(re.fullmatch(r"\d+", self.st))
+
+    @property
+    def status(self):
+        return status_column(self.st, self.score, self.code)
+
+    @property
+    def alleles(self):
+        return [f"{g}({c})" for g, c in zip(self.genes, self.code)]
+
+    def as_json(self):
+        return {"scheme": self.scheme, "sequence_type": self.st,
+                "alleles": None if self.scheme == "-" else dict(zip(self.genes, self.code)),
+                "status": self.status, "score": self.score,
+                "warnings": [self.warnings] if self.warnings else []}
+
+
+def type_genome(fna, name, opts, blastdb, schemes, tmpdir, force=""):
+    """Type one genome (FASTA already written to fna) against one source."""
+    bls = os.path.join(tmpdir, f"{name}.bls")
+    run_blast(fna, blastdb, opts.threads, opts.minid, bls)
     with open(bls) as fh:
         hits = [h for h in (parse_hit(l) for l in fh) if h]
-    res, nov = call_alleles(hits, opts.mincov, opts.scheme, opts.exclude_set,
+    res, nov = call_alleles(hits, opts.mincov, force, opts.exclude_set,
                             bool(opts.novel))
-    allele_cnt = len(schemes[opts.scheme].genes) if opts.scheme else 7
+    allele_cnt = len(schemes[force].genes) if force else 7
     sch, st, sig, score, warnings = best_scheme(res, schemes, opts.minscore,
-                                                opts.scheme, allele_cnt, path)
-    # keep novel alleles of the chosen scheme only
-    nov_all.setdefault(label, {}).update({k: v for k, v in nov.items() if k == sch})
-    for k in list(nov_all[label]):
-        if k != sch:
-            del nov_all[label][k]
-    return sch, st, sig, score, warnings
+                                                force, allele_cnt, fna)
+    if force and sch != force:
+        err(f"BUG: got back {sch} despite --scheme {force}")
+    genes = schemes[sch].genes if sch in schemes else ()
+    return Result(sch, st, sig, score, warnings, genes, nov.get(sch))
+
+
+def combine(pub, eb):
+    """The reported row from the PubMLST and the EnteroBase result.
+
+    PubMLST is the main source. Returns (result shown, source, warnings):
+      PubMLST has an ST          -> PubMLST; "EnteroBase differs: scheme (STn)"
+                                    when EnteroBase has another ST for the
+                                    same scheme (same loci)
+      only EnteroBase has an ST  -> EnteroBase; "EnteroBase ST, no PubMLST
+                                    (PubMLST: scheme STATUS)"
+      neither has an ST          -> PubMLST; "No ST: PubMLST STATUS,
+                                    EnteroBase scheme STATUS"
+    A TIE warning of the result shown is kept, after the text above.
+    """
+    def found(r):
+        return "NONE" if r.scheme == "-" else f"{r.scheme} {r.status}"
+
+    def join(*parts):
+        return "; ".join(x for x in parts if x)
+
+    if pub.has_st:
+        same_scheme = eb.scheme != "-" and sorted(pub.genes) == sorted(eb.genes)
+        differs = (f"EnteroBase differs: {eb.scheme} (ST{eb.st})"
+                   if eb.has_st and same_scheme and eb.st != pub.st else "")
+        return pub, "pubmlst", join(differs, pub.warnings)
+    if eb.has_st:
+        return eb, "enterobase", join(
+            f"EnteroBase ST, no PubMLST (PubMLST: {found(pub)})", eb.warnings)
+    return pub, "pubmlst", join(
+        f"No ST: PubMLST {pub.status}, EnteroBase {found(eb)}", pub.warnings)
 
 
 # --------------------------------------------------------------------------
@@ -490,6 +553,10 @@ def get_args(argv):
     g.add_argument("--nopath", action=B, default=False, help="strip paths from FILE column")
     g = p.add_argument_group("output files")
     g.add_argument("--outfile", default="", help="save output to this file [stdout]")
+    g.add_argument("--outfile-pubmlst", default="",
+                   help="also save the PubMLST-only results to this file")
+    g.add_argument("--outfile-enterobase", default="",
+                   help="also save the EnteroBase-only results to this file")
     g.add_argument("--novel", default="", help="save novel alleles to this FASTA file")
     g.add_argument("--json", default="", help="also write results as JSON")
     g = p.add_argument_group("scoring")
@@ -501,6 +568,9 @@ def get_args(argv):
     g.add_argument("--db", default="", help=f"database folder [${ENV_DB} or bundled database/]")
     g.add_argument("--blastdb", default="", help="BLAST database prefix [<db>/blast/mlst.fa]")
     g.add_argument("--datadir", default="", help="scheme folders [<db>/pubmlst]")
+    g.add_argument("--enterobase", action=B, default=True,
+                   help="cross-check with the EnteroBase schemes in <db>/enterobase "
+                        "(--no-enterobase: PubMLST only)")
     return p.parse_args(argv)
 
 
@@ -510,6 +580,8 @@ def main(argv=None):
     db = find_database(o.db)
     o.blastdb = o.blastdb or os.path.join(db, "blast", "mlst.fa")
     o.datadir = o.datadir or os.path.join(db, "pubmlst")
+    o.eb_blastdb = os.path.join(db, "blast", "enterobase.fa")
+    o.eb_datadir = os.path.join(db, "enterobase")
     if o.version:
         print(f"{EXE} {VERSION} (database {db_version(db)})")
         return 0
@@ -554,23 +626,31 @@ def run(o, db):
         err("Must specify a --scheme for --legacy output mode")
 
     schemes = load_schemes(o.datadir)
-    if o.scheme and o.scheme not in schemes:
+    # EnteroBase: second source, typed on its own (never ties with PubMLST)
+    use_eb = (o.enterobase and os.path.isdir(o.eb_datadir)
+              and os.path.exists(o.eb_blastdb + ".nsq"))
+    eb_schemes = load_schemes(o.eb_datadir) if use_eb else {}
+    if o.outfile_enterobase and not use_eb:
+        err("--outfile-enterobase needs the EnteroBase schemes "
+            f"({o.eb_datadir}) and cannot be used with --no-enterobase")
+    every = {**schemes, **eb_schemes}
+    if o.scheme and o.scheme not in every:
         err(f"Invalid --scheme '{o.scheme}'. Check using --list")
     if o.scheme and o.minscore != 0:
         Log.msg("Setting --minscore=0 because user chose --scheme")
         o.minscore = 0
 
-    out = RowWriter(open(o.outfile, "w") if o.outfile else sys.stdout,
-                    "," if o.csv else "\t")
+    sep = "," if o.csv else "\t"
+    out = RowWriter(open(o.outfile, "w") if o.outfile else sys.stdout, sep)
     if o.list or o.longlist or o.info:
         if o.list:
-            print(" ".join(sorted(schemes)))
+            print(" ".join(sorted(every)))
         elif o.longlist:
-            for s in schemes.values():
+            for s in every.values():
                 out.row(s.name, *s.genes)
         else:
             out.row("SCHEME", "LOCII", "TYPES", "ALLELES", "DATE", "LOCII_NAMES")
-            for s in schemes.values():
+            for s in every.values():
                 out.row(s.name, s.num_genes, s.num_genotypes, s.num_alleles,
                         s.last_updated, " ".join(s.genes))
         return 0
@@ -581,13 +661,32 @@ def run(o, db):
     if o.exclude_set:
         Log.msg(f"Excluding {len(o.exclude_set)} schemes:", *sorted(o.exclude_set))
 
-    if o.scheme and o.legacy:
-        out.row("FILE", "SCHEME", "ST", *schemes[o.scheme].genes)
-    elif o.full:
-        out.row("FILE", "SCHEME", "ST", "ALLELES", "STATUS", "SCORE", "WARNINGS")
+    # the combined report, plus one report per source when asked for
+    out_pub = RowWriter(open(o.outfile_pubmlst, "w"), sep) if o.outfile_pubmlst else None
+    out_eb = RowWriter(open(o.outfile_enterobase, "w"), sep) if o.outfile_enterobase else None
+    writers = [w for w in (out, out_pub, out_eb) if w]
+    legacy = bool(o.scheme and o.legacy)
+    for w in writers:
+        if legacy:
+            w.row("FILE", "SCHEME", "ST", *every[o.scheme].genes)
+        elif o.full:
+            w.row("FILE", "SCHEME", "ST", "ALLELES", "STATUS", "SCORE", "WARNINGS")
+
+    def write(w, label, r, warnings):
+        if legacy:
+            w.row(label, r.scheme, r.st, *r.code)
+        elif o.full:
+            w.row(label, r.scheme, r.st, ";".join(r.alleles), r.status, r.score, warnings)
+        else:
+            w.row(label, r.scheme, r.st, *r.alleles, warnings)
+
+    # a forced scheme is typed in its own source only
+    do_pub = not o.scheme or o.scheme in schemes
+    do_eb = use_eb and (not o.scheme or o.scheme in eb_schemes)
 
     results, nov_all = [], {}
     with tempfile.TemporaryDirectory(prefix="mlst-typing_") as tmp:
+        fna = os.path.join(tmp, "mlst.fna")
         for path in files:
             if os.path.isdir(path):
                 err(f"'{path}' seems to be a directory, not a file")
@@ -596,25 +695,34 @@ def run(o, db):
             label = o.label or labels.get(path) or (os.path.basename(path) if o.nopath else path)
             if label != path:
                 Log.msg(f"Using label '{label}' for file {path}")
-            sch, st, sig, score, warnings = type_genome(path, label, o, schemes, tmp, nov_all)
-            if o.scheme and sch != o.scheme:
-                err(f"BUG: got back {sch} despite --scheme {o.scheme}")
-            code = [] if sch == "-" else sort_duplicates(sig.split("/"))
-            genes = [] if sch == "-" else schemes[sch].genes
-            if o.scheme and o.legacy:
-                out.row(label, sch, st, *code)
-            else:
-                alleles = [f"{g}({c})" for g, c in zip(genes, code)]
-                if o.full:
-                    out.row(label, sch, st, ";".join(alleles),
-                            status_column(st, score, code), score, warnings)
-                else:
-                    out.row(label, sch, st, *alleles, warnings)
-            results.append({
-                "id": label, "filename": path, "scheme": sch, "sequence_type": st,
-                "alleles": None if sch == "-" else dict(zip(genes, code)),
+            write_fasta(parse_sequences(read_bytes(path)), fna)
+            pub = (type_genome(fna, "pubmlst", o, o.blastdb, schemes, tmp, o.scheme)
+                   if do_pub else Result())
+            eb = (type_genome(fna, "enterobase", o, o.eb_blastdb, eb_schemes, tmp, o.scheme)
+                  if do_eb else Result())
+            if o.scheme:        # forced: no cross-check
+                shown, source = (pub, "pubmlst") if do_pub else (eb, "enterobase")
+                warnings = shown.warnings
+            elif use_eb:
+                shown, source, warnings = combine(pub, eb)
+            else:               # PubMLST only (--no-enterobase)
+                shown, source, warnings = pub, "pubmlst", pub.warnings
+            # keep novel alleles of the scheme that is reported
+            nov_all[label] = {shown.scheme: shown.novel} if shown.novel else {}
+            write(out, label, shown, warnings)
+            if out_pub:
+                write(out_pub, label, pub, pub.warnings)
+            if out_eb:
+                write(out_eb, label, eb, eb.warnings)
+            row = {
+                "id": label, "filename": path, "scheme": shown.scheme,
+                "sequence_type": shown.st,
+                "alleles": None if shown.scheme == "-" else dict(zip(shown.genes, shown.code)),
                 "warnings": [warnings] if warnings else [],
-            })
+            }
+            if use_eb:
+                row.update(source=source, pubmlst=pub.as_json(), enterobase=eb.as_json())
+            results.append(row)
 
     if o.json:
         Log.msg(f"Writing JSON: {o.json}")
@@ -628,8 +736,14 @@ def run(o, db):
             fh.writelines(new)
     if o.outfile:
         out.fh.close()
+    for w in (out_pub, out_eb):
+        if w:
+            w.fh.close()
     Log.msg("Please cite mlst (Seemann, github.com/tseemann/mlst) and PubMLST "
             "(Jolley et al. 2018, https://pubmed.ncbi.nlm.nih.gov/30345391)")
+    if use_eb:
+        Log.msg("EnteroBase schemes: please cite EnteroBase (Zhou et al. 2020, "
+                "https://doi.org/10.1101/gr.251678.119)")
     Log.msg("Done.")
     return 0
 
