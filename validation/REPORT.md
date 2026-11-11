@@ -1,12 +1,12 @@
-# Validation, database PubMLST_2026-11
+# Validation, database PubMLST_2026-11 + EnteroBase_2026-11-11
 
-Run 2026-11-10: 194 genomes listed (one public NCBI assembly per scheme + priority organisms + matched genomes).
+Run 2026-11-11: 194 genomes listed (one public NCBI assembly per scheme + priority organisms + matched genomes).
 
 - Typed: 194 (0 without a genome)
 - Called the scheme the genome was picked for: 151/194
 - Full ST (PERFECT or MULTICOPY): 146/194
-- Same result as upstream mlst on the same database: **180/194**
-- Upstream picked another of the tied schemes this run: 9/194 (see Ties)
+- Same result as upstream mlst on the same database: **176/194**
+- Upstream picked another of the tied schemes this run: 13/194 (see Ties)
 - Deliberate differences (identical copies of a locus, locus names mlst cannot read): 5/194 (see Deliberate differences)
 - Real differences: **0/194**
 
@@ -34,9 +34,9 @@ Some schemes cover a whole genus, and the first NCBI pick was a species the sche
 | brachyspira_4 | Brachyspira aalborgi: NONE | Brachyspira pilosicoli 95/1000 (GCF_000143725.1) | brachyspira_4 | 138 | PERFECT | 100 | yes | none | scheme is B. pilosicoli MLST |
 | brachyspira_5 | Brachyspira aalborgi: NONE | Brachyspira hampsonii 30446 (GCF_000316195.1) | brachyspira_5 | 7 | PERFECT | 100 | yes | none | scheme is B. hampsonii MLST |
 | halobacteria | Candidatus Halobonum tyrrellensis G22: NONE | Halorubrum lacusprofundi ATCC 49239 (GCF_000022205.1) | halobacteria | - | NOVEL | 90 | no (deliberate, see below) | none | Halorubrum; the scheme has no public ST profiles, so no ST is possible |
-| leptospira | Leptospira abararensis: NONE | Leptospira interrogans serovar Copenhageni FDAARGOS_203 (GCF_002073495.2) | leptospira | 17 | PERFECT | 100 | tie | TIE: leptospira (ST17), leptospira_2 (ST47), leptospira_3 (ST2) | L. interrogans |
+| leptospira | Leptospira abararensis: NONE | Leptospira interrogans serovar Copenhageni FDAARGOS_203 (GCF_002073495.2) | leptospira | 17 | PERFECT | 100 | yes | TIE: leptospira (ST17), leptospira_2 (ST47), leptospira_3 (ST2) | L. interrogans |
 | leptospira_2 | Leptospira abararensis: NONE | Leptospira interrogans serovar Copenhageni FDAARGOS_203 (GCF_002073495.2) | leptospira | 47 (tie) | PERFECT | 100 | tie | TIE: leptospira (ST17), leptospira_2 (ST47), leptospira_3 (ST2) | L. interrogans |
-| leptospira_3 | Leptospira abararensis: NONE | Leptospira interrogans CUDO5 (GCF_002370085.3) | leptospira | 188 (tie) | PERFECT | 100 | yes | TIE: leptospira (ST26), leptospira_3 (ST188) | L. interrogans |
+| leptospira_3 | Leptospira abararensis: NONE | Leptospira interrogans CUDO5 (GCF_002370085.3) | leptospira | 188 (tie) | PERFECT | 100 | tie | TIE: leptospira (ST26), leptospira_3 (ST188) | L. interrogans |
 | liberibacter | Candidatus Liberibacter africanus PTSAPSY: NONE | Candidatus Liberibacter solanacearum CLso-ZC1 (GCF_000183665.1) | liberibacter | 10 | PERFECT | 100 | yes | none | Ca. L. solanacearum |
 | mycobacteria_2 | Candidatus Mycobacterium methanotrophicum: NONE | Mycobacterium tuberculosis H37Rv (GCF_000195955.2) | mycobacteria_2 | 215 | PERFECT | 100 | yes | none | M. tuberculosis (same genome as the priority list) |
 | providencia | Candidatus Providencia siddallii: NONE | Providencia stuartii 41 (GCF_035747985.1) | providencia | 233 | PERFECT | 100 | yes | none | P. stuartii |
@@ -46,13 +46,45 @@ Some schemes cover a whole genus, and the first NCBI pick was a species the sche
 | sinorhizobium | Sinorhizobium alkalisoli: NONE | Sinorhizobium (Ensifer) meliloti MABNR56 (GCF_037023865.1) | sinorhizobium | 9 | PERFECT | 100 | yes | none | S. meliloti |
 | streptomyces | Candidatus Streptomyces philanthi: NONE | Streptomyces griseus NRRL B-2165 (GCF_001723115.1) | streptomyces | 12 | PERFECT | 100 | yes | none | S. griseus |
 | ureaplasma | Ureaplasma canigenitalium ATCC 51252: NONE | Ureaplasma parvum serovar 3 ATCC 27815 (GCF_000019345.1) | ureaplasma | 2 | PERFECT | 100 | yes | none | U. parvum |
-| vibrio | Vibrio aerogenes: NONE | Vibrio parahaemolyticus RIMD 2210633 (GCF_000196095.1) | vibrio | 152 | PERFECT | 100 | yes | TIE: vibrio (ST152), vparahaemolyticus (ST3) | V. parahaemolyticus (same genome as picked for vparahaemolyticus) |
+| vibrio | Vibrio aerogenes: NONE | Vibrio parahaemolyticus RIMD 2210633 (GCF_000196095.1) | vibrio | 152 | PERFECT | 100 | tie | TIE: vibrio (ST152), vparahaemolyticus (ST3) | V. parahaemolyticus (same genome as picked for vparahaemolyticus) |
 | vtapetis | Vibrio tapetis subsp. quintayensis: NONE | Vibrio tapetis subsp. tapetis (GCF_900233005.1) | vtapetis | - | PARTIAL | 81 | yes | none | V. tapetis subsp. tapetis; closest public genome, 8 of 10 loci exact |
 | wolbachia | Candidatus Wolbachia massiliensis: NONE | Wolbachia endosymbiont of Drosophila melanogaster wMelPlus (GCF_947533255.1) | wolbachia | 1 | PERFECT | 100 | yes | none | Wolbachia wMel |
 | aeromonas | Aeromonas allosaccharophila: BAD | Aeromonas hydrophila subsp. hydrophila ATCC 7966 (GCF_000014805.1) | aeromonas | 1 | PERFECT | 100 | yes | none | A. hydrophila |
 | pdamselae | Photobacterium damselae subsp. damselae: BAD | Photobacterium damselae subsp. piscicida AS-16-0555-7 (GCF_014775695.1) | pdamselae | 46 | PERFECT | 100 | yes | none | P. damselae subsp. piscicida |
 | scanis | Streptococcus equinus: BAD | Streptococcus canis NCTC12191 (GCF_900636575.1) | scanis | 9 | PERFECT | 100 | yes | none | S. canis |
 | smaltophilia | Stenotrophomonas acidaminiphila: BAD | Stenotrophomonas maltophilia ISMMS3 (GCF_001274595.1) | smaltophilia | 280 | PERFECT | 100 | yes | none | S. maltophilia |
+
+## EnteroBase cross-check (174 genomes)
+
+Every genome is typed against PubMLST and, separately, against the EnteroBase schemes. PubMLST is the main source; the EnteroBase row is reported only when PubMLST has no ST and EnteroBase has one. The case numbers are those of the README section "How to read the report".
+
+| Case | What happened | Genomes |
+|---|---|---|
+| 1 | PubMLST ST, EnteroBase has no scheme for it | 125 |
+| 2 | PubMLST ST, EnteroBase same scheme and same ST | 7 |
+| 3 | PubMLST ST, EnteroBase same scheme but another ST | 0 |
+| 4 | PubMLST ST, EnteroBase same scheme without an ST | 0 |
+| 5 | PubMLST ST, EnteroBase finds a different scheme | 2 |
+| 6 | no PubMLST ST, EnteroBase ST (EnteroBase row reported) | 0 |
+| 7 | no PubMLST scheme, EnteroBase ST (EnteroBase row reported) | 0 |
+| 8 | no ST in either, both find a scheme | 0 |
+| 9 | no PubMLST ST, EnteroBase has no scheme for it | 24 |
+| 10 | no PubMLST scheme, EnteroBase scheme without an ST | 0 |
+| 11 | no scheme in either | 16 |
+
+Genomes where EnteroBase finds a scheme (9):
+
+| Genome | Case | PubMLST | EnteroBase | Row reported | Warnings in the report |
+|---|---|---|---|---|---|
+| Escherichia coli O157:H7 str. Sakai (GCF_000008865.2) | 2 | ecoli_achtman_4 ST11, PERFECT | ecoli_achtman_enterobase ST11, PERFECT | PubMLST | none |
+| Klebsiella pneumoniae subsp. pneumoniae HS11286 (GCF_000240185.1) | 2 | ecoli_achtman_4 ST14464, PERFECT | ecoli_achtman_enterobase ST14464, PERFECT | PubMLST | TIE: ecoli_achtman_4 (ST14464), klebsiella (ST11) |
+| Moraxella catarrhalis (GCF_900476075.1) | 2 | mcatarrhalis_achtman_6 ST54, PERFECT | mcatarrhalis_achtman_enterobase ST54, PERFECT | PubMLST | none |
+| Salmonella enterica subsp. enterica serovar Typhimurium str. LT2 (GCF_000006945.2) | 2 | salmonella ST19, PERFECT | senterica_achtman_enterobase ST19, PERFECT | PubMLST | none |
+| Yersinia aldovae 670-83 (GCF_000834395.1) | 5 | ypseudotuberculosis_achtman_3 ST217, PERFECT | yersinia_mcnally_enterobase ST177, PERFECT | PubMLST | none |
+| Yersinia pseudotuberculosis (GCF_900637475.1) | 5 | yersinia ST90, PERFECT | ypseudotuberculosis_achtman_enterobase ST9, PERFECT | PubMLST | TIE: yersinia (ST90), ypseudotuberculosis_achtman_3 (ST9) |
+| Yersinia ruckeri (GCF_017498685.1) | 2 | yersinia ST44, PERFECT | yersinia_mcnally_enterobase ST44, PERFECT | PubMLST | TIE: yersinia (ST44), ypseudotuberculosis_achtman_3 (ST276), yruckeri (ST33) |
+| Shigella sonnei Ss046 (GCF_000092525.1) | 2 | ecoli_achtman_4 ST152, PERFECT | ecoli_achtman_enterobase ST152, PERFECT | PubMLST | none |
+| Shigella flexneri 2a 301 (GCF_000006925.2) | 2 | ecoli_achtman_4 ST245, PERFECT | ecoli_achtman_enterobase ST245, PERFECT | PubMLST | none |
 
 ## Real differences from upstream mlst (0)
 
@@ -76,21 +108,21 @@ Two or more schemes give these genomes the same top score. Upstream mlst picks o
 
 | Genome | mlst-typing reports | upstream mlst (this run) | Score | Warnings |
 |---|---|---|---|---|
-| Bacillus licheniformis (GCF_034478925.1) | blicheniformis_14 ST1 | blicheniformis_14 ST1 | 100 | TIE: blicheniformis_14 (ST1), bsubtilis (ST29) |
+| Bacillus licheniformis (GCF_034478925.1) | blicheniformis_14 ST1 | bsubtilis ST29 | 100 | TIE: blicheniformis_14 (ST1), bsubtilis (ST29) |
 | Corynebacterium diphtheriae (GCF_001457455.1) | cdiphtheriae ST26 | diphtheria_3 ST26 | 100 | TIE: cdiphtheriae (ST26), diphtheria_3 (ST26) |
 | Klebsiella pneumoniae subsp. pneumoniae HS11286 (GCF_000240185.1) | ecoli_achtman_4 ST14464 | klebsiella ST11 | 100 | TIE: ecoli_achtman_4 (ST14464), klebsiella (ST11) |
-| Mycobacteroides abscessus ATCC 19977 (GCF_000069185.1) | mabscessus ST5 | mycobacteria_2 ST5 | 100 | TIE: mabscessus (ST5), mycobacteria_2 (ST5) |
-| Mycoplasmopsis bovis PG45 (GCF_000183385.1) | mbovis ST17 | mbovis ST17 | 100 | TIE: mbovis (ST17), mbovis_2 (ST12) |
+| Mycobacteroides abscessus ATCC 19977 (GCF_000069185.1) | mabscessus ST5 | mabscessus ST5 | 100 | TIE: mabscessus (ST5), mycobacteria_2 (ST5) |
+| Mycoplasmopsis bovis PG45 (GCF_000183385.1) | mbovis ST17 | mbovis_2 ST12 | 100 | TIE: mbovis (ST17), mbovis_2 (ST12) |
 | Mycoplasmoides gallisepticum (GCF_900476085.1) | mgallisepticum ST23 | mgallisepticum ST23 | 100 | TIE: mgallisepticum (ST23), mgallisepticum_2 (ST1) |
 | Pasteurella multocida (GCF_002073255.2) | pmultocida ST124 | pmultocida ST124 | 100 | TIE: pmultocida (ST124), pmultocida_2 (ST8) |
-| Streptococcus gallolyticus (GCF_013267695.1) | sbsec ST34 | sbsec ST34 | 100 | TIE: sbsec (ST34), sgallolyticus (ST117) |
-| Vibrio parahaemolyticus RIMD 2210633 (GCF_000196095.1) | vibrio ST152 | vparahaemolyticus ST3 | 100 | TIE: vibrio (ST152), vparahaemolyticus (ST3) |
+| Streptococcus gallolyticus (GCF_013267695.1) | sbsec ST34 | sgallolyticus ST117 | 100 | TIE: sbsec (ST34), sgallolyticus (ST117) |
+| Vibrio parahaemolyticus RIMD 2210633 (GCF_000196095.1) | vibrio ST152 | vibrio ST152 | 100 | TIE: vibrio (ST152), vparahaemolyticus (ST3) |
 | Vibrio vulnificus NBRC 15645 = ATCC 27562 (GCF_002224265.1) | vibrio ST126 | vvulnificus ST3 | 100 | TIE: vibrio (ST126), vvulnificus (ST3) |
 | Yersinia pseudotuberculosis (GCF_900637475.1) | yersinia ST90 | yersinia ST90 | 100 | TIE: yersinia (ST90), ypseudotuberculosis_achtman_3 (ST9) |
-| Yersinia ruckeri (GCF_017498685.1) | yersinia ST44 | yersinia ST44 | 100 | TIE: yersinia (ST44), ypseudotuberculosis_achtman_3 (ST276), yruckeri (ST33) |
+| Yersinia ruckeri (GCF_017498685.1) | yersinia ST44 | yruckeri ST33 | 100 | TIE: yersinia (ST44), ypseudotuberculosis_achtman_3 (ST276), yruckeri (ST33) |
 | Brachyspira hyodysenteriae ATCC 27164 (GCF_001676785.2) | brachyspira ST5 | brachyspira_2 ST56 | 100 | TIE: brachyspira (ST5), brachyspira_2 (ST56) |
-| Leptospira interrogans serovar Copenhageni FDAARGOS_203 (GCF_002073495.2) | leptospira ST17 | leptospira_2 ST47 | 100 | TIE: leptospira (ST17), leptospira_2 (ST47), leptospira_3 (ST2) |
-| Leptospira interrogans CUDO5 (GCF_002370085.3) | leptospira ST26 | leptospira ST26 | 100 | TIE: leptospira (ST26), leptospira_3 (ST188) |
+| Leptospira interrogans serovar Copenhageni FDAARGOS_203 (GCF_002073495.2) | leptospira ST17 | leptospira ST17 | 100 | TIE: leptospira (ST17), leptospira_2 (ST47), leptospira_3 (ST2) |
+| Leptospira interrogans CUDO5 (GCF_002370085.3) | leptospira ST26 | leptospira_3 ST188 | 100 | TIE: leptospira (ST26), leptospira_3 (ST188) |
 
 ## Other scheme called than the one picked for (43)
 
@@ -148,7 +180,7 @@ None.
 
 ## All genomes (174)
 
-Each genome once, as `mlst-typing --full` reports it.
+Each genome once, as `mlst-typing --full --no-enterobase` reports it (the PubMLST result that is compared with mlst). What the normal report shows once EnteroBase is added is in "EnteroBase cross-check" above.
 
 | Genome | Scheme | ST | Alleles | Status | Score | Warnings |
 |---|---|---|---|---|---|---|

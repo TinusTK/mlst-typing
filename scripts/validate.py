@@ -8,6 +8,11 @@ database) and write validation/results_<DB>.tsv and validation/REPORT.md.
 
 A genome "matches" when both tools give the same --full row (scheme, ST,
 status, score, alleles). Any mismatch is listed in the report.
+
+The comparison with mlst uses mlst-typing's PubMLST result
+(--no-enterobase), because mlst has no EnteroBase. Each genome is then typed
+once more the normal way (PubMLST + EnteroBase); the "EnteroBase
+cross-check" section of the report shows what that adds.
 """
 
 import argparse
@@ -17,6 +22,7 @@ import os
 import re
 import subprocess
 import sys
+import tempfile
 from concurrent.futures import ThreadPoolExecutor
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -90,6 +96,41 @@ def full_row(cmd, path):
     return row, "", tied
 
 
+def combined_rows(cmd, path):
+    """(combined row, EnteroBase row) of one genome, each as
+    [scheme, ST, alleles, status, score, warnings]; (None, None) on error."""
+    with tempfile.TemporaryDirectory() as tmp:
+        eb = os.path.join(tmp, "enterobase.tsv")
+        r = subprocess.run(cmd + ["-q", "--full", "--outfile-enterobase", eb, path],
+                           capture_output=True, text=True)
+        if r.returncode != 0:
+            return None, None
+        both = r.stdout.rstrip("\n").splitlines()
+        with open(eb) as fh:
+            only = fh.read().rstrip("\n").splitlines()
+    return both[1].split("\t")[1:], only[1].split("\t")[1:]
+
+
+def enterobase_case(pub, com, eb):
+    """Case number of README "How to read the report" for one genome."""
+    p_st, e_st = pub[1] != "-", eb[1] != "-"
+    p_sch, e_sch = pub[0] != "-", eb[0] != "-"
+    if p_st:
+        if not e_sch:
+            return 1
+        if com[5].startswith("EnteroBase differs"):
+            return 3
+        loci = lambda row: sorted(re.findall(r"([^;(]+)\(", row[2]))  # noqa: E731
+        if loci(pub) != loci(eb):
+            return 5
+        return 2 if e_st else 4
+    if e_st:
+        return 6 if p_sch else 7
+    if p_sch:
+        return 8 if e_sch else 9
+    return 10 if e_sch else 11
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("--db", default=os.path.join(ROOT, "database"))
@@ -101,8 +142,11 @@ def main():
     with open(os.path.join(vdir, "genomes.tsv")) as fh:
         genomes = list(csv.DictReader(fh, delimiter="\t"))
     with open(os.path.join(args.db, "VERSION.txt")) as fh:
-        version = fh.read().strip()
-    ours = TOOL + ["--db", args.db]
+        labels = [l.strip() for l in fh if l.strip()]
+    version = labels[0]                 # PubMLST label: names the results file
+    ours_both = TOOL + ["--db", args.db]
+    ours = ours_both + ["--no-enterobase"]      # what mlst can be compared with
+    has_eb = os.path.isdir(os.path.join(args.db, "enterobase"))
     theirs = ([args.upstream, "--blastdb", os.path.join(args.db, "blast", "mlst.fa"),
                "--datadir", os.path.join(args.db, "pubmlst")] if args.upstream else None)
 
@@ -113,7 +157,8 @@ def main():
         a, e1, tied = full_row(ours, path)
         b, e2, _ = full_row(theirs, path) if theirs else (None, "", {})
         warn = tied.pop("_warnings", "")
-        g = dict(g, warnings=warn)
+        com, eb = combined_rows(ours_both, path) if (has_eb and a) else (None, None)
+        g = dict(g, warnings=warn, combined=com, enterobase=eb)
         print(f"{g['scheme']}\t{g['accession']}\t{a[:2] if a else e1}", file=sys.stderr)
         return g, a, b, e1 or e2, tied
 
@@ -122,7 +167,9 @@ def main():
 
     out = os.path.join(vdir, f"results_{version}.tsv")
     cols = ["expected_scheme", "accession", "organism", "scheme", "ST", "alleles",
-            "status", "score", "warnings", "upstream_same", "note"]
+            "status", "score", "warnings", "upstream_same", "note",
+            "enterobase_scheme", "enterobase_ST", "enterobase_status",
+            "reported_scheme", "reported_ST", "reported_warnings"]
     n = dict(typed=0, expected=0, perfect=0, same=0, tie=0, fix=0, diff=0, missing=0)
     diffs, ties, wrong, nogenome, matched, fixes = [], [], [], [], [], []
     tie_seen, fix_seen = set(), set()
@@ -193,11 +240,31 @@ def main():
                 wrong.append(f"| {g['scheme']} | {g['organism']} ({g['accession']}) | "
                              f"{a[0]} | {st} | {a[2]} | {why_other(g, a, tied)} | "
                              f"{g.get('warnings', '')} |")
+            com, eb = g.get("combined"), g.get("enterobase")
+            extra = [eb[0], eb[1], eb[3], com[0], com[1], com[5]] if com and eb else [""] * 6
             w.writerow([g["scheme"], g["accession"], g["organism"], a[0], a[1], a[4],
-                        a[2], a[3], g.get("warnings", ""), same, g.get("note", "")])
+                        a[2], a[3], g.get("warnings", ""), same, g.get("note", "")] + extra)
 
     priority = [(g, a) for g, a, _, _, _ in results if g.get("note", "").startswith("priority")]
-    lines = [f"# Validation, database {version}", "",
+    # EnteroBase cross-check: each genome once, PubMLST row vs EnteroBase row
+    eb_seen, eb_cases, eb_rows = set(), {}, []
+    for g, a, _, _, _ in results:
+        com, eb = g.get("combined"), g.get("enterobase")
+        if not (a and com and eb) or g["accession"] in eb_seen:
+            continue
+        eb_seen.add(g["accession"])
+        pub = [a[0], a[1], a[4], a[2], a[3]]          # scheme ST alleles status score
+        case = enterobase_case(pub, com, eb)
+        eb_cases[case] = eb_cases.get(case, 0) + 1
+        if eb[0] != "-":
+            st = lambda r: f"ST{r[1]}" if r[1] != "-" else "no ST"   # noqa: E731
+            eb_rows.append(
+                f"| {g['organism']} ({g['accession']}) | {case} | "
+                f"{pub[0]} {st(pub)}, {pub[3]} | {eb[0]} {st(eb)}, {eb[3]} | "
+                f"{'EnteroBase' if com[0] == eb[0] and com[0] != pub[0] else 'PubMLST'} | "
+                f"{com[5] or 'none'} |")
+
+    lines = [f"# Validation, database {' + '.join(labels)}", "",
              f"Run {dt.date.today().isoformat()}: {len(genomes)} genomes listed "
              f"(one public NCBI assembly per scheme + priority organisms + matched "
              f"genomes).", "",
@@ -259,10 +326,38 @@ def main():
                   "schemes, not a disagreement between the tools.",
                   "| Picked for scheme | Genome | Called scheme | ST | Status | Why | Warnings |\n"
                   "|---|---|---|---|---|---|---|"),
-        "every": ("Each genome once, as `mlst-typing --full` reports it.",
+        "every": ("Each genome once, as `mlst-typing --full --no-enterobase` reports it "
+                  "(the PubMLST result that is compared with mlst). What the normal "
+                  "report shows once EnteroBase is added is in \"EnteroBase "
+                  "cross-check\" above.",
                   "| Genome | Scheme | ST | Alleles | Status | Score | Warnings |\n"
                   "|---|---|---|---|---|---|---|"),
     }
+    if eb_seen:
+        names = {1: "PubMLST ST, EnteroBase has no scheme for it",
+                 2: "PubMLST ST, EnteroBase same scheme and same ST",
+                 3: "PubMLST ST, EnteroBase same scheme but another ST",
+                 4: "PubMLST ST, EnteroBase same scheme without an ST",
+                 5: "PubMLST ST, EnteroBase finds a different scheme",
+                 6: "no PubMLST ST, EnteroBase ST (EnteroBase row reported)",
+                 7: "no PubMLST scheme, EnteroBase ST (EnteroBase row reported)",
+                 8: "no ST in either, both find a scheme",
+                 9: "no PubMLST ST, EnteroBase has no scheme for it",
+                 10: "no PubMLST scheme, EnteroBase scheme without an ST",
+                 11: "no scheme in either"}
+        lines += ["", f"## EnteroBase cross-check ({len(eb_seen)} genomes)", "",
+                  "Every genome is typed against PubMLST and, separately, against the "
+                  "EnteroBase schemes. PubMLST is the main source; the EnteroBase row is "
+                  "reported only when PubMLST has no ST and EnteroBase has one. The case "
+                  "numbers are those of the README section \"How to read the report\".", "",
+                  "| Case | What happened | Genomes |", "|---|---|---|"]
+        lines += [f"| {c} | {names[c]} | {eb_cases.get(c, 0)} |" for c in sorted(names)]
+        lines += ["", f"Genomes where EnteroBase finds a scheme ({len(eb_rows)}):", ""]
+        if eb_rows:
+            lines += ["| Genome | Case | PubMLST | EnteroBase | Row reported | Warnings in the report |",
+                      "|---|---|---|---|---|---|", *eb_rows]
+        else:
+            lines.append("None.")
     for key, title, items in (("diffs", "Real differences from upstream mlst", diffs),
                               ("fixes", "Deliberate differences from upstream mlst", fixes),
                               ("ties", "Ties (same top score for more than one scheme)", ties),

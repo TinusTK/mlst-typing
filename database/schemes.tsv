@@ -162,3 +162,8 @@ xfastidiosa	pubmlst	https://rest.pubmlst.org/db/pubmlst_xfastidiosa_seqdef/schem
 yersinia	pubmlst	https://rest.pubmlst.org/db/pubmlst_yersinia_seqdef/schemes/1	Yersinia	
 ypseudotuberculosis_achtman_3	pubmlst	https://rest.pubmlst.org/db/pubmlst_ypseudotuberculosis_achtman_seqdef/schemes/3		
 yruckeri	pubmlst	https://rest.pubmlst.org/db/pubmlst_yruckeri_seqdef/schemes/1	Yersinia	ruckeri
+ecoli_achtman_enterobase	enterobase	https://enterobase.warwick.ac.uk/schemes/Escherichia.Achtman7GeneMLST	Escherichia	coli
+mcatarrhalis_achtman_enterobase	enterobase	https://enterobase.warwick.ac.uk/schemes/Moraxella.Achtman7GeneMLST	Moraxella	catarrhalis
+senterica_achtman_enterobase	enterobase	https://enterobase.warwick.ac.uk/schemes/Salmonella.Achtman7GeneMLST	Salmonella	enterica
+yersinia_mcnally_enterobase	enterobase	https://enterobase.warwick.ac.uk/schemes/Yersinia.McNally	Yersinia	
+ypseudotuberculosis_achtman_enterobase	enterobase	https://enterobase.warwick.ac.uk/schemes/Yersinia.Achtman7GeneMLST	Yersinia	pseudotuberculosis

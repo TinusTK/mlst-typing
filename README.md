@@ -1,9 +1,10 @@
 # mlst-typing
 
 Automatic MLST (multi-locus sequence typing) of assembled bacterial genomes
-against the PubMLST typing schemes. Give it one or more assemblies; it finds
-the scheme that fits best and reports the sequence type (ST) and the allele
-of every locus. You do not need to know the species first.
+against the PubMLST typing schemes, cross-checked with EnteroBase. Give it
+one or more assemblies; it finds the scheme that fits best and reports the
+sequence type (ST) and the allele of every locus. You do not need to know
+the species first.
 
 ## Why this tool
 
@@ -23,7 +24,8 @@ What changed:
   no any2fasta: FASTA, GenBank and EMBL, plain or `.gz`, `.bz2`, `.zip`, are
   read directly.
 - **Database updater** (`scripts/update_database.py`) rebuilds every scheme
-  from the PubMLST / BIGSdb-Pasteur REST API and records the version.
+  from the PubMLST / BIGSdb-Pasteur REST API and from EnteroBase's public
+  scheme downloads, and records the version of each.
 - **Database fixes**: profile files hold only ST and loci, so extra columns
   such as `MLST_cluster` are no longer treated as a locus; loci with names
   like `EF-2` or `rpoB'` are now matched.
@@ -40,6 +42,12 @@ What changed:
 - **Clearer `--full` report**: columns FILE, SCHEME, ST, ALLELES, STATUS,
   SCORE, WARNINGS, and the status `OK` (some loci not exact, no ST) is
   renamed `PARTIAL` so it is not mistaken for a good result.
+- **EnteroBase as a second source.** Every genome is also typed against the
+  EnteroBase 7-gene schemes (*Escherichia*, *Salmonella*, *Yersinia*,
+  *Moraxella*), which hold newer STs than the free PubMLST data. PubMLST
+  stays the main source: the EnteroBase result is only reported when PubMLST
+  has no ST, and `WARNINGS` always says so. See
+  [How to read the report](#how-to-read-the-report).
 - **Galaxy wrapper** ready for Galaxy Australia, in
   [galaxywrapper/](galaxywrapper/).
 
@@ -62,6 +70,9 @@ or run the script directly: `python tool/mlst_typing.py`.
 mlst-typing contigs.fasta                       # auto-detect the scheme
 mlst-typing --full *.fasta > results.tsv        # STATUS and SCORE columns
 mlst-typing --scheme spyogenes genome.gbk.gz    # force one scheme
+mlst-typing --full *.fasta --outfile results.tsv \
+    --outfile-pubmlst pubmlst.tsv --outfile-enterobase enterobase.tsv   # all three reports
+mlst-typing --no-enterobase contigs.fasta       # PubMLST only
 mlst-typing --list | --longlist | --info        # what is in the database
 mlst-typing --version                           # tool and database version
 ```
@@ -77,10 +88,11 @@ is tab-separated; shown here as a table:
 | SF370.fna (*S. pyogenes*, Group A Strep) | spyogenes | 28 | gki(4);gtr(3);murI(4);mutS(4);recP(4);xpt(2);yqiL(4) | PERFECT | 100 | |
 | FA1090.fna (*N. gonorrhoeae*) | neisseria | 1899 | abcZ(109);adk(39);aroE(67);fumC(190);gdh(147);pdhC(71);pgm(65) | PERFECT | 100 | |
 | Ss046.fna (*Shigella sonnei*) | ecoli_achtman_4 | 152 | adk(11);fumC(63);gyrB(7);icd(1);mdh(14);purA(7);recA(7) | PERFECT | 100 | |
-| novel.fasta.bz2 (*Leptospira*) | leptospira_2 | - | adk_2(85);glmU_2(~24);icdA_2(~46);lipL32_2(20);lipL41_2(39);mreA_2(~56);pntA_2(~26) | PARTIAL | 74 | |
+| novel.fasta.bz2 (*Leptospira*) | leptospira_2 | - | adk_2(85);glmU_2(~24);icdA_2(~46);lipL32_2(20);lipL41_2(39);mreA_2(~56);pntA_2(~26) | PARTIAL | 74 | No ST: PubMLST PARTIAL, EnteroBase NONE |
+| ecoli_enterobase_only.fa (*E. coli* test file) | ecoli_achtman_enterobase | 17227 | adk(10);fumC(11);gyrB(4);icd(8);mdh(8);purA(8);recA(644) | PERFECT | 100 | EnteroBase ST, no PubMLST (PubMLST: ecoli_achtman_4 NOVEL) |
 | HS11286.fna (*K. pneumoniae*) | ecoli_achtman_4 | 14464 | adk(1769);fumC(1664);gyrB(193);icd(1804);mdh(986);purA(745);recA(866) | PERFECT | 100 | TIE: ecoli_achtman_4 (ST14464), klebsiella (ST11) |
 | ruckeri.fna (*Y. ruckeri*) | yersinia | 44 | aarF(13);dfp(10);galR(14);glnS(13);hemA(15);rfaE(14);speA(14) | PERFECT | 100 | TIE: yersinia (ST44), ypseudotuberculosis_achtman_3 (ST276), yruckeri (ST33) |
-| none.fa (no MLST genes) | - | - | | NONE | 0 | |
+| none.fa (no MLST genes) | - | - | | NONE | 0 | No ST: PubMLST NONE, EnteroBase NONE |
 
 Without `--full` the layout is the same as mlst: FILE, SCHEME, ST, one
 column per locus, then WARNINGS.
@@ -104,19 +116,65 @@ column per locus, then WARNINGS.
 | `NOVEL` | all alleles exact, but a combination with no ST yet |
 | `MULTICOPY` | a locus is there in several copies of the same allele (`N,N`); the ST is reported when the profile has one (mlst calls this `MIXED`, without an ST) |
 | `MIXED` | different exact alleles at one locus (`N,M`), so no ST (possible contamination) |
-| `MISSING` | a locus was not found |
+| `MISSING` | at least one allele missing (`-`) |
 | `BAD` | score under 70 |
 | `NONE` | no scheme matched |
  `--json FILE` and `--novel FILE` write JSON
 results and novel allele sequences.
 
-**WARNINGS** (last column in the default and `--full` layouts, `warnings`
-in JSON) is empty unless several schemes tie for the top score. It then
-reads `TIE: scheme (STx), scheme (STy)`. The tied schemes number their STs
-separately, so the ST depends on which scheme is right for your species:
-for example *Klebsiella pneumoniae* HS11286 ties between `klebsiella` ST11
-(correct) and `ecoli_achtman_4` ST14464. Check the species and use that
-scheme, or rerun with `--scheme`.
+### How to read the report
+
+Every genome is typed twice: against **PubMLST** (the main source, with
+BIGSdb-Pasteur) and against **EnteroBase**. The report combines the two, and
+**WARNINGS** (last column in the default and `--full` layouts, `warnings` in
+JSON) tells you which case you are looking at. SCHEME, ST, ALLELES, STATUS
+and SCORE always come from the source shown in the row; EnteroBase scheme
+names end in `_enterobase`.
+
+"ST" below means a numbered ST (STATUS `PERFECT`, or `MULTICOPY` with an
+ST). "Same scheme" means the PubMLST and the EnteroBase scheme have the same
+loci, e.g. `ecoli_achtman_4` and `ecoli_achtman_enterobase`.
+
+| # | PubMLST | EnteroBase | Row shows | WARNINGS |
+|---|---|---|---|---|
+| 1 | ST | no scheme | PubMLST | (empty) |
+| 2 | ST | same scheme, same ST | PubMLST | (empty) |
+| 3 | ST | same scheme, different ST | PubMLST | `EnteroBase differs: <scheme> (ST<n>)` |
+| 4 | ST | same scheme, no ST | PubMLST | (empty) |
+| 5 | ST | different scheme (any result) | PubMLST | (empty); see the EnteroBase report |
+| 6 | scheme, no ST | ST | **EnteroBase** | `EnteroBase ST, no PubMLST (PubMLST: <scheme> <STATUS>)` |
+| 7 | no scheme | ST | **EnteroBase** | `EnteroBase ST, no PubMLST (PubMLST: NONE)` |
+| 8 | scheme, no ST | scheme, no ST | PubMLST | `No ST: PubMLST <STATUS>, EnteroBase <scheme> <STATUS>` |
+| 9 | scheme, no ST | no scheme | PubMLST | `No ST: PubMLST <STATUS>, EnteroBase NONE` |
+| 10 | no scheme | scheme, no ST | PubMLST (`-`, `NONE`) | `No ST: PubMLST NONE, EnteroBase <scheme> <STATUS>` |
+| 11 | no scheme | no scheme | PubMLST (`-`, `NONE`) | `No ST: PubMLST NONE, EnteroBase NONE` |
+
+In short: an empty WARNINGS means PubMLST gave an ST and EnteroBase does not
+contradict it. Anything else is worth a look.
+
+- **Case 6 and 7** are the reason EnteroBase is there: the ST is newer than
+  the free PubMLST data. The warning names what PubMLST found, so check it
+  is the same organism: EnteroBase's *E. coli* scheme also holds STs of
+  other species, so a *Klebsiella* could read
+  `EnteroBase ST, no PubMLST (PubMLST: klebsiella NOVEL)`.
+- **Case 3** should not happen for schemes that share their numbering; if it
+  does, look at both reports.
+- **EnteroBase NONE** in a warning is normal for any organism EnteroBase
+  does not hold (everything outside the four genera above).
+
+**Ties.** WARNINGS can also hold `TIE: scheme (STx), scheme (STy)` when
+several schemes of the source shown tie for the top score (joined to the
+text above with `; `). The tied schemes number their STs separately, so the
+ST depends on which scheme is right for your species: for example
+*Klebsiella pneumoniae* HS11286 ties between `klebsiella` ST11 (correct)
+and `ecoli_achtman_4` ST14464. Check the species and use that scheme, or
+rerun with `--scheme`.
+
+**Three reports.** `--outfile` (or the screen) is the combined report
+above. `--outfile-pubmlst` and `--outfile-enterobase` also save what each
+source gives on its own, in the same layout (the PubMLST one is what
+`--no-enterobase` prints). With `--scheme` only that scheme is typed and
+the two sources are not compared.
 
 Compared with mlst 2.35.0: the default layout only gains the WARNINGS
 column at the end, so pipelines that read it by position keep working. The
@@ -132,6 +190,7 @@ reports `MIXED` and no ST.
 | Version | Schemes | Data |
 |---|---|---|
 | `PubMLST_2026-11` | 162 | PubMLST + BIGSdb-Pasteur, submitted up to 31 Dec 2024 |
+| `EnteroBase_2026-11-11` | 5 | EnteroBase public scheme downloads, current on that day |
 
 See [database/README.md](database/README.md) for the source, the terms of
 use and how to update it.
@@ -148,6 +207,13 @@ use and how to update it.
   developed by Keith Jolley and sited at the University of Oxford. The
   development of that website was funded by the Wellcome Trust.
 - BIGSdb-Pasteur (https://bigsdb.pasteur.fr) for the schemes hosted there.
+- **EnteroBase** (https://enterobase.warwick.ac.uk): Zhou Z, Alikhan N-F,
+  Mohamed K, Fan Y, the Agama Study Group, Achtman M. The EnteroBase user's
+  guide, with case studies on *Salmonella* transmissions, *Yersinia pestis*
+  phylogeny, and *Escherichia* core genomic diversity. Genome Res 2020,
+  30:138-152. https://doi.org/10.1101/gr.251678.119. The schemes named
+  `*_enterobase` are EnteroBase's 7-gene MLST schemes, unmodified apart from
+  the file layout. Cite EnteroBase when you report an EnteroBase ST.
 - **Galaxy Australia** (https://usegalaxy.org.au), where the Galaxy wrapper
   is meant to run. Galaxy Australia is a service provided by Australian
   BioCommons and its partners. The service receives NCRIS funding through
@@ -158,4 +224,5 @@ use and how to update it.
 ## Licence
 
 GPL-2.0, see [LICENSE](LICENSE). Allele and profile data remain under the
-terms of PubMLST and BIGSdb-Pasteur.
+terms of PubMLST, BIGSdb-Pasteur and EnteroBase (academic use; see
+[database/README.md](database/README.md)).

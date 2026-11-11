@@ -1,6 +1,6 @@
 name: mlst_typing
 owner: tinustk
-description: Automatic MLST typing of assemblies against PubMLST schemes (Python redesign of mlst)
+description: Automatic MLST typing of assemblies against PubMLST schemes, cross-checked with EnteroBase (Python redesign of mlst)
 categories:
   - Sequence Analysis
 type: unrestricted
@@ -10,4 +10,6 @@ long_description: |
   method, improved to give the same answer every run when schemes tie (listed in a
   WARNINGS column), keep the ST for genomes with identical multi-copy loci
   (MULTICOPY), and type loci that mlst reports as missing.
+  Each assembly is also typed against the EnteroBase 7-gene schemes: when PubMLST
+  has no ST and EnteroBase has one, that result is reported and flagged in WARNINGS.
 homepage_url: https://github.com/TinusTK/mlst-typing
