@@ -287,11 +287,50 @@ def test_sepidermidis(name):
 
 @needs_blast
 def test_full_layout():
-    r = run("-q", "--full", os.path.join(DATA, "example.fna.gz"))
+    """--full: one column per allele, always ALLELE1..ALLELE10."""
+    r = run("-q", "--full", "--nopath", os.path.join(DATA, "example.fna.gz"),
+            os.path.join(DATA, "none.fa"))
+    head, row, none = r.stdout.splitlines()
+    assert head.split("\t") == (["FILE", "SCHEME", "ST"] + [f"ALLELE{i}" for i in range(1, 11)]
+                                + ["STATUS", "SCORE", "WARNINGS"])
+    assert row.split("\t") == ["example.fna.gz", "sepidermidis", "184", "arcC(16)", "aroE(1)",
+                               "gtr(2)", "mutS(1)", "pyrR(2)", "tpiA(1)", "yqiL(1)", "", "", "",
+                               "PERFECT", "100", ""]
+    assert none.split("\t") == (["none.fa", "-", "-"] + [""] * 10
+                                + ["NONE", "0", "No ST: PubMLST NONE, EnteroBase NONE"])
+
+
+@needs_blast
+@pytest.mark.parametrize("scheme,loci", [("tpallidum", 3), ("brucella", 9), ("vvulnificus", 10)])
+def test_full_layout_any_locus_count(scheme, loci):
+    """Schemes with 3 to 10 loci all give 16 columns; unused allele cells are empty."""
+    r = run("-q", "--full", "--scheme", scheme, os.path.join(DATA, "none.fa"))
+    assert r.returncode == 0, r.stderr
+    head, row = (line.split("\t") for line in r.stdout.splitlines())
+    assert len(head) == len(row) == 16
+    cells = row[3:13]
+    assert all(c.endswith("(-)") for c in cells[:loci]) and cells[loci:] == [""] * (10 - loci)
+
+
+def test_allele_columns_fit_every_scheme():
+    """No bundled scheme has more loci than the --full layout has allele columns."""
+    with open(os.path.join(DB, "manifest.tsv")) as fh:
+        rows = [line.rstrip("\n").split("\t") for line in fh]
+    col = rows[0].index("loci")
+    assert max(int(r[col]) for r in rows[1:]) <= mt.ALLELE_COLUMNS == 10
+
+
+@needs_blast
+def test_combine_alleles():
+    """--full --combine-alleles: the single ALLELES column of versions before 0.3.0."""
+    r = run("-q", "--full", "--combine-alleles", os.path.join(DATA, "example.fna.gz"))
     head, row = r.stdout.splitlines()[:2]
     assert head.split("\t") == ["FILE", "SCHEME", "ST", "ALLELES", "STATUS", "SCORE", "WARNINGS"]
     f = row.split("\t")
-    assert f[2] == "184" and f[3].startswith("arcC(") and f[4] == "PERFECT" and f[5] == "100"
+    assert f[2] == "184" and f[4] == "PERFECT" and f[5] == "100"
+    assert f[3] == "arcC(16);aroE(1);gtr(2);mutS(1);pyrR(2);tpiA(1);yqiL(1)"
+    r = run("-q", "--combine-alleles", os.path.join(DATA, "example.fna.gz"))
+    assert r.returncode != 0 and "--combine-alleles" in r.stderr
 
 
 @needs_blast
@@ -404,7 +443,7 @@ PM_ROW = ("ecoli_achtman_4\t-\t"
 def test_three_reports(tmp_path):
     files = [EB_ONLY, os.path.join(DATA, "example.fna.gz"), os.path.join(DATA, "none.fa")]
     pm, eb = tmp_path / "pubmlst.tsv", tmp_path / "enterobase.tsv"
-    r = run("-q", "--full", "--nopath", "--outfile-pubmlst", str(pm),
+    r = run("-q", "--full", "--combine-alleles", "--nopath", "--outfile-pubmlst", str(pm),
             "--outfile-enterobase", str(eb), *files)
     assert r.returncode == 0, r.stderr
     head = "FILE\tSCHEME\tST\tALLELES\tSTATUS\tSCORE\tWARNINGS\n"
@@ -426,8 +465,8 @@ def test_three_reports(tmp_path):
 @needs_blast
 def test_no_enterobase_is_pubmlst_only(tmp_path):
     pm = tmp_path / "pubmlst.tsv"
-    a = run("-q", "--full", "--no-enterobase", EB_ONLY)
-    b = run("-q", "--full", "--outfile-pubmlst", str(pm), "--outfile", os.devnull, EB_ONLY)
+    a = run("-q", "--full", "--combine-alleles", "--no-enterobase", EB_ONLY)
+    b = run("-q", "--full", "--combine-alleles", "--outfile-pubmlst", str(pm), "--outfile", os.devnull, EB_ONLY)
     assert a.returncode == b.returncode == 0, a.stderr + b.stderr
     assert a.stdout == pm.read_text()
     assert a.stdout.splitlines()[1].endswith("NOVEL\t90\t")
@@ -437,10 +476,10 @@ def test_no_enterobase_is_pubmlst_only(tmp_path):
 
 @needs_blast
 def test_forced_enterobase_scheme_and_lists():
-    r = run("-q", "--full", "--scheme", "ecoli_achtman_enterobase", EB_ONLY)
+    r = run("-q", "--full", "--combine-alleles", "--scheme", "ecoli_achtman_enterobase", EB_ONLY)
     assert r.returncode == 0, r.stderr
     assert r.stdout.splitlines()[1].endswith(EB_ROW.rstrip("\t") + "\t")   # no cross-check
-    r = run("-q", "--full", "--scheme", "ecoli_achtman_4", EB_ONLY)
+    r = run("-q", "--full", "--combine-alleles", "--scheme", "ecoli_achtman_4", EB_ONLY)
     assert r.stdout.splitlines()[1].endswith(PM_ROW.rstrip("\t") + "\t")
     names = run("--list").stdout.split()
     assert "ecoli_achtman_enterobase" in names and "ecoli_achtman_4" in names
@@ -494,7 +533,8 @@ def as_mlst_full(text):
 def test_same_as_upstream(mode):
     files = [os.path.join(DATA, f) for f in INPUTS]
     a = upstream("-q", *mode, *files)
-    b = run("-q", "--no-enterobase", *mode, *files)   # mlst has no EnteroBase
+    extra = ["--combine-alleles"] if "--full" in mode else []   # mlst's one ALLELES column
+    b = run("-q", "--no-enterobase", *mode, *extra, *files)   # mlst has no EnteroBase
     assert a.returncode == b.returncode == 0, a.stderr + b.stderr
     if "--legacy" in mode:
         ours = b.stdout

@@ -180,7 +180,7 @@ None.
 
 ## All genomes (174)
 
-Each genome once, as `mlst-typing --full --no-enterobase` reports it (the PubMLST result that is compared with mlst). What the normal report shows once EnteroBase is added is in "EnteroBase cross-check" above.
+Each genome once, as `mlst-typing --full --combine-alleles --no-enterobase` reports it (the PubMLST result that is compared with mlst). What the normal report shows once EnteroBase is added is in "EnteroBase cross-check" above.
 
 | Genome | Scheme | ST | Alleles | Status | Score | Warnings |
 |---|---|---|---|---|---|---|

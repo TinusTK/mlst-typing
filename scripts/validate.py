@@ -144,7 +144,8 @@ def main():
     with open(os.path.join(args.db, "VERSION.txt")) as fh:
         labels = [l.strip() for l in fh if l.strip()]
     version = labels[0]                 # PubMLST label: names the results file
-    ours_both = TOOL + ["--db", args.db]
+    # one ALLELES column, as mlst --full has, so the rows can be compared
+    ours_both = TOOL + ["--db", args.db, "--combine-alleles"]
     ours = ours_both + ["--no-enterobase"]      # what mlst can be compared with
     has_eb = os.path.isdir(os.path.join(args.db, "enterobase"))
     theirs = ([args.upstream, "--blastdb", os.path.join(args.db, "blast", "mlst.fa"),
@@ -326,7 +327,7 @@ def main():
                   "schemes, not a disagreement between the tools.",
                   "| Picked for scheme | Genome | Called scheme | ST | Status | Why | Warnings |\n"
                   "|---|---|---|---|---|---|---|"),
-        "every": ("Each genome once, as `mlst-typing --full --no-enterobase` reports it "
+        "every": ("Each genome once, as `mlst-typing --full --combine-alleles --no-enterobase` reports it "
                   "(the PubMLST result that is compared with mlst). What the normal "
                   "report shows once EnteroBase is added is in \"EnteroBase "
                   "cross-check\" above.",
