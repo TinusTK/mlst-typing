@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mlst-typing"
-version = "0.3.0"
+version = "0.4.0"
 description = "Automatic MLST typing of assembled genomes against PubMLST schemes (Python redesign of tseemann/mlst)"
 readme = "README.md"
 license = {text = "GPL-2.0-only"}
@@ -19,7 +19,9 @@ mlst-typing = "mlst_typing:main"
 # module as the data folder "mlst_typing_database", where find_database() looks.
 [tool.setuptools]
 package-dir = {"" = "tool", "mlst_typing_database" = "database"}
-py-modules = ["mlst_typing"]
+# mlst_typing_setup (own PubMLST key) and mlst_typing_update (the database
+# updater it runs) are command-line only; the Galaxy bundle leaves them out.
+py-modules = ["mlst_typing", "mlst_typing_setup", "mlst_typing_update"]
 packages = ["mlst_typing_database"]
 
 [tool.setuptools.package-data]

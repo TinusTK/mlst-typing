@@ -543,3 +543,278 @@ def test_same_as_upstream(mode):
     else:
         ours = drop_warnings(b.stdout, "," if "--csv" in mode else "\t")
     assert ours == a.stdout
+
+
+# --------------------------------------------------------------------------
+# setup: the user's own PubMLST key and database (command line only)
+# --------------------------------------------------------------------------
+
+import http.server  # noqa: E402
+import stat  # noqa: E402
+import threading  # noqa: E402
+import urllib.parse  # noqa: E402
+
+import mlst_typing_setup as su  # noqa: E402
+import mlst_typing_update as up  # noqa: E402
+
+
+@pytest.fixture
+def home(tmp_path, monkeypatch):
+    """Private config and data folders, so tests never see a real key."""
+    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path / "config"))
+    monkeypatch.setenv("XDG_DATA_HOME", str(tmp_path / "data"))
+    monkeypatch.delenv(mt.ENV_DB, raising=False)
+    monkeypatch.setattr(su, "say", lambda *a: None)
+    return mt.setup_paths()
+
+
+def make_own(paths):
+    os.makedirs(os.path.join(paths["db"], "blast"))
+    open(os.path.join(paths["db"], "blast", "mlst.fa.nsq"), "w").close()
+
+
+def test_oauth_signature_matches_the_published_example():
+    """OAuth Core 1.0, Appendix A.5.2."""
+    url = su.oauth_url("GET", "http://photos.example.net/photos?file=vacation.jpg&size=original",
+                       "dpf43f3p2l4k3l03", "kd94hf93k423kf44",
+                       "nnch734d00sl2jdk", "pfkkdhi9sl3r4s00",
+                       nonce="kllo9940pd9333jh", timestamp=1191242096)
+    q = dict(urllib.parse.parse_qsl(urllib.parse.urlsplit(url).query))
+    assert q["oauth_signature"] == "tR3+Ty81lMeYAr/Fid0kMTYa/WM="
+    assert q["file"] == "vacation.jpg" and q["oauth_version"] == "1.0"
+
+
+def test_database_order(home, monkeypatch, tmp_path):
+    bundled = mt.find_database("")
+    assert bundled == os.path.realpath(DB)                  # no own database yet
+    make_own(home)
+    assert mt.find_database("") == os.path.realpath(home["db"])
+    assert mt.find_database("", own=False) == bundled       # what setup copies from
+    other = tmp_path / "other"
+    other.mkdir()
+    assert mt.find_database(str(other)) == os.path.realpath(other)     # --db wins
+    monkeypatch.setenv(mt.ENV_DB, str(other))
+    assert mt.find_database("") == os.path.realpath(other)             # then the env
+
+
+def test_question_only_on_a_first_run_by_hand(home, monkeypatch):
+    o = mt.get_args(["x.fa"])
+    assert not mt.first_run_due(o)                          # pytest: no terminal
+    monkeypatch.setattr(sys.stdin, "isatty", lambda: True, raising=False)
+    monkeypatch.setattr(sys.stderr, "isatty", lambda: True, raising=False)
+    assert mt.first_run_due(o)
+    assert not mt.first_run_due(mt.get_args(["--db", DB, "x.fa"]))     # Galaxy passes --db
+    for flag in ("--version", "--list", "--check"):
+        assert not mt.first_run_due(mt.get_args([flag]))
+    monkeypatch.setenv(mt.ENV_DB, DB)
+    assert not mt.first_run_due(o)
+    monkeypatch.delenv(mt.ENV_DB)
+    su.save_answer(home, "skipped")
+    assert not mt.first_run_due(o)                          # asked once
+
+
+def test_skip_is_remembered(home, monkeypatch):
+    monkeypatch.setattr(sys, "stdin", io.StringIO("what?\ns\n"))
+    su.first_run(home, DB)
+    st = su.status(home)
+    assert st["asked"] and st["answer"] == "skipped"
+    assert not st["key_saved"] and not st["own_database"]
+
+
+def test_credentials_file_is_private(home):
+    su.save_credentials(home, {"type": "apikey", "key": "k"})
+    mode = stat.S_IMODE(os.stat(os.path.join(home["config"], "credentials.json")).st_mode)
+    assert mode == 0o600
+    assert su.load_credentials(home)["key"] == "k"
+
+
+def test_setup_needs_a_terminal_and_status_is_json(tmp_path):
+    env = {**os.environ, "XDG_CONFIG_HOME": str(tmp_path / "c"),
+           "XDG_DATA_HOME": str(tmp_path / "d")}
+    env.pop(mt.ENV_DB, None)
+    r = subprocess.run(TOOL + ["--setup"], capture_output=True, text=True,
+                       stdin=subprocess.DEVNULL, env=env)
+    assert r.returncode == 1 and "needs a terminal" in r.stderr
+    r = subprocess.run(TOOL + ["--update"], capture_output=True, text=True, env=env)
+    assert r.returncode == 1 and "--setup" in r.stderr
+    r = subprocess.run(TOOL + ["--setup-status"], capture_output=True, text=True, env=env)
+    st = json.loads(r.stdout)
+    assert st["asked"] is False and st["key_saved"] is False
+    assert st["database"] == os.path.realpath(DB) and st["version"] == mt.VERSION
+
+
+def test_galaxy_bundle_has_no_setup(tmp_path):
+    """The bundle script copies mlst_typing.py only; alone it types as
+    before and says setup is not there."""
+    with open(os.path.join(ROOT, "scripts", "bundle_tool.sh")) as fh:
+        copies = [l for l in fh if l.lstrip().startswith("cp ")]
+    assert copies and not any("mlst_typing_setup" in l or "mlst_typing_update" in l
+                              for l in copies)
+    with open(os.path.join(ROOT, "galaxywrapper", "tool.xml")) as fh:
+        xml = fh.read()
+    assert "--db '$__tool_directory__/database'" in xml
+    assert "--setup" not in xml and "mlst_typing_setup" not in xml
+    shutil.copy(os.path.join(ROOT, "tool", "mlst_typing.py"), tmp_path)
+    alone = [sys.executable, str(tmp_path / "mlst_typing.py")]
+    r = subprocess.run(alone + ["--setup"], capture_output=True, text=True)
+    assert r.returncode == 1 and "not part of this install" in r.stderr
+    r = subprocess.run(alone + ["--db", DB, "--version"], capture_output=True, text=True)
+    assert r.returncode == 0 and r.stdout.startswith("mlst-typing ")
+
+
+# A stand-in for rest.pubmlst.org: one scheme ("tiny"), the key test route
+# and the three OAuth routes. Data routes want the API key or a signed
+# request with the current session token.
+class FakePubMLST(http.server.BaseHTTPRequestHandler):
+    KEY = "good-key"
+    CLIENT = ("ck", "cs")
+    tokens = {}          # token -> secret, filled as the sign-in goes on
+    session = ["sess1"]  # the session token accepted right now
+
+    def log_message(self, *a):
+        pass
+
+    def reply(self, code, body, kind="application/json"):
+        data = (json.dumps(body) if kind.endswith("json") else body).encode()
+        self.send_response(code)
+        self.send_header("Content-Type", kind)
+        self.send_header("Content-Length", str(len(data)))
+        self.end_headers()
+        self.wfile.write(data)
+
+    def signed_by(self, token_ok):
+        """True when the OAuth signature in the query is right."""
+        parts = urllib.parse.urlsplit(self.path)
+        q = dict(urllib.parse.parse_qsl(parts.query))
+        sig, token = q.pop("oauth_signature", ""), q.get("oauth_token", "")
+        if q.get("oauth_consumer_key") != self.CLIENT[0] or not token_ok(token):
+            return False
+        extra = {k: v for k, v in q.items() if not k.startswith("oauth_")
+                 or k in ("oauth_callback", "oauth_verifier")}
+        again = su.oauth_url("GET", f"http://{self.headers['Host']}{parts.path}",
+                             *self.CLIENT, token, self.tokens.get(token, ""),
+                             extra=extra, nonce=q["oauth_nonce"],
+                             timestamp=q["oauth_timestamp"])
+        return dict(urllib.parse.parse_qsl(urllib.parse.urlsplit(again).query)
+                    )["oauth_signature"] == sig
+
+    def allowed(self):
+        if "X-API-Key" in self.headers:
+            return self.headers["X-API-Key"] == self.KEY
+        if "oauth_token" in self.path:
+            return self.signed_by(lambda t: t == self.session[0])
+        return None      # no login: the free data
+
+    def do_GET(self):
+        path = urllib.parse.urlsplit(self.path).path
+        base = f"http://{self.headers['Host']}"
+        t = self.tokens
+        if path.endswith("/oauth/get_request_token"):
+            if not self.signed_by(lambda tok: tok == ""):
+                return self.reply(401, {"message": "bad client key"})
+            t["req"] = "reqsecret"
+            return self.reply(200, {"oauth_token": "req", "oauth_token_secret": "reqsecret"})
+        if path.endswith("/oauth/get_access_token"):
+            if not (self.signed_by(lambda tok: tok == "req") and "oauth_verifier=1234" in self.path):
+                return self.reply(401, {"message": "bad verifier"})
+            t["acc"] = "accsecret"
+            return self.reply(200, {"oauth_token": "acc", "oauth_token_secret": "accsecret"})
+        if path.endswith("/oauth/get_session_token"):
+            if not self.signed_by(lambda tok: tok == "acc"):
+                return self.reply(401, {"message": "bad access token"})
+            t[self.session[0]] = "sesssecret"
+            return self.reply(200, {"oauth_token": self.session[0],
+                                    "oauth_token_secret": "sesssecret"})
+        ok = self.allowed()
+        if ok is False:
+            return self.reply(401, {"message": "The API key used cannot access this resource"})
+        if path == su.CHECK_PATH or path == "/db/tiny_seqdef/schemes/1":
+            info = {"loci": [f"{base}/db/tiny_seqdef/loci/abc"],
+                    "profiles_csv": f"{base}/db/tiny_seqdef/schemes/1/profiles_csv",
+                    "last_updated": "2026-11-01"}
+            if ok is None:
+                info["message"] = "you are currently restricted to accessing data ... 2024-12-31"
+            return self.reply(200, info)
+        if path == "/db/tiny_seqdef/loci/abc/alleles_fasta":
+            fa = ">abc_1\nACGTACGTAC\n" + (">abc_2\nACGTACGTAA\n" if ok else "")
+            return self.reply(200, fa, "text/plain")
+        if path == "/db/tiny_seqdef/schemes/1/profiles_csv":
+            return self.reply(200, "ST\tabc\n1\t1\n" + ("2\t2\n" if ok else ""), "text/plain")
+        return self.reply(404, {"message": "no such route"})
+
+
+@pytest.fixture
+def pubmlst(monkeypatch):
+    server = http.server.ThreadingHTTPServer(("127.0.0.1", 0), FakePubMLST)
+    threading.Thread(target=server.serve_forever, daemon=True).start()
+    base = f"http://127.0.0.1:{server.server_address[1]}"
+    monkeypatch.setattr(su, "REST", base)
+    FakePubMLST.tokens, FakePubMLST.session = {}, ["sess1"]
+    yield base
+    server.shutdown()
+
+
+def tiny_bundled(tmp_path, base):
+    """A bundled database with one scheme, as the free data has it."""
+    db = tmp_path / "bundled"
+    (db / "pubmlst" / "tiny").mkdir(parents=True)
+    (db / "blast").mkdir()
+    (db / "schemes.tsv").write_text(f"tiny\tpubmlst\t{base}/db/tiny_seqdef/schemes/1\t\t\n")
+    (db / "pubmlst" / "tiny" / "abc.tfa").write_text(">abc_1\nACGTACGTAC\n")
+    (db / "pubmlst" / "tiny" / "tiny.txt").write_text("ST\tabc\n1\t1\n")
+    (db / "manifest.tsv").write_text(
+        "scheme\tsource\tloci\talleles\tprofiles\tlast_updated\trestricted\ttaxon\tapi\n"
+        f"tiny\tpubmlst\t1\t1\t1\t2024-12-01\tTrue\t\t{base}/db/tiny_seqdef/schemes/1\n")
+    (db / "VERSION.txt").write_text("PubMLST_free\n")
+    return str(db)
+
+
+def test_key_check(pubmlst):
+    assert su.check_key(su.KeySigner({"key": "good-key"})) is True
+    with pytest.raises(su.SetupError, match="401"):
+        su.check_key(su.KeySigner({"key": "wrong"}))
+
+
+@pytest.mark.skipif(not shutil.which("makeblastdb"), reason="needs makeblastdb")
+def test_key_file_builds_own_database(home, pubmlst, tmp_path, monkeypatch):
+    monkeypatch.setattr(up.time, "sleep", lambda s: None)
+    bundled = tiny_bundled(tmp_path, pubmlst)
+    keyfile = tmp_path / "key.txt"
+    keyfile.write_text("wrong\n")
+    with pytest.raises(su.SetupError):
+        su.setup_with_key(home, bundled, str(keyfile))
+    assert not su.status(home)["key_saved"]                 # a refused key is not kept
+    keyfile.write_text("good-key\n")
+    assert su.setup_with_key(home, bundled, str(keyfile)) == 0
+    st = su.status(home)
+    assert st["key_saved"] and st["key_type"] == "apikey" and st["own_database"]
+    own = home["db"]
+    assert open(os.path.join(own, "VERSION.txt")).read().endswith("(own account)\n")
+    assert ">abc_2" in open(os.path.join(own, "pubmlst", "tiny", "abc.tfa")).read()
+    assert "\tFalse\t" in open(os.path.join(own, "manifest.tsv")).read()
+    assert mt.find_database("") == os.path.realpath(own)
+    # the bundled database is untouched, and nothing is left half-built
+    assert open(os.path.join(bundled, "pubmlst", "tiny", "tiny.txt")).read() == "ST\tabc\n1\t1\n"
+    assert not os.path.exists(own + ".new") and up.SIGNER is None
+    assert su.update(home, bundled) == 0                    # nothing newer: still fine
+    su.remove(home)
+    st = su.status(home)
+    assert not st["key_saved"] and not st["own_database"] and st["answer"] == "skipped"
+    assert mt.find_database("") == os.path.realpath(DB)
+
+
+def test_oauth_sign_in_and_session_renewal(home, pubmlst, monkeypatch):
+    monkeypatch.setattr(up.time, "sleep", lambda s: None)
+    monkeypatch.setattr(su, "ask", lambda prompt, hidden=False: "1234")
+    with pytest.raises(su.SetupError):
+        su.oauth_sign_in("ck", "not-the-secret")
+    cred = su.oauth_sign_in("ck", "cs")
+    assert cred["access_token"] == "acc" and cred["session_token"] == "sess1"
+    signer = su.signer_for(cred, home)
+    assert su.check_key(signer) is True
+    # the session token runs out: the updater renews it once and carries on
+    FakePubMLST.session[0] = "sess2"
+    monkeypatch.setattr(up, "SIGNER", signer)
+    assert "2\t2" in up.http_get(f"{pubmlst}/db/tiny_seqdef/schemes/1/profiles_csv")
+    assert cred["session_token"] == "sess2"
+    assert su.load_credentials(home)["session_token"] == "sess2"

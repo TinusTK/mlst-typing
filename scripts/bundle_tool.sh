@@ -5,6 +5,9 @@
 # the tool script in tool/. Lint and test this bundle, never galaxywrapper/
 # (the script and database/ only sit next to tool.xml here, and
 # <required_files> must match it).
+# Left out on purpose: tool/mlst_typing_setup.py and tool/mlst_typing_update.py
+# (the user's own PubMLST key and database). They are command-line only; the
+# Galaxy tool always types against the bundled database.
 set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 OUT="${1:-$ROOT/build}"

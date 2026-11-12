@@ -35,7 +35,7 @@ import sys
 import tempfile
 import zipfile
 
-VERSION = "0.3.0"
+VERSION = "0.4.0"
 ALLELE_COLUMNS = 10    # allele columns of --full (the largest schemes have 10 loci)
 EXE = "mlst-typing"
 URL = "https://github.com/TinusTK/mlst-typing"
@@ -151,11 +151,29 @@ def load_schemes(datadir):
     return {n: Scheme(datadir, n, updated.get(n)) for n in names}
 
 
-def find_database(arg_db):
-    """--db, then $MLST_TYPING_DB, then database/ next to or above this script,
-    then the copy a pip install puts beside the module (mlst_typing_database/)."""
+def config_dir():
+    """Where the setup answer and the user's PubMLST key are kept."""
+    base = os.environ.get("XDG_CONFIG_HOME") or os.path.join(os.path.expanduser("~"), ".config")
+    return os.path.join(base, EXE)
+
+
+def user_database():
+    """The user's own database, built by `--setup` with their PubMLST key."""
+    base = (os.environ.get("XDG_DATA_HOME")
+            or os.path.join(os.path.expanduser("~"), ".local", "share"))
+    return os.path.join(base, EXE, "database")
+
+
+def find_database(arg_db, own=True):
+    """--db, then $MLST_TYPING_DB, then the user's own database (if they
+    built one with --setup; skipped with own=False), then the bundled one:
+    database/ next to or above this script, or the copy a pip install puts
+    beside the module (mlst_typing_database/)."""
     here = os.path.dirname(os.path.realpath(__file__))
-    for cand in (arg_db, os.environ.get(ENV_DB),
+    mine = user_database()
+    if not (own and os.path.exists(os.path.join(mine, "blast", "mlst.fa.nsq"))):
+        mine = None
+    for cand in (arg_db, os.environ.get(ENV_DB), mine,
                  os.path.join(here, "database"),
                  os.path.join(here, "..", "database"),
                  os.path.join(here, "mlst_typing_database")):
@@ -569,18 +587,102 @@ def get_args(argv):
     g.add_argument("--minscore", type=float, default=50,
                    help="minimum score out of 100 to match a scheme (auto mode) [50]")
     g = p.add_argument_group("database")
-    g.add_argument("--db", default="", help=f"database folder [${ENV_DB} or bundled database/]")
+    g.add_argument("--db", default="",
+                   help=f"database folder [${ENV_DB}, your own (--setup) or bundled database/]")
     g.add_argument("--blastdb", default="", help="BLAST database prefix [<db>/blast/mlst.fa]")
     g.add_argument("--datadir", default="", help="scheme folders [<db>/pubmlst]")
     g.add_argument("--enterobase", action=B, default=True,
                    help="cross-check with the EnteroBase schemes in <db>/enterobase "
                         "(--no-enterobase: PubMLST only)")
+    g = p.add_argument_group("up-to-date PubMLST data with your own key (command line only)")
+    g.add_argument("--setup", action="store_true",
+                   help="add or replace your PubMLST key and download your own database")
+    g.add_argument("--update", action="store_true",
+                   help="refresh your own database with the saved key")
+    g.add_argument("--remove", action="store_true",
+                   help="with --setup: forget the key and your own database")
+    g.add_argument("--key-file", default="", metavar="FILE",
+                   help="with --setup: read the public data access key from FILE "
+                        "('-' = stdin) and ask nothing (for apps and scripts)")
+    g.add_argument("--setup-status", action="store_true",
+                   help="print where setup stands as JSON and exit")
     return p.parse_args(argv)
+
+
+# --------------------------------------------------------------------------
+# Optional setup (mlst_typing_setup.py): the user's own PubMLST key and
+# database. The Galaxy tool ships without that file and always passes --db,
+# so nothing below ever runs there.
+# --------------------------------------------------------------------------
+
+def load_setup():
+    try:
+        import mlst_typing_setup
+    except ImportError:
+        return None
+    return mlst_typing_setup
+
+
+def setup_paths():
+    return {"config": config_dir(), "db": user_database()}
+
+
+def first_run_due(o):
+    """True only for a first run typed by hand: a terminal on both ends, the
+    default database, and no answer saved yet."""
+    if (o.db or os.environ.get(ENV_DB) or o.blastdb or o.datadir
+            or o.version or o.check or o.list or o.longlist or o.info):
+        return False
+    try:
+        if not (sys.stdin.isatty() and sys.stderr.isatty()):
+            return False
+    except (AttributeError, ValueError):
+        return False
+    return not os.path.exists(os.path.join(config_dir(), "setup.json"))
+
+
+def run_setup(o):
+    """--setup, --update and --setup --remove."""
+    su = load_setup()
+    if su is None:
+        print("ERROR: setup is not part of this install; "
+              "it comes with the command-line version (pip install)", file=sys.stderr)
+        return 1
+    if (o.remove or o.key_file) and not o.setup:
+        print("ERROR: --remove and --key-file go with --setup", file=sys.stderr)
+        return 1
+    try:
+        if o.setup_status:
+            db = find_database(o.db)
+            print(json.dumps({**su.status(setup_paths()), "database": db,
+                              "database_version": db_version(db),
+                              "version": VERSION}, indent=1))
+            return 0
+        if o.remove:
+            return su.remove(setup_paths())
+        bundled = find_database(o.db, own=False)
+        if o.key_file:
+            return su.setup_with_key(setup_paths(), bundled, o.key_file)
+        if o.update:
+            return su.update(setup_paths(), bundled)
+        return su.setup(setup_paths(), bundled)
+    except KeyboardInterrupt:
+        print("\nStopped. Nothing was changed.", file=sys.stderr)
+        return 1
+    except (su.SetupError, RuntimeError, OSError) as e:
+        print(f"ERROR: {e}", file=sys.stderr)
+        return 1
 
 
 def main(argv=None):
     o = get_args(argv)
     Log.quiet, Log.debug = o.quiet, o.debug
+    if o.setup or o.update or o.remove or o.key_file or o.setup_status:
+        return run_setup(o)
+    if first_run_due(o):
+        su = load_setup()
+        if su is not None:
+            su.first_run(setup_paths(), find_database("", own=False))
     db = find_database(o.db)
     o.blastdb = o.blastdb or os.path.join(db, "blast", "mlst.fa")
     o.datadir = o.datadir or os.path.join(db, "pubmlst")
