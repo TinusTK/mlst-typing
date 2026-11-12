@@ -1,7 +1,7 @@
 <tool id="mlst_typing" name="MLST typing" version="@TOOL_VERSION@+galaxy0" profile="22.05">
     <description>sequence type from assemblies against PubMLST and EnteroBase schemes</description>
     <macros>
-        <token name="@TOOL_VERSION@">0.2.0</token>
+        <token name="@TOOL_VERSION@">0.3.0</token>
     </macros>
     <requirements>
         <requirement type="package" version="2.16.0">blast</requirement>
@@ -27,6 +27,9 @@ python '$__tool_directory__/mlst_typing.py'
         #end if
     #end if
     $full
+    #if str($full) and str($allele_layout) == 'combined'
+        --combine-alleles
+    #end if
     --minid $adv.minid
     --mincov $adv.mincov
     #if $adv.want_json
@@ -72,7 +75,12 @@ ${f}	${f.element_identifier}
             </when>
         </conditional>
         <param name="full" type="boolean" truevalue="--full" falsevalue="" checked="true"
-               label="Detailed output (ALLELES in one column, plus STATUS and SCORE)"/>
+               label="Detailed output (header row, STATUS and SCORE)"/>
+        <param name="allele_layout" type="select" label="Allele layout"
+               help="Used by the detailed output. Schemes have 3 to 10 loci; with one column per allele, columns a scheme does not use stay empty.">
+            <option value="separate" selected="true">One column per allele (ALLELE1 to ALLELE10)</option>
+            <option value="combined">Combined in one column (ALLELES)</option>
+        </param>
         <section name="adv" title="Advanced" expanded="false">
             <param name="minid" type="float" value="95" min="50" max="100"
                    label="Minimum % identity of a full-length allele for a '~' call"/>
@@ -99,21 +107,25 @@ ${f}	${f.element_identifier}
             <param name="input" value="saureus_st1.fasta"/>
             <output name="report">
                 <assert_contents>
-                    <has_line_matching expression="^saureus_st1.fasta\tsaureus\t1\tarcC\(1\);aroE\(1\);glpF\(1\);gmk\(1\);pta\(1\);tpi\(1\);yqiL\(1\)\tPERFECT\t100\t$"/>
+                    <has_line line="FILE&#9;SCHEME&#9;ST&#9;ALLELE1&#9;ALLELE2&#9;ALLELE3&#9;ALLELE4&#9;ALLELE5&#9;ALLELE6&#9;ALLELE7&#9;ALLELE8&#9;ALLELE9&#9;ALLELE10&#9;STATUS&#9;SCORE&#9;WARNINGS"/>
+                    <has_line_matching expression="^saureus_st1.fasta\tsaureus\t1\tarcC\(1\)\taroE\(1\)\tglpF\(1\)\tgmk\(1\)\tpta\(1\)\ttpi\(1\)\tyqiL\(1\)\t{4}PERFECT\t100\t$"/>
                 </assert_contents>
             </output>
             <output name="report_enterobase">
                 <assert_contents>
-                    <has_line_matching expression="^saureus_st1.fasta\t-\t-\t\tNONE\t0\t$"/>
+                    <has_line_matching expression="^saureus_st1.fasta\t-\t-\t{11}NONE\t0\t$"/>
                 </assert_contents>
             </output>
         </test>
         <!-- Synthetic E. coli assembly whose ST (17227) is only in EnteroBase:
-             the report shows the EnteroBase result and says so in WARNINGS. -->
+             the report shows the EnteroBase result and says so in WARNINGS.
+             Alleles combined in one column. -->
         <test expect_num_outputs="3">
             <param name="input" value="ecoli_enterobase_only.fasta"/>
+            <param name="allele_layout" value="combined"/>
             <output name="report">
                 <assert_contents>
+                    <has_line line="FILE&#9;SCHEME&#9;ST&#9;ALLELES&#9;STATUS&#9;SCORE&#9;WARNINGS"/>
                     <has_line_matching expression="^ecoli_enterobase_only.fasta\tecoli_achtman_enterobase\t17227\tadk\(10\);fumC\(11\);gyrB\(4\);icd\(8\);mdh\(8\);purA\(8\);recA\(644\)\tPERFECT\t100\tEnteroBase ST, no PubMLST \(PubMLST: ecoli_achtman_4 NOVEL\)$"/>
                 </assert_contents>
             </output>
@@ -193,7 +205,14 @@ that follows current PubMLST schemes.
 
 **Detailed output columns**
 
-FILE, SCHEME, ST, ALLELES, STATUS, SCORE (out of 100), WARNINGS.
+FILE, SCHEME, ST, ALLELE1 to ALLELE10, STATUS, SCORE (out of 100), WARNINGS.
+
+Each ALLELE column holds one locus and its call, for example ``gki(4)``.
+Schemes have 3 to 10 loci; a scheme with 7 loci fills ALLELE1 to ALLELE7 and
+leaves ALLELE8 to ALLELE10 empty, so STATUS, SCORE and WARNINGS are always
+in the same columns. With **Allele layout** set to "Combined in one column"
+the alleles are in a single ALLELES column instead, joined with ``;``
+(``gki(4);gtr(3);...``), as in versions before 0.3.0.
 
 STATUS: PERFECT (full ST), PARTIAL (all loci found, some not exact, no ST),
 NOVEL (all alleles exact but a new combination), MULTICOPY (a locus in
@@ -210,7 +229,7 @@ and reports MULTICOPY as MIXED without an ST.
 
 **How to read the report (WARNINGS column)**
 
-SCHEME, ST, ALLELES, STATUS and SCORE always come from the source shown in
+SCHEME, ST, the alleles, STATUS and SCORE always come from the source shown in
 the row. "ST" below means a numbered ST (STATUS PERFECT, or MULTICOPY with
 an ST). "Same scheme" means the two schemes have the same loci.
 

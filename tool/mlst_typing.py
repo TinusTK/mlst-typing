@@ -35,7 +35,8 @@ import sys
 import tempfile
 import zipfile
 
-VERSION = "0.2.0"
+VERSION = "0.3.0"
+ALLELE_COLUMNS = 10    # allele columns of --full (the largest schemes have 10 loci)
 EXE = "mlst-typing"
 URL = "https://github.com/TinusTK/mlst-typing"
 
@@ -545,7 +546,10 @@ def get_args(argv):
     g.add_argument("--exclude", default=DEFAULT_EXCLUDE,
                    help=f"ignore these schemes [{DEFAULT_EXCLUDE}]")
     g = p.add_argument_group("output format")
-    g.add_argument("--full", action=B, default=False, help="detailed output (recommended)")
+    g.add_argument("--full", action=B, default=False,
+                   help=f"detailed output (recommended): ALLELE1..ALLELE{ALLELE_COLUMNS}, STATUS, SCORE")
+    g.add_argument("--combine-alleles", action=B, default=False,
+                   help="with --full: all alleles in one ALLELES column, as before 0.3.0")
     g.add_argument("--legacy", action=B, default=False,
                    help="old output with allele header row (needs --scheme)")
     g.add_argument("--csv", action=B, default=False, help="CSV instead of TSV")
@@ -624,6 +628,8 @@ def run(o, db):
         err("Using --label when scanning multiple files does not make sense")
     if o.legacy and not o.scheme:
         err("Must specify a --scheme for --legacy output mode")
+    if o.combine_alleles and not o.full:
+        err("--combine-alleles only applies to --full output")
 
     schemes = load_schemes(o.datadir)
     # EnteroBase: second source, typed on its own (never ties with PubMLST)
@@ -666,17 +672,25 @@ def run(o, db):
     out_eb = RowWriter(open(o.outfile_enterobase, "w"), sep) if o.outfile_enterobase else None
     writers = [w for w in (out, out_pub, out_eb) if w]
     legacy = bool(o.scheme and o.legacy)
+    # --full: one column per allele; schemes with fewer loci leave the rest empty
+    width = max([ALLELE_COLUMNS] + [len(s.genes) for s in every.values()])
     for w in writers:
         if legacy:
             w.row("FILE", "SCHEME", "ST", *every[o.scheme].genes)
-        elif o.full:
+        elif o.full and o.combine_alleles:
             w.row("FILE", "SCHEME", "ST", "ALLELES", "STATUS", "SCORE", "WARNINGS")
+        elif o.full:
+            w.row("FILE", "SCHEME", "ST", *(f"ALLELE{i + 1}" for i in range(width)),
+                  "STATUS", "SCORE", "WARNINGS")
 
     def write(w, label, r, warnings):
         if legacy:
             w.row(label, r.scheme, r.st, *r.code)
-        elif o.full:
+        elif o.full and o.combine_alleles:
             w.row(label, r.scheme, r.st, ";".join(r.alleles), r.status, r.score, warnings)
+        elif o.full:
+            cells = r.alleles + [""] * (width - len(r.alleles))
+            w.row(label, r.scheme, r.st, *cells, r.status, r.score, warnings)
         else:
             w.row(label, r.scheme, r.st, *r.alleles, warnings)
 
