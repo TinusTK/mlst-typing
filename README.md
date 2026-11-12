@@ -26,6 +26,13 @@ What changed:
 - **Database updater** (`scripts/update_database.py`) rebuilds every scheme
   from the PubMLST / BIGSdb-Pasteur REST API and from EnteroBase's public
   scheme downloads, and records the version of each.
+- **Your own PubMLST key (optional, command line).** PubMLST gives data
+  submitted from 2025 on only to users with their own account. You can enter
+  your own key (the Public data access key or an OAuth key) and the tool
+  downloads an up-to-date database to your computer and types against it.
+  Skip it and the built-in free database is used; you can add a key any
+  time later with `mlst-typing --setup`
+  ([details](#up-to-date-pubmlst-data-with-your-own-key-optional)).
 - **Database fixes**: profile files hold only ST and loci, so extra columns
   such as `MLST_cluster` are no longer treated as a locus; loci with names
   like `EF-2` or `rpoB'` are now matched.
