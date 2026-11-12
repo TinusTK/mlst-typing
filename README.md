@@ -63,6 +63,44 @@ pip install .                          # gives the mlst-typing command, with the
 The database is installed with it, so the command works from any folder. To
 use another copy, pass `--db` or set `MLST_TYPING_DB`.
 
+### Up-to-date PubMLST data with your own key (optional)
+
+The built-in database holds PubMLST data submitted up to 31 December 2024,
+which is free and needs no account. PubMLST gives newer data only to users
+with their own account and key. The first time you run `mlst-typing` in a
+terminal it explains this and asks once:
+
+- **Add my key**: make a free account at https://pubmlst.org, accept its
+  terms and create a key in your account profile. Either kind works: the
+  *Public data access key* (one key, the simple way) or an *OAuth* key
+  (client key and client secret, plus one approval in your browser). The
+  tool tests the key, downloads the current schemes to your computer (about
+  1.5 hours, once) and uses that database from then on.
+- **Skip**: the built-in database is used. Nothing else changes.
+
+You can skip now and add a key whenever you get one:
+
+| Command | What it does |
+|---|---|
+| `mlst-typing --setup` | ask again: add or replace your key, then download |
+| `mlst-typing --update` | refresh your own database with the saved key |
+| `mlst-typing --setup --remove` | forget the key and your own database; back to the built-in one |
+| `mlst-typing --setup --key-file FILE` | no questions: read the public data access key from `FILE` (`-` = stdin), for apps and scripts |
+| `mlst-typing --setup-status` | where setup stands, as JSON (never shows the key) |
+
+The key is kept in `~/.config/mlst-typing/credentials.json` (readable only
+by you) and your database in `~/.local/share/mlst-typing/database`. It is
+only on your computer: data from 2025 on may not be passed on. A scheme
+PubMLST does not give your account keeps its built-in data. `--db` and
+`MLST_TYPING_DB` still win over your own database.
+
+The question is never asked when there is no terminal (pipelines, scripts)
+or when `--db` or `MLST_TYPING_DB` is set. **Galaxy is not affected**: the
+Galaxy tool always uses its bundled database and does not include the setup.
+
+PubMLST says the public data access key is not for commercial software;
+commercial users need OAuth application keys from PubMLST.
+
 or run the script directly: `python tool/mlst_typing.py`.
 
 ## Use
@@ -196,6 +234,8 @@ reports `MIXED` and no ST.
 ## Database
 
 `database/` is bundled with every release and never downloaded at run time.
+(Your own database, if you add a PubMLST key, is downloaded once by
+`mlst-typing --setup`: see Install.)
 
 | Version | Schemes | Data |
 |---|---|---|

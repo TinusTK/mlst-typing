@@ -30,7 +30,12 @@ gives without authentication. Data submitted from 2025 on is covered by
 newer PubMLST terms (no redistribution) and is not included.
 
 To use data submitted from 2025 onward you must create your own PubMLST
-account at https://pubmlst.org and accept its terms.
+account at https://pubmlst.org and accept its terms. Then create a key in
+your account profile (the Public data access key, or an OAuth key) and run
+`mlst-typing --setup`: it downloads the current schemes into a database of
+your own, on your computer (`~/.local/share/mlst-typing/database`), and the
+tool uses it from then on. That database is yours alone; it is never part
+of this repository, the releases or the Galaxy tool.
 
 Allele and profile definitions are the work of the PubMLST and
 BIGSdb-Pasteur curators. Please cite PubMLST (Jolley et al. 2018,
@@ -71,6 +76,11 @@ ask EnteroBase (enterobase@warwick.ac.uk).
 python scripts/update_database.py --db database --version-label PubMLST_YYYY-MM \
     --summary CHANGES_DB.md
 ```
+
+`scripts/update_database.py` only calls `tool/mlst_typing_update.py`, where
+the code lives so that a pip install carries it for `mlst-typing --setup`.
+Without a key it fetches the free data only, and that is what the bundled
+database and the yearly refresh use.
 
 The database is refreshed **once a year** (1 January) by a GitHub Actions
 workflow. It downloads the schemes again, runs the tests and, if anything

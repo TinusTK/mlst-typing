@@ -6,9 +6,9 @@ name: Update database (yearly)
 # It never merges or releases anything by itself.
 #
 # Access: today the PubMLST / BIGSdb-Pasteur APIs are used without a login
-# (data submitted up to 31 Dec 2024). When the own update API is ready, add
-# its secrets to the "Download and compare" step's env and let
-# scripts/update_database.py read them.
+# (data submitted up to 31 Dec 2024), and it stays that way here: newer data
+# may not be redistributed, so no key is used. Users get newer data on their
+# own computer with `mlst-typing --setup`.
 on:
   schedule:
     - cron: "0 0 1 1 *"

@@ -1,7 +1,7 @@
 <tool id="mlst_typing" name="MLST typing" version="@TOOL_VERSION@+galaxy0" profile="22.05">
     <description>sequence type from assemblies against PubMLST and EnteroBase schemes</description>
     <macros>
-        <token name="@TOOL_VERSION@">0.3.0</token>
+        <token name="@TOOL_VERSION@">0.4.0</token>
     </macros>
     <requirements>
         <requirement type="package" version="2.16.0">blast</requirement>
