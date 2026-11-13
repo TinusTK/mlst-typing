@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "mlst-typing"
-version = "0.4.0"
+version = "0.5.0"
 description = "Automatic MLST typing of assembled genomes against PubMLST schemes (Python redesign of tseemann/mlst)"
 readme = "README.md"
 license = {text = "GPL-2.0-only"}

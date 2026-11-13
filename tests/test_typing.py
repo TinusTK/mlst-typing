@@ -668,6 +668,7 @@ def test_galaxy_bundle_has_no_setup(tmp_path):
 class FakePubMLST(http.server.BaseHTTPRequestHandler):
     KEY = "good-key"
     CLIENT = ("ck", "cs")
+    UPDATED = "2026-11-01"   # the scheme's date of last change
     tokens = {}          # token -> secret, filled as the sign-in goes on
     session = ["sess1"]  # the session token accepted right now
 
@@ -731,7 +732,7 @@ class FakePubMLST(http.server.BaseHTTPRequestHandler):
         if path == su.CHECK_PATH or path == "/db/tiny_seqdef/schemes/1":
             info = {"loci": [f"{base}/db/tiny_seqdef/loci/abc"],
                     "profiles_csv": f"{base}/db/tiny_seqdef/schemes/1/profiles_csv",
-                    "last_updated": "2026-11-01"}
+                    "last_updated": self.UPDATED}
             if ok is None:
                 info["message"] = "you are currently restricted to accessing data ... 2024-12-31"
             return self.reply(200, info)
@@ -750,6 +751,7 @@ def pubmlst(monkeypatch):
     base = f"http://127.0.0.1:{server.server_address[1]}"
     monkeypatch.setattr(su, "REST", base)
     FakePubMLST.tokens, FakePubMLST.session = {}, ["sess1"]
+    FakePubMLST.UPDATED = "2026-11-01"
     yield base
     server.shutdown()
 
@@ -818,3 +820,100 @@ def test_oauth_sign_in_and_session_renewal(home, pubmlst, monkeypatch):
     assert "2\t2" in up.http_get(f"{pubmlst}/db/tiny_seqdef/schemes/1/profiles_csv")
     assert cred["session_token"] == "sess2"
     assert su.load_credentials(home)["session_token"] == "sess2"
+
+
+# --------------------------------------------------------------------------
+# setup without a terminal: OAuth in two steps and the check for newer data
+# (what an app with its own "add your key" screen calls)
+# --------------------------------------------------------------------------
+
+def newer(capsys):
+    return json.loads(capsys.readouterr().out)
+
+
+def test_update_check_before_the_first_download(home, pubmlst, tmp_path, capsys):
+    bundled = tiny_bundled(tmp_path, pubmlst)
+    with pytest.raises(su.SetupError, match="no PubMLST key"):
+        su.check_newer(home, bundled)
+    su.save_credentials(home, {"type": "apikey", "key": "good-key"})
+    assert su.check_newer(home, bundled) == 0
+    found = newer(capsys)
+    # the bundled database holds the free data; the key gives more
+    assert found["newer"] is True and found["schemes_newer"] == ["tiny"]
+    assert found["schemes_checked"] == 1 and found["schemes_failed"] == []
+    assert found["database"] == bundled and found["database_version"] == "PubMLST_free"
+    assert not su.status(home)["own_database"]              # nothing was downloaded
+    # a key PubMLST refuses: the scheme counts as not checked, not as newer
+    su.save_credentials(home, {"type": "apikey", "key": "wrong"})
+    assert su.check_newer(home, bundled) == 0
+    found = newer(capsys)
+    assert found["newer"] is False and found["schemes_failed"] == ["tiny"]
+
+
+@pytest.mark.skipif(not shutil.which("makeblastdb"), reason="needs makeblastdb")
+def test_oauth_without_a_terminal(home, pubmlst, tmp_path, monkeypatch, capsys):
+    monkeypatch.setattr(up.time, "sleep", lambda s: None)
+    bundled = tiny_bundled(tmp_path, pubmlst)
+    with pytest.raises(su.SetupError, match="--oauth-start"):
+        su.oauth_finish(home, bundled, "1234")              # nothing started yet
+    keys = tmp_path / "oauth.txt"
+    keys.write_text("ck\n")
+    with pytest.raises(su.SetupError, match="client secret"):
+        su.oauth_start(home, str(keys))
+    keys.write_text("ck\nnot-the-secret\n")
+    with pytest.raises(su.SetupError):
+        su.oauth_start(home, str(keys))
+    assert not su.status(home)["oauth_waiting_for_code"]
+    keys.write_text("ck\ncs\n")
+    assert su.oauth_start(home, str(keys)) == 0
+    page = json.loads(capsys.readouterr().out)["approve_url"]
+    assert "page=authorizeClient" in page and page.endswith("oauth_token=req")
+    st = su.status(home)
+    assert st["oauth_waiting_for_code"] and not st["key_saved"]
+    pending = os.path.join(home["config"], "oauth_pending.json")
+    assert stat.S_IMODE(os.stat(pending).st_mode) == 0o600
+    with pytest.raises(su.SetupError):
+        su.oauth_finish(home, bundled, "0000")              # a wrong code ...
+    assert su.status(home)["oauth_waiting_for_code"]        # ... can be given again
+    assert su.oauth_finish(home, bundled, " 1234\n") == 0
+    st = su.status(home)
+    assert st["key_saved"] and st["key_type"] == "oauth" and st["own_database"]
+    assert not st["oauth_waiting_for_code"] and not os.path.exists(pending)
+    assert ">abc_2" in open(os.path.join(home["db"], "pubmlst", "tiny", "abc.tfa")).read()
+    capsys.readouterr()
+    # nothing newer than what was just downloaded
+    assert su.check_newer(home, bundled) == 0
+    found = newer(capsys)
+    assert found["newer"] is False and found["schemes_checked"] == 1
+    assert found["database"] == home["db"]
+    # PubMLST changes the scheme: the check says so and downloads nothing
+    FakePubMLST.UPDATED = "2026-12-01"
+    assert su.check_newer(home, bundled) == 0
+    assert newer(capsys)["schemes_newer"] == ["tiny"]
+    assert "2026-11-01" in open(os.path.join(home["db"], "manifest.tsv")).read()
+    # a sign-in left waiting is forgotten with the key
+    assert su.oauth_start(home, str(keys)) == 0
+    su.remove(home)
+    st = su.status(home)
+    assert not st["oauth_waiting_for_code"] and not st["key_saved"] and not st["own_database"]
+
+
+def test_setup_options_without_a_terminal(tmp_path):
+    env = {**os.environ, "XDG_CONFIG_HOME": str(tmp_path / "c"),
+           "XDG_DATA_HOME": str(tmp_path / "d")}
+    env.pop(mt.ENV_DB, None)
+
+    def tool(*args):
+        return subprocess.run(TOOL + list(args), capture_output=True, text=True,
+                              stdin=subprocess.DEVNULL, env=env)
+
+    r = tool("--oauth-finish", "1234")
+    assert r.returncode == 1 and "go with --setup" in r.stderr
+    r = tool("--setup", "--oauth-start")
+    assert r.returncode == 1 and "--key-file" in r.stderr
+    r = tool("--setup", "--oauth-finish", "1234")
+    assert r.returncode == 1 and "--oauth-start" in r.stderr
+    r = tool("--update-check")
+    assert r.returncode == 1 and "no PubMLST key" in r.stderr
+    st = json.loads(tool("--setup-status").stdout)
+    assert st["oauth_waiting_for_code"] is False and st["version"] == mt.VERSION

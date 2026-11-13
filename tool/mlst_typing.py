@@ -35,7 +35,7 @@ import sys
 import tempfile
 import zipfile
 
-VERSION = "0.4.0"
+VERSION = "0.5.0"
 ALLELE_COLUMNS = 10    # allele columns of --full (the largest schemes have 10 loci)
 EXE = "mlst-typing"
 URL = "https://github.com/TinusTK/mlst-typing"
@@ -604,6 +604,16 @@ def get_args(argv):
     g.add_argument("--key-file", default="", metavar="FILE",
                    help="with --setup: read the public data access key from FILE "
                         "('-' = stdin) and ask nothing (for apps and scripts)")
+    g.add_argument("--oauth-start", action="store_true",
+                   help="with --setup --key-file: OAuth without questions, step 1. "
+                        "FILE holds the client key, then the client secret; prints "
+                        "the page to approve the tool on as JSON")
+    g.add_argument("--oauth-finish", default="", metavar="CODE",
+                   help="with --setup: OAuth without questions, step 2. CODE is the "
+                        "verification code PubMLST shows; saves the key and downloads")
+    g.add_argument("--update-check", action="store_true",
+                   help="ask PubMLST, with the saved key, whether anything is newer "
+                        "than your database (JSON); downloads nothing")
     g.add_argument("--setup-status", action="store_true",
                    help="print where setup stands as JSON and exit")
     return p.parse_args(argv)
@@ -648,8 +658,13 @@ def run_setup(o):
         print("ERROR: setup is not part of this install; "
               "it comes with the command-line version (pip install)", file=sys.stderr)
         return 1
-    if (o.remove or o.key_file) and not o.setup:
-        print("ERROR: --remove and --key-file go with --setup", file=sys.stderr)
+    if (o.remove or o.key_file or o.oauth_start or o.oauth_finish) and not o.setup:
+        print("ERROR: --remove, --key-file, --oauth-start and --oauth-finish "
+              "go with --setup", file=sys.stderr)
+        return 1
+    if o.oauth_start and not o.key_file:
+        print("ERROR: --oauth-start reads the client key and client secret "
+              "from --key-file FILE", file=sys.stderr)
         return 1
     try:
         if o.setup_status:
@@ -660,7 +675,13 @@ def run_setup(o):
             return 0
         if o.remove:
             return su.remove(setup_paths())
+        if o.oauth_start:
+            return su.oauth_start(setup_paths(), o.key_file)
         bundled = find_database(o.db, own=False)
+        if o.update_check:
+            return su.check_newer(setup_paths(), bundled)
+        if o.oauth_finish:
+            return su.oauth_finish(setup_paths(), bundled, o.oauth_finish)
         if o.key_file:
             return su.setup_with_key(setup_paths(), bundled, o.key_file)
         if o.update:
@@ -677,7 +698,8 @@ def run_setup(o):
 def main(argv=None):
     o = get_args(argv)
     Log.quiet, Log.debug = o.quiet, o.debug
-    if o.setup or o.update or o.remove or o.key_file or o.setup_status:
+    if (o.setup or o.update or o.remove or o.key_file or o.setup_status
+            or o.oauth_start or o.oauth_finish or o.update_check):
         return run_setup(o)
     if first_run_due(o):
         su = load_setup()

@@ -22,11 +22,19 @@ mlst_typing.py calls first_run(), setup(), update() and remove(); it owns
 the folder names and passes them in as `paths`. Standard library only.
 
 For other programs (an app with its own "add your key" screen) nothing
-here needs a terminal: setup_with_key() takes the public data access key
-from a file or stdin (`mlst-typing --setup --key-file FILE|-`), status()
-feeds `mlst-typing --setup-status` (JSON), and --update / --setup --remove
-ask no questions. OAuth needs the browser approval, so it stays in the
-terminal.
+here needs a terminal:
+  - setup_with_key() takes the public data access key from a file or stdin
+    (`mlst-typing --setup --key-file FILE|-`);
+  - OAuth goes in two steps, because the user approves the tool in the
+    browser in between: oauth_start() (`--setup --oauth-start --key-file
+    FILE|-`, client key and client secret) prints the approval page as
+    JSON and keeps the request token; oauth_finish() (`--setup
+    --oauth-finish CODE`) takes the verification code PubMLST shows,
+    saves the key and downloads;
+  - check_newer() (`--update-check`, JSON) asks PubMLST whether any scheme
+    changed since the own database was downloaded, without downloading;
+  - status() feeds `mlst-typing --setup-status` (JSON), and --update /
+    --setup --remove ask no questions.
 """
 
 import base64
@@ -137,23 +145,35 @@ def save_answer(paths, answer):
         fh.write("\n")
 
 
-def save_credentials(paths, cred):
+def _pending_file(paths):
+    """The request token of an OAuth sign-in waiting for its code."""
+    return os.path.join(paths["config"], "oauth_pending.json")
+
+
+def _save_private(paths, path, data):
     """Owner-only file (mode 600) in an owner-only folder."""
     os.makedirs(paths["config"], mode=0o700, exist_ok=True)
-    path = _cred_file(paths)
     fd = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
     with os.fdopen(fd, "w") as fh:
-        json.dump(cred, fh, indent=1)
+        json.dump(data, fh, indent=1)
         fh.write("\n")
     os.chmod(path, 0o600)
 
 
-def load_credentials(paths):
+def _load(path):
     try:
-        with open(_cred_file(paths)) as fh:
+        with open(path) as fh:
             return json.load(fh)
     except (OSError, ValueError):
         return None
+
+
+def save_credentials(paths, cred):
+    _save_private(paths, _cred_file(paths), cred)
+
+
+def load_credentials(paths):
+    return _load(_cred_file(paths))
 
 
 # --------------------------------------------------------------------------
@@ -220,16 +240,19 @@ def oauth_session(cred):
     return cred
 
 
-def oauth_sign_in(client_key, client_secret):
-    """Request token -> approval in the browser -> access token -> session."""
+def oauth_request(client_key, client_secret):
+    """Sign-in, step 1: a request token, its secret and the page where the
+    user approves the tool."""
     url = oauth_url("GET", f"{REST}/db/{AUTH_DB}/oauth/get_request_token",
                     client_key, client_secret, extra={"oauth_callback": "oob"})
     req_token, req_secret = _token_pair(
         get_json(url, what="PubMLST (client key)"), "request token")
-    say("\nOpen this page in your browser, log in to PubMLST and approve the tool:\n\n"
-        f"  {WEB}?db={AUTH_DB}&page=authorizeClient&oauth_token={req_token}\n\n"
-        "PubMLST then shows a verification code.")
-    code = ask("Verification code: ")
+    page = f"{WEB}?db={AUTH_DB}&page=authorizeClient&oauth_token={req_token}"
+    return req_token, req_secret, page
+
+
+def oauth_access(client_key, client_secret, req_token, req_secret, code):
+    """Sign-in, step 2: the verification code -> access token -> session."""
     if not code:
         raise SetupError("no verification code given")
     url = oauth_url("GET", f"{REST}/db/{AUTH_DB}/oauth/get_access_token",
@@ -240,6 +263,16 @@ def oauth_sign_in(client_key, client_secret):
     return oauth_session(dict(type="oauth", client_key=client_key,
                               client_secret=client_secret,
                               access_token=acc_token, access_secret=acc_secret))
+
+
+def oauth_sign_in(client_key, client_secret):
+    """Request token -> approval in the browser -> access token -> session."""
+    req_token, req_secret, page = oauth_request(client_key, client_secret)
+    say("\nOpen this page in your browser, log in to PubMLST and approve the tool:\n\n"
+        f"  {page}\n\n"
+        "PubMLST then shows a verification code.")
+    code = ask("Verification code: ")
+    return oauth_access(client_key, client_secret, req_token, req_secret, code)
 
 
 # --------------------------------------------------------------------------
@@ -471,10 +504,9 @@ def setup(paths, bundled):
     return 0
 
 
-def setup_with_key(paths, bundled, key_file):
-    """--setup --key-file FILE|-: the public data access key from a file or
-    stdin, no questions (for apps and scripts). The key is never taken from
-    the command line, where other users of the computer could see it."""
+def _key_words(key_file):
+    """The words in a key file ('-' = stdin). Keys never come from the
+    command line, where other users of the computer could see them."""
     try:
         if key_file == "-":
             text = sys.stdin.read()
@@ -483,42 +515,129 @@ def setup_with_key(paths, bundled, key_file):
                 text = fh.read()
     except OSError as e:
         raise SetupError(f"could not read the key: {e}") from e
-    key = text.strip()
-    if not key or len(key.split()) != 1:
+    return text.split()
+
+
+def setup_with_key(paths, bundled, key_file):
+    """--setup --key-file FILE|-: the public data access key from a file or
+    stdin, no questions (for apps and scripts)."""
+    words = _key_words(key_file)
+    if len(words) != 1:
         raise SetupError("the key file must hold the public data access key and nothing else")
-    use_key(paths, bundled, dict(type="apikey", key=key), questions=False)
+    use_key(paths, bundled, dict(type="apikey", key=words[0]), questions=False)
+    return 0
+
+
+def oauth_start(paths, key_file):
+    """--setup --oauth-start --key-file FILE|-: OAuth without a terminal,
+    step 1. The file holds the client key, then the client secret. Prints
+    the page the user must open as JSON and keeps the request token for
+    oauth_finish(). Nothing is saved as the key yet."""
+    words = _key_words(key_file)
+    if len(words) != 2:
+        raise SetupError("the key file must hold the client key, then the client "
+                         "secret, and nothing else")
+    req_token, req_secret, page = oauth_request(*words)
+    _save_private(paths, _pending_file(paths),
+                  dict(client_key=words[0], client_secret=words[1],
+                       request_token=req_token, request_secret=req_secret))
+    print(json.dumps({"approve_url": page}, indent=1))
+    return 0
+
+
+def oauth_finish(paths, bundled, code):
+    """--setup --oauth-finish CODE: OAuth without a terminal, step 2. CODE
+    is the verification code PubMLST showed after the approval. Saves the
+    key and downloads, like setup_with_key(). A wrong code keeps the
+    request token, so the code can be given again."""
+    pending = _load(_pending_file(paths))
+    if not pending:
+        raise SetupError(f"no OAuth sign-in is waiting for a code - start with "
+                         f"'{EXE} --setup --oauth-start --key-file FILE'")
+    cred = oauth_access(pending["client_key"], pending["client_secret"],
+                        pending["request_token"], pending["request_secret"],
+                        code.strip())
+    os.remove(_pending_file(paths))
+    use_key(paths, bundled, cred, questions=False)
     return 0
 
 
 def status(paths):
     """Where setup stands, for --setup-status. Never includes the key."""
-    try:
-        with open(_state_file(paths)) as fh:
-            answer = json.load(fh).get("answer", "")
-    except (OSError, ValueError):
-        answer = ""
+    answer = (_load(_state_file(paths)) or {}).get("answer", "")
     cred = load_credentials(paths) or {}
     return {"asked": bool(answer), "answer": answer,
             "key_saved": bool(cred), "key_type": cred.get("type", ""),
+            "oauth_waiting_for_code": os.path.exists(_pending_file(paths)),
             "own_database": have_own(paths), "own_database_folder": paths["db"],
             "config_folder": paths["config"]}
 
 
-def update(paths, bundled):
-    """--update: refresh the own database with the saved key."""
+def _signer_ready(paths):
     cred = load_credentials(paths)
     if not cred:
         raise SetupError(f"no PubMLST key saved yet - run '{EXE} --setup' first")
     signer = signer_for(cred, paths)
     if cred.get("type") == "oauth":
         signer.renew()
-    download(paths, bundled, signer)
+    return signer
+
+
+def check_newer(paths, bundled):
+    """--update-check: does PubMLST hold anything newer than the database
+    in use (the own one, or the bundled one before the first download)?
+    Asks each scheme for its date of last change with the saved key and
+    downloads no data. Prints JSON; the scheme count goes to stderr."""
+    import mlst_typing_update as up
+
+    signer = _signer_ready(paths)
+    source = paths["db"] if have_own(paths) else bundled
+    have = up.read_manifest(os.path.join(source, "manifest.tsv"))
+    rows = [r for r in up.read_scheme_list(os.path.join(source, "schemes.tsv"))
+            if up.folder_of(r["source"]) == "pubmlst"]
+    if os.environ.get(ONLY_ENV):
+        only = set(os.environ[ONLY_ENV].split(","))
+        rows = [r for r in rows if r["scheme"] in only]
+    newer, failed = [], []
+    up.SIGNER = signer
+    try:
+        for i, row in enumerate(rows, 1):
+            name = row["scheme"]
+            say(f"[{i}/{len(rows)}] {name}")
+            try:
+                info = up.http_json(row["api"].rstrip("/"))
+            except (RuntimeError, ValueError):
+                failed.append(name)
+                continue
+            message = str(info.get("message", ""))
+            limited = "restricted" in message or "2024-12-31" in message
+            old = have.get(name)
+            if (old is None
+                    or (old.get("restricted") == "True" and not limited)
+                    or str(info.get("last_updated", "")) > old.get("last_updated", "")):
+                newer.append(name)
+    finally:
+        up.SIGNER = None
+    print(json.dumps({"newer": bool(newer), "schemes_newer": newer,
+                      "schemes_checked": len(rows) - len(failed),
+                      "schemes_failed": failed,
+                      "database": source,
+                      "database_version": " + ".join(x for x in up.read_version(source) if x)},
+                     indent=1))
+    return 0
+
+
+def update(paths, bundled):
+    """--update: refresh the own database with the saved key."""
+    download(paths, bundled, _signer_ready(paths))
     return 0
 
 
 def remove(paths):
     """--setup --remove: forget the key and the own database."""
     gone = []
+    if os.path.exists(_pending_file(paths)):
+        os.remove(_pending_file(paths))
     if os.path.exists(_cred_file(paths)):
         os.remove(_cred_file(paths))
         gone.append("the saved key")
