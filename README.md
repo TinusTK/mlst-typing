@@ -11,7 +11,7 @@ the species first.
 > is a free desktop app for Windows, Mac and Linux with a point-and-click
 > interface. MLST typing is built in: choose a folder of assemblies or reads,
 > press Run and read the results as tables. Nothing to install by hand, and
-> no Galaxy needed. [See it below](#with-a-point-and-click-interface-gwm).
+> no server needed: it all runs locally on your computer. [See it below](#with-a-point-and-click-interface-gwm).
 
 ## Why this tool
 
