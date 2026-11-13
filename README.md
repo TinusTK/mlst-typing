@@ -6,6 +6,13 @@ one or more assemblies; it finds the scheme that fits best and reports the
 sequence type (ST) and the allele of every locus. You do not need to know
 the species first.
 
+> **Prefer no command line?**
+> [Genomics Workflow Microbials (GWM)](https://github.com/TinusTK/GenomicsWorkflowMicrobials)
+> is a free desktop app for Windows, Mac and Linux with a point-and-click
+> interface. MLST typing is built in: choose a folder of assemblies or reads,
+> press Run and read the results as tables. Nothing to install by hand, and
+> no Galaxy needed. [See it below](#with-a-point-and-click-interface-gwm).
+
 ## Why this tool
 
 mlst-typing is a redesign of Torsten Seemann's
@@ -58,6 +65,19 @@ What changed:
   [How to read the report](#how-to-read-the-report).
 - **Galaxy wrapper** ready for Galaxy Australia, in
   [galaxywrapper/](galaxywrapper/).
+
+### With a point-and-click interface (GWM)
+
+If you would rather not use the command line,
+[Genomics Workflow Microbials](https://github.com/TinusTK/GenomicsWorkflowMicrobials)
+runs mlst-typing on your own computer with a graphical interface. The tool
+is built in, in its own container at a fixed version, and can be put in any
+workflow you build there. The optional PubMLST key is part of it too: enter
+your own key on the tool or on the Databases page and the app downloads the
+up-to-date database, shows the progress, checks for newer data when you ask,
+and lets each workflow step choose which database it types against.
+
+![MLST typing in Genomics Workflow Microbials: the pre-2025 database, or an up-to-date one with your own PubMLST key](docs/images/gwm-mlst-typing.png)
 
 ## Install
 
