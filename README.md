@@ -93,6 +93,9 @@ You can skip now and add a key whenever you get one:
 | `mlst-typing --update` | refresh your own database with the saved key |
 | `mlst-typing --setup --remove` | forget the key and your own database; back to the built-in one |
 | `mlst-typing --setup --key-file FILE` | no questions: read the public data access key from `FILE` (`-` = stdin), for apps and scripts |
+| `mlst-typing --setup --oauth-start --key-file FILE` | OAuth with no questions, step 1: `FILE` holds the client key, then the client secret; prints the page to approve the tool on, as JSON |
+| `mlst-typing --setup --oauth-finish CODE` | OAuth with no questions, step 2: `CODE` is the verification code PubMLST shows after the approval; saves the key and downloads |
+| `mlst-typing --update-check` | ask PubMLST whether anything is newer than your database, as JSON; downloads nothing (a minute or two) |
 | `mlst-typing --setup-status` | where setup stands, as JSON (never shows the key) |
 
 The key is kept in `~/.config/mlst-typing/credentials.json` (readable only
