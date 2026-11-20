@@ -261,6 +261,24 @@ and mlst's `OK` status is called `PARTIAL`. Genomes with several
 identical copies of a locus are `MULTICOPY` with their ST, where mlst
 reports `MIXED` and no ST.
 
+### Schemes skipped by default
+
+Some species have two PubMLST schemes. In automatic mode the best-scoring
+scheme wins, so the less-used one could win or tie. To stop that, four
+schemes are ignored by default (`--exclude`, the same list as mlst 2.35.0),
+and the standard scheme for the species is used instead:
+
+| Excluded | Used instead | Why the excluded one is skipped |
+|---|---|---|
+| `ecoli` | `ecoli_achtman_4` | `ecoli` is the Pasteur scheme (dinB, icdA, pabB…, about 2,100 profiles). Achtman (adk, fumC, gyrB…, about 16,200 profiles) is the standard *E. coli* ST. Excluded in mlst since 2017. |
+| `abaumannii` | `abaumannii_2` | `abaumannii` is the Oxford scheme (Oxf_* loci). It has known problems: paralogous gdhB and recombination give unstable STs. The Pasteur scheme (Pas_*) is the one recommended for typing. Excluded in mlst since 2017. |
+| `vcholerae_2` | `vcholerae` | A second *V. cholerae* scheme with only 5 loci and about 420 profiles. The main scheme has 7 loci and about 1,860 profiles. Excluded in mlst since October 2021. |
+| `senterica_achtman_2` | `salmonella` | A duplicate: the exact same 7 loci as `salmonella` (aroC, dnaN, hemD, hisD, purE, sucA, thrA), so both score the same on every *Salmonella*. Excluding one stops a tie. Excluded in mlst since January 2026 (2.32.0). |
+
+To use an excluded scheme anyway, force it (`--scheme ecoli`; forcing a
+scheme turns the exclude list off), or clear the list with `--exclude ""`.
+In Galaxy, edit the "Schemes to ignore" box.
+
 ## Database
 
 `database/` is bundled with every release and never downloaded at run time.
