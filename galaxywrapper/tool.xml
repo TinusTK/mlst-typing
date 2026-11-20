@@ -1,4 +1,4 @@
-<tool id="mlst_typing" name="MLST typing" version="@TOOL_VERSION@+galaxy0" profile="22.05">
+<tool id="mlst_typing" name="MLST typing" version="@TOOL_VERSION@+galaxy1" profile="22.05">
     <description>sequence type from assemblies against PubMLST and EnteroBase schemes</description>
     <macros>
         <token name="@TOOL_VERSION@">0.5.0</token>
@@ -268,8 +268,24 @@ BIGSdb-Pasteur: the standard, freely available data, submitted up to
 31 December 2024. EnteroBase schemes (https://enterobase.warwick.ac.uk):
 current data from its public scheme downloads, for academic use; please
 cite EnteroBase when you report an EnteroBase ST.
+
+**Source and documentation**
+
+https://github.com/TinusTK/mlst-typing, which explains every column, how the
+two sources are combined, and the validation against upstream mlst. Please
+cite the tool, PubMLST and mlst (see Citations below).
     ]]></help>
     <citations>
+        <!-- This tool first: it has no DOI, so BibTeX, which Galaxy renders
+             and exports alongside the DOIs below. Then the sources, then the
+             upstream mlst this is a redesign of. -->
+        <citation type="bibtex">@misc{mlst_typing,
+  author = {TinusTK},
+  title = {mlst-typing: automatic MLST typing against PubMLST and EnteroBase},
+  year = {2026},
+  publisher = {GitHub},
+  url = {https://github.com/TinusTK/mlst-typing}
+}</citation>
         <citation type="doi">10.12688/wellcomeopenres.14826.1</citation>
         <citation type="doi">10.1101/gr.251678.119</citation>
         <citation type="bibtex">@misc{mlst,
